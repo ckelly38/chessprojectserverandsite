@@ -6,7 +6,7 @@ function MyRules()
         <li>The Pieces: <ul>
             <li><b>The Castle or Rook (MALE):</b><ul>
                 <li>Can have at most 10 Castles!</li>
-                <li>Can only move on the same column (up or down) or row (right or left)!</li>
+                <li><b>Can only move on the same column (up or down) or row (right or left)!</b></li>
                 <li>Shares a Special Move with the King called <b>Castleing (below)!</b><ul>
                     <li>You cannot Castle out of Check!</li>
                     <li>You must not be in check nor can any spots in the path of the King put you in Check!</li>
@@ -20,7 +20,7 @@ function MyRules()
             <br />
             <li><b>The King (MALE):</b><ul>
                 <li>Each side can only have one King on the board and you only get one for the entire game!</li>
-                <li>Can only move one square in any direction!</li>
+                <li><b>Can only move one square in any direction!</b></li>
                 <li>Shares a Special Move with the Castle called <b>Castleing (see above)!</b></li>
                 <li>Is the target! Kill this piece! Directly attack it (Check) and prevent the enemy side from moving out of or blocking Check!</li>
                 <li>You can also kill the piece directly attacking (Checking) the King to get out of Check!</li>
@@ -28,9 +28,9 @@ function MyRules()
                 </ul></li>
             <br />
             <li><b>The Bishop (MALE):</b><ul>
-                <li>Can have at most 10 Queens!</li>
-                <li>Can only move on the diagnals!</li>
-                <li>Has no special moves!</li>
+                <li>Can have at most 10 Bishops!</li>
+                <li><b>Can only move on the diagnals!</b></li>
+                <li>Has no Special Moves!</li>
                 <li>The color square the Bishop starts on White or Black must remain the same for entire durration of the game!</li>
                 <li>Since the color square stays the same, it is possible for the game to end in a Stalemate!</li>
             </ul></li>
@@ -38,16 +38,18 @@ function MyRules()
             <li><b>The Queen (FEMALE):</b><ul>
                 <li>Is the equivalent of Castle + Bishop - Castleing!</li>
                 <li>Can have at most 9 Queens!</li>
-                <li>The Queen cannot Castle and has no special moves, but it is still considdered <b><u>the most powerful piece.</u></b></li>
-                <li>The Queen can move like the Castle on the same row (right or left) or column (up or down), and on the diagnals like the Bishop as well!</li>
+                <li>The Queen cannot Castle and has no Special Moves, but it is still considdered <b><u>the most powerful piece.</u></b></li>
+                <li><b>The Queen can move like the Castle on the same row (right or left) or column (up or down), and on the diagnals like the Bishop as well!</b></li>
                 </ul>
             </li>
             <br />
             <li><b>The Knight (MALE):</b><ul>
                 <li>Can have at most 10 Knights!</li>
                 <li>Has no Special Moves, but moves uniquely!</li>
-                <li>The Knight can move (up or down) 2 and over (left or right) 1. OR</li>
-                <li>The Knight can move (up or down) 1 and over (left or right) 2.</li>
+                <b>
+                    <li>The Knight can move (up or down) 2 and over (left or right) 1. OR</li>
+                    <li>The Knight can move (up or down) 1 and over (left or right) 2.</li>
+                </b>
                 <li>That means that the Knight has at most 8 possible squares it can move to!</li>
                 <li>The Queen cannot move like a Knight! So a Knight is often used to capture a Queen!</li>
                 </ul>
@@ -55,10 +57,12 @@ function MyRules()
             <br />
             <li><b>The Pawn (UNKNOWN GENDER):</b><ul>
                 <li>Can have at most and you start out with 8 Pawns!</li>
-                <li>Can only move forward two spots on its first move!</li>
-                <li>Moves forward one spot on all the other moves!</li>
-                <li>A Pawn cannot move backwards ever!</li>
-                <li>A Pawn can only kill an enemy piece by moving diagnal!</li>
+                <b>
+                    <li>Can only move forward two spots on its first move! But may move forward one spot on the first move!</li>
+                    <li>Moves forward one spot on all the other moves!</li>
+                    <li>A Pawn can only kill an enemy piece by moving diagnal!</li>
+                    <li>A Pawn cannot move backwards ever!</li>
+                </b>
                 <li>Has 2 Special Moves. One called <b>Promotion</b> and the other called <b>Pawning or En-Passant</b>.</li>
                 <ul>
                     <li><b>Promotion</b> occurs when a Pawn reaches the other end of the board farthest from where it started.</li>
@@ -82,20 +86,26 @@ function MyRules()
             </ul>
         </li>
         
-        <p>GENERAL RULES:</p>
+        <p>CHECK:</p>
         
         <li><b><u>You are not allowed to move into Check!</u></b></li>
+        <li>When a piece can be directly attacked by an enemy, that piece is in Check! If that piece is the King that is being attacked, then your side is in Check!</li>
         <li>If your side is in Check, you must get out of Check if you can! If you cannot, then Checkmate!</li>
+        
+        <p>GENERAL RULES:</p>
+
         <li>You cannot kill your own pieces!</li>
         <li>You cannot pass over your own pieces either (exception: Knight)!</li>
         <li>You can only kill enemy pieces if they are in your normal move pattern (with the exception of En-Passant)!</li>
         <li>You can move to empty squares or to squares with an enemy piece (with the exception of En-Passant)! But only to the first enemy piece!</li>
         <li><b>White moves First and then they alternate (White, Black, White, Black, etc.)!</b></li>
-
+        
         <p>SETUP:</p>
 
         <li>On the End Rows from both ends it goes: Castles, Knights, Bishops, then Queen takes her Color first, then the King.</li>
         <li>On the Row immediately before the End Row, are all Pawns!</li>
+        <li>The color of squares alternate from WHITE and BLACK! The same as the turns!</li>
+        <li>The WHITE CASTLE on the BOTTOM RIGHT CORNER must be on a WHITE SQUARE!</li>
         <br />
         <textarea id="board-setup-txt-display-only" style={{minHeight: 160, minWidth: 295}} readOnly={true} value={"  0   1   2   3   4   5   6   7  (c)\n  A   B   C   D   E   F   G   H  RANK r\n|BCE|BKT|BBP|BQN|BKG|BBP|BKT|BCE| 8 1 0\n|BPN|BPN|BPN|BPN|BPN|BPN|BPN|BPN| 7 2 1\n|---|---|---|---|---|---|---|---| 6 3 2\n|---|---|---|---|---|---|---|---| 5 4 3\n|---|---|---|---|---|---|---|---| 4 5 4\n|---|---|---|---|---|---|---|---| 3 6 5\n|WPN|WPN|WPN|WPN|WPN|WPN|WPN|WPN| 2 7 6\n|WCE|WKT|WBP|WQN|WKG|WBP|WKT|WCE| 1 8 7"} />
 

@@ -11,3 +11,91 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/*probably do not need this*/
+.namecol {
+  width: 100px;
+}
+
+/*probably do not need this*/
+.seasnumalign, .epnumalign {
+  text-align: center;
+}
+
+.redbgclrtxtcntrborder
+{
+  background-color: red;
+  text-align: center;
+}
+
+/*probably do not need this*/
+.seasnum {
+  width: 60px;
+}
+
+/*probably do not need this*/
+.epnum {
+  width: 70px;
+}
+
+.redbgclrborder
+{
+  background-color: red;
+}
+
+table, tr, td, th, .border, .namecol, .seasnum, .epnum, .seasnumalign, .epnumalign,
+.redbgclrborder, .redbgclrtxtcntrborder {
+  border-color: black;
+  border-width: 2px;
+  border-style: solid;
+  border-collapse: collapse;
+}
+
+.homelinkcls {
+  background-color: red;
+}
+
+/*probably do not need this*/
+.toyslinkcls, .toysforshowlinkcls, .mytoyslinkcls {
+  background-color: orange;
+}
+
+.showslinkcls, .signuplinkcls {
+  background-color: yellow;
+}
+
+/*probably do not need this*/
+.epslinkcls, .myepslinkcls {
+  background-color: cyan;
+}
+
+.prefslinkcls {
+  background-color: pink;
+}
+
+.loginlinkcls {
+  background-color: lime;
+}
+
+.logoutlinkcls {
+  background-color: red;
+}
+
+.errorcoloronly {
+  background-color: red;
+}
+
+.navbarcls, .homelinkcls, .toyslinkcls, .showslinkcls, .epslinkcls, .mytoyslinkcls
+.prefslinkcls, .loginlinkcls, .toysforshowlinkcls, .logoutlinkcls, .signuplinkcls,
+.myepslinkcls
+{
+  margin-left: 5px;
+  margin-right: 5px;
+  display: flex;
+  flex-direction: row;
+}
+
+/*https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_images/Using_CSS_gradients*/
+.horizontal-gradient {
+  background: linear-gradient(to right, cyan, lime, yellow, orange, pink);
+}
