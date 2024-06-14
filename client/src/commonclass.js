@@ -155,6 +155,38 @@ class CommonClass{
         return mytds;
     }
 
+    getBGColorToBeUsed(err, typenm)
+    {
+        this.letMustBeBoolean(err, "err");
+        this.letMustBeDefinedAndNotNull(typenm, "typenm");
+
+        let mybgcolor = "";
+        if (err) mybgcolor = "red";
+        else
+        {
+            if (typenm === "Episode") mybgcolor = "cyan";
+            else if (typenm === "Ranks" || typenm === "Stats" || typenm === "Statistics")
+            {
+                mybgcolor = "orange";
+            }
+            else if (typenm === "Toy") mybgcolor = "orange";
+            else if (typenm === "Show") mybgcolor = "yellow";
+            else if (typenm === "SignUp") mybgcolor = "yellow";
+            else if (typenm === "Login") mybgcolor = "lime";
+            else if (typenm === "Preferences") mybgcolor = "pink";
+            else
+            {
+                throw new Error(this.getTypeErrorMsgFromList(["Ranks", "Stats", "Statistics",
+                    "Episode", "Toy", "Show", "SignUp", "Login", "Preferences"]));
+                //throw new Error("typenm must be Episode, Toy, Show, or SignUp, Login, " +
+                //    "or Preferences but it was not!");
+            }
+        }
+        return mybgcolor;
+    }
+
+    //PROBABLY WILL NEVER USE ANYTHING BELOW THIS LINE
+
     getAndGenInitDataObjectForType(typenm)
     {
         this.letMustBeDefinedAndNotNull(typenm, "typenm");
@@ -294,31 +326,6 @@ class CommonClass{
         console.log("mysnsobj = ", mysnsobj);
         
         return mysnsobj;
-    }
-
-    getBGColorToBeUsed(err, typenm)
-    {
-        this.letMustBeBoolean(err, "err");
-        this.letMustBeDefinedAndNotNull(typenm, "typenm");
-
-        let mybgcolor = "";
-        if (err) mybgcolor = "red";
-        else
-        {
-            if (typenm === "Episode") mybgcolor = "cyan";
-            else if (typenm === "Toy") mybgcolor = "orange";
-            else if (typenm === "Show" || typenm === "SignUp") mybgcolor = "yellow";
-            else if (typenm === "Login") mybgcolor = "lime";
-            else if (typenm === "Preferences") mybgcolor = "pink";
-            else
-            {
-                throw new Error(this.getTypeErrorMsgFromList(["Episode", "Toy", "Show",
-                    "SignUp", "Login", "Preferences"]));
-                //throw new Error("typenm must be Episode, Toy, Show, or SignUp, Login, " +
-                //    "or Preferences but it was not!");
-            }
-        }
-        return mybgcolor;
     }
 
     getAcceptedNamesForNumEpisodesPerSeason()

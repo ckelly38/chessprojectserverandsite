@@ -37,7 +37,7 @@ function GameList({props})
     }
 
     return (<div>
-        <table style={{marginLeft: 10, marginBottom: 10}}>
+        <table style={{marginLeft: 10, marginBottom: 10, marginTop: 10}}>
             <thead>
                 <tr>
                     <th>GAME ID #</th>

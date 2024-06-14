@@ -76,6 +76,17 @@ function App() {
         <Navbar simpusrobj={getSimplifiedUserObj(user)} />
         <MyRules />
       </Route>
+      <Route exact path="/stats">
+        <Navbar simpusrobj={getSimplifiedUserObj(user)} />
+        <Ranks />
+      </Route>
+      <Route exact path="/ranks"><Redirect to="/stats" /></Route>
+      <Route exact path="/statistics"><Redirect to="/stats" /></Route>
+      <Route path="/join">
+        <Navbar simpusrobj={getSimplifiedUserObj(user)} />
+        <GameList />
+      </Route>
+      <Route exact path="/join_games"><Redirect to="/join" /></Route>
       <Route exact path="/preferences" render={(props) => 
         makeLoginPrefsItem(false, true, "Preferences")} />
       <Route exact path="/login" render={(props) =>
@@ -86,8 +97,6 @@ function App() {
         makeLoginPrefsItem(true, false, "SignUp")} />
       <Route path="*"><Redirect to="/" /></Route>
       </Switch>
-      <GameList />
-      <Ranks />
     </div>
   );
 }
