@@ -169,6 +169,7 @@ class CommonClass{
             {
                 mybgcolor = "orange";
             }
+            else if (typenm === "GameList") mybgcolor = "lime";
             else if (typenm === "Toy") mybgcolor = "orange";
             else if (typenm === "Show") mybgcolor = "yellow";
             else if (typenm === "SignUp") mybgcolor = "yellow";
@@ -177,7 +178,7 @@ class CommonClass{
             else
             {
                 throw new Error(this.getTypeErrorMsgFromList(["Ranks", "Stats", "Statistics",
-                    "Episode", "Toy", "Show", "SignUp", "Login", "Preferences"]));
+                    "GameList", "Episode", "Toy", "Show", "SignUp", "Login", "Preferences"]));
                 //throw new Error("typenm must be Episode, Toy, Show, or SignUp, Login, " +
                 //    "or Preferences but it was not!");
             }
