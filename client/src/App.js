@@ -84,7 +84,7 @@ function App() {
       <Route exact path="/statistics"><Redirect to="/stats" /></Route>
       <Route path="/join">
         <Navbar simpusrobj={getSimplifiedUserObj(user)} />
-        <GameList />
+        <GameList simpusrobj={getSimplifiedUserObj(user)} />
       </Route>
       <Route exact path="/join_games"><Redirect to="/join" /></Route>
       <Route exact path="/preferences" render={(props) => 

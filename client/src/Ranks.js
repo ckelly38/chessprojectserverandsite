@@ -40,14 +40,17 @@ function Ranks(props)
             else return a.localeCompare(b);
         }
     }
-    function compareStringsWithKey(a, b, key)
+    function compareStringsWithKey(key, a, b)
     {
+        //console.log("a = ", a);
+        //console.log("b = ", b);
+        //console.log("key = ", key);
         if (cc.isStringEmptyNullOrUndefined(key)) return compareStrings(a, b);
         else return compareStrings(a[key], b[key]);
     }
     function compareUsernames(a, b)
     {
-        return compareStringsWithKey(a, b, "username");
+        return compareStringsWithKey("username", a, b);
     }
 
     function compareNumbers(a, b)
@@ -57,34 +60,37 @@ function Ranks(props)
         //else return 1;
         return a - b;
     }
-    function compareNumbersWithKey(a, b, key)
+    function compareNumbersWithKey(key, a, b)
     {
+        //console.log("a = ", a);
+        //console.log("b = ", b);
+        //console.log("key = ", key);
         if (cc.isStringEmptyNullOrUndefined(key)) return compareNumbers(a, b);
         else return compareNumbers(a[key], b[key]);
     }
     function compareWinNumbers(a, b)
     {
-        return compareNumbersWithKey(a, b, "wins");
+        return compareNumbersWithKey("wins", a, b);
     }
     function compareLoseNumbers(a, b)
     {
-        return compareNumbersWithKey(a, b, "losses");
+        return compareNumbersWithKey("losses", a, b);
     }
     function compareForfeitNumbers(a, b)
     {
-        return compareNumbersWithKey(a, b, "forfeits");
+        return compareNumbersWithKey("forfeits", a, b);
     }
     function compareTieNumbers(a, b)
     {
-        return compareNumbersWithKey(a, b, "ties");
+        return compareNumbersWithKey("ties", a, b);
     }
     function compareTotalNumbers(a, b)
     {
-        return compareNumbersWithKey(a, b, "total");
+        return compareNumbersWithKey("total", a, b);
     }
     function compareWinPercentNumbers(a, b)
     {
-        return compareNumbersWithKey(a, b, "winpercent");
+        return compareNumbersWithKey("winpercent", a, b);
     }
 
     function myDeepCopyObj(myobjarr)
@@ -225,6 +231,8 @@ function Ranks(props)
     {
         let mysrtedcpy = myDeepCopyObj(mytstdata);
         //console.log("COPY MADE BEFORE SORTING!");
+
+        //console.log(mysrtedcpy.sort(compareNumbersWithKey.bind(this, "wins")));
         
         if (sortbywins === 1 || sortbywins === 2) mysrtedcpy.sort(compareWinNumbers);
         else if (sortbylosses === 1 || sortbylosses === 2) mysrtedcpy.sort(compareLoseNumbers);

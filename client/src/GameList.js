@@ -1,8 +1,10 @@
 import React, { useState, useEffect, createContext } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, Redirect } from "react-router-dom";
+import { useFormik } from "formik";
+import * as yup from "yup";
 import CommonClass from "./commonclass";
 
-function GameList({props})
+function GameList({simpusrobj})
 {
     //need to get the list of games
     let games = null;
@@ -11,12 +13,13 @@ function GameList({props})
     let [errormsg, setErrorMessage] = useState(null);
     let [loaded, setLoaded] = useState(false);
     let [initdata, setInitData] = useState(null);
+    let [showcreategameform, setShowCreateGameForm] = useState(false);
     const history = useHistory();
 
     useEffect(() => {
         if (usedummydata)
         {
-            games = new Array();
+            games = [];
             games.push({id: 1, username: "me", color: null, defers: true,
                 ipaddress: "127.0.0.1"});
             games.push({id: 2, username: "op", color: "WHITE", defers: false,
@@ -67,6 +70,90 @@ function GameList({props})
     //console.log("loaded = " + loaded);
     //console.log("initdata = ", initdata);
 
+    //const prefsSignUpSchema = yup.object().shape({
+    //    username: yup.string().required("You must enter a username!").min(1),
+    //    password: yup.string().required("You must enter a password!").min(1),
+    //    access_level: yup.number().positive().integer().min(1).max(2)
+    //    .required("You must enter the access level!")
+    //    .typeError("You must enter a positive integer that is either 1 or 2 here!"),
+    //});
+    //const loginSchema = yup.object().shape({
+    //    username: yup.string().required("You must enter a username!").min(1),
+    //    password: yup.string().required("You must enter a password!").min(1),
+    //});
+    //const useprefsorsignupschema = (typenm === "Preferences" || typenm === "SignUp");
+    //const formSchema = (useprefsorsignupschema ? prefsSignUpSchema : loginSchema);
+
+    const formSchema = yup.object().shape({
+        username: yup.string().required("You must enter a username!").min(1),
+        player_color: yup.string().required("You must enter a color or if you defer!"),
+    });
+
+    let tstmode = true;
+
+    const formik = useFormik({
+        initialValues: {
+            username: simpusrobj.username,
+            player_color: "DEFER"
+        },
+        validationSchema: formSchema,
+        onSubmit: (values) => {
+            console.log("values: ", values);
+            
+            let mxgid = -1;
+            if (loaded)
+            {
+                let mygids = initdata.map((game) => game.id);
+                console.log("mygids = ", mygids);
+
+                mxgid = Math.max(...mygids);
+                if (cc.isNumber(mxgid)) mxgid += 1;
+                else throw new Error("the value for the maximum new game id must be a number!");
+            }
+            else return;
+            console.log("mxgid = " + mxgid);
+
+            let mynwvalsobj = {id: mxgid,
+                username: "" + values.username,
+                color: ((values.player_color === "DEFER") ? "": "" + values.player_color),
+                defers: (values.player_color === "DEFER"),
+                ipaddress: "127.0.0.1"
+            };
+            console.log("mynwvalsobj = ", mynwvalsobj);
+
+            //need to post the new data to the server
+            //we may need to get some unique identifiable information for the device
+            setLoaded(false);
+
+            let myconfigobj = {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                body: JSON.stringify(mynwvalsobj)
+            };
+            //fetch("/url", myconfigobj).then((res) => res.json()).then((mdata) => {
+            //    console.log("mdata = ", mdata);
+                let mdata = null;
+                let mynwdata = initdata.map((mobj) => mobj);
+                let usetstdata = true;
+                if (usetstdata) mynwdata.push(mynwvalsobj);
+                else mynwdata.push(mdata);
+                setInitData(mynwdata);
+                setLoaded(true);
+            //}).catch((merr) => {
+            //    console.error("There was a problem updating the server!");
+            //    console.error(merr);
+            //    setErrorMessage("There was a problem getting the data from the server! " +
+            //        merr);
+            //    setLoaded(true);
+            //});
+
+            console.error("NOT DONE YET WITH SUBMITTING THE GAME!");
+        },
+    });
+
     if (loaded);
     else return (<div>Loading...</div>);
 
@@ -90,6 +177,20 @@ function GameList({props})
     const iserr = !cc.isStringEmptyNullOrUndefined(errormsg);
     return (<div style={{backgroundColor: cc.getBGColorToBeUsed(iserr, "GameList")}}>
         <h2>Join A Game Page:</h2>
+        {showcreategameform ? (<form onSubmit={formik.handleSubmit} style={{marginLeft: 10}}>
+            <h3>Create A Game Here:</h3>
+            <p>Username: {simpusrobj.username}</p>
+            <p> {formik.errors.username}</p>
+            <label id="playercolorlbl" htmlFor="player_color">Color: </label>
+            <select id="player_color" name="player_color" onChange={formik.handleChange}
+                value={formik.values.player_color}>
+                <option value="WHITE">WHITE</option>
+                <option value="BLACK">BLACK</option>
+                <option value="DEFER">DEFER</option>
+            </select>
+            <p> {formik.errors.player_color}</p>
+            <button type="submit">Submit</button>
+        </form>) : null}
         {/*<form onSubmit={formik.handleSubmit}>
             <label id="usernamelbl" htmlFor="myusername">Username: </label>
             <input id="myusername" type="text" name="username" value={formik.values.username}
@@ -115,6 +216,7 @@ function GameList({props})
                 <button onClick={unsubscribeMe} style={{marginLeft: "50px"}}>
                     Remove My Account</button>: null}
         </form>*/}
+        <h3>Games To Join:</h3>
         <table style={{marginLeft: 10, marginBottom: 10, marginTop: 10}}>
             <thead>
                 <tr>
@@ -131,7 +233,10 @@ function GameList({props})
             </tbody>
         </table>
         {iserr ? <p>{errormsg}</p>: null}
-        <button onClick={null}>Create A Game</button>
+        {(simpusrobj.instatus || tstmode) ? (
+            <button onClick={(event) => setShowCreateGameForm(!showcreategameform)}>
+            Create A Game</button>): (<button onClick={(event) => (<Redirect to="/login" />)}>
+            You Need To Login To Create A Game</button>)}
         <button onClick={(event) => history.push("/")}>Back</button>
     </div>);
 }
