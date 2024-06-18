@@ -2,14 +2,16 @@ import logo from './logo.svg';
 import './App.css';
 import React, { useContext } from "react";
 import { Switch, Route, Redirect, useHistory } from "react-router-dom";
+import { MyRoute, addOtherRouteNamesForRoute } from "./MyRoute";
+import { UserContext } from "./UserProvider";
 import Navbar from "./Navbar";
 import Logout from "./Logout";
 import SignUpLoginPreferences from "./SignUpLoginPreferences";
 import Home from "./Home";
 import MyRules from "./MyRules";
 import GameList from "./GameList";
+import GameBoard from "./GameBoard";
 import Ranks from "./Ranks";
-import { UserContext } from "./UserProvider";
 import CommonClass from "./commonclass";
 
 function App() {
@@ -63,32 +65,39 @@ function App() {
     else return (<>{nvbar}{(typenm === "Logout") ? lgoutitem: sprefsitem}</>);
   }
 
+  
   //className="App", className="App-header", className="App-logo", className="App-link"
   //<img src={logo} className="App-logo" alt="logo" />
+  //NOTE: ALL ROUTES IN THE MYROUTE COMPONENT ARE EXACT
+  //NOTE: IF YOU ADD THE * WILD-CARD ROUTE TO THE LIST IT WILL PUT IT IN THAT ORDER
+  //-IF THAT IS NOT LAST IN THE LIST AND NOT THE LAST ROUTE,
+  //-THE REST OF YOUR ROUTING WILL BE IGNORED!
   return (
     <div>
       <Switch>
-      <Route exact path="/">
+      <MyRoute path="/" paths={["/home"]}>
         <Navbar simpusrobj={getSimplifiedUserObj(user)} />
         <Home simpusrobj={getSimplifiedUserObj(user)} />
-      </Route>
+      </MyRoute>
       <Route exact path="/rules">
         <Navbar simpusrobj={getSimplifiedUserObj(user)} />
         <MyRules />
       </Route>
-      <Route exact path="/stats">
+      <MyRoute path="/stats" paths={["/ranks", "/statistics"]}>
         <Navbar simpusrobj={getSimplifiedUserObj(user)} />
         <Ranks />
+      </MyRoute>
+      <Route exact path="/play">
+        <Navbar simpusrobj={getSimplifiedUserObj(user)} />
+        <GameBoard />
       </Route>
-      <Route exact path="/ranks"><Redirect to="/stats" /></Route>
-      <Route exact path="/statistics"><Redirect to="/stats" /></Route>
-      <Route path="/join">
+      <MyRoute path="/join" paths={["/join_games"]}>
         <Navbar simpusrobj={getSimplifiedUserObj(user)} />
         <GameList simpusrobj={getSimplifiedUserObj(user)} />
-      </Route>
-      <Route exact path="/join_games"><Redirect to="/join" /></Route>
+      </MyRoute>
       <Route exact path="/preferences" render={(props) => 
         makeLoginPrefsItem(false, true, "Preferences")} />
+      {addOtherRouteNamesForRoute(["/prefs", "/settings"], "/preferences")}
       <Route exact path="/login" render={(props) =>
         makeLoginPrefsItem(true, false, "Login")} />
       <Route exact path="/logout" render={(props) =>
@@ -97,6 +106,7 @@ function App() {
         makeLoginPrefsItem(true, false, "SignUp")} />
       <Route path="*"><Redirect to="/" /></Route>
       </Switch>
+      <GameBoard />
     </div>
   );
 }
