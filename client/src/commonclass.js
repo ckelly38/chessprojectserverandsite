@@ -169,7 +169,7 @@ class CommonClass{
             {
                 mybgcolor = "orange";
             }
-            else if (typenm === "GameBoard") mybgcolor = "cyan";
+            else if (typenm === "GameBoard") mybgcolor = "orange";
             else if (typenm === "GameList") mybgcolor = "lime";
             else if (typenm === "Toy") mybgcolor = "orange";
             else if (typenm === "Show") mybgcolor = "yellow";
@@ -186,6 +186,30 @@ class CommonClass{
             }
         }
         return mybgcolor;
+    }
+
+    genOptionListFromArray(vals, dispvals=null)
+    {
+        if (this.isStringEmptyNullOrUndefined(vals)) return null;
+        else
+        {
+            if (this.isStringEmptyNullOrUndefined(dispvals));
+            else
+            {
+                if (dispvals.length === vals.length);
+                else
+                {
+                    throw new Error("the display vals and the values must " +
+                        "be the same length, but they were not!");
+                }
+            }
+
+            return vals.map((myval, index) => {
+                let mydispval = null;
+                if (this.isStringEmptyNullOrUndefined(dispvals)) mydispval = "" + myval;
+                else mydispval = dispvals[index];
+                return (<option key={myval} value={myval}>{mydispval}</option>)});
+        }
     }
 
     //PROBABLY WILL NEVER USE ANYTHING BELOW THIS LINE
