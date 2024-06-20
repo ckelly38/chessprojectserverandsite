@@ -1,7 +1,7 @@
 import React from "react";
 import CommonClass from "./commonclass";
 
-function NewPiece({formik, arrindx, rempiece})
+function NewPiece({formik, arrindx, rempiece, getpcs})
 {
     //select color
     //select type
@@ -18,35 +18,42 @@ function NewPiece({formik, arrindx, rempiece})
 
     let cc = new CommonClass();
     cc.letMustBeDefinedAndNotNull(formik, "formik");
+    cc.letMustBeDefinedAndNotNull(rempiece, "rempiece");
+    cc.letMustBeDefinedAndNotNull(arrindx, "arrindx");
+    if (cc.isInteger(arrindx));
+    else throw new Error("arrindx must be an integer!");
 
     return (<>
-        <label id="playercolorlbl" htmlFor="color">Color: </label>
-        <select id="color" name="color" onChange={formik.handleChange}
+        <label id={"playercolorlbl" + arrindx} htmlFor={"color" + arrindx}>Color: </label>
+        <select id={"color" + arrindx} name="color" onChange={formik.handleChange}
             value={formik.values.colors[arrindx]}>
             {cc.genOptionListFromArray(["WHITE", "BLACK"], null)}
         </select>
-        <select id="type" name="type" onChange={formik.handleChange}
+        <select id={"type" + arrindx} name="type" onChange={formik.handleChange}
             value={formik.values.types[arrindx]}>
             {cc.genOptionListFromArray(["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE", "PAWN"],
                 ["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE (ROOK)", "PAWN"])}
         </select>
-        {" LOC: ("}<select id="row" name="row" onChange={formik.handleChange}
+        {" LOC: ("}<select id={"row" + arrindx} name="row" onChange={formik.handleChange}
             value={formik.values.rows[arrindx]}>
             {cc.genOptionListFromArray([0, 1, 2, 3, 4, 5, 6, 7], null)}
         </select>{", "}
-        <select id="col" name="col" onChange={formik.handleChange}
+        <select id={"col" + arrindx} name="col" onChange={formik.handleChange}
             value={formik.values.cols[arrindx]}>
             {cc.genOptionListFromArray([0, 1, 2, 3, 4, 5, 6, 7], null)}
         </select>{") "}
-        <label id="myinitmvcntlbl" htmlFor="myinitmvcnt">Move Count: </label>
-        <input id="myinitmvcnt" type="number" step={1} min={0} name="move_count" placeholder={0}
+        <label id={"myinitmvcntlbl" + arrindx} htmlFor={"myinitmvcnt" + arrindx}>
+            Move Count: </label>
+        <input id={"myinitmvcnt" + arrindx} type="number" step={1} min={0}
+            name="move_count" placeholder={0}
             onChange={formik.handleChange} value={formik.values.move_counts[arrindx]} />
         <p> {formik.errors.move_count}</p>
         <p> {formik.errors.type}</p>
         <p> {formik.errors.row}</p>
         <p> {formik.errors.col}</p>
         <p> {formik.errors.color}</p>
-        <button type="button" onClick={(event) => rempiece(arrindx)}>Remove Piece</button>
+        <button type="button" onClick={(event) => rempiece()}>
+            Remove Piece</button>
     </>);
 }
 

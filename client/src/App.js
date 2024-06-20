@@ -77,14 +77,14 @@ function App() {
   return (<div>
       <Switch>
         {getRoutesList("/", ["/home"], [
-          <Navbar simpusrobj={getSimplifiedUserObj(user)} />,
-          <Home simpusrobj={getSimplifiedUserObj(user)} />])}
+          <Navbar key={"nvbarforhome"} simpusrobj={getSimplifiedUserObj(user)} />,
+          <Home key={"homeforhome"} simpusrobj={getSimplifiedUserObj(user)} />])}
         {getRoutesList("/stats", ["/ranks", "/statistics"], [
-          <Navbar simpusrobj={getSimplifiedUserObj(user)} />,
-          <Ranks />])}
+          <Navbar key={"nvbarforstats"} simpusrobj={getSimplifiedUserObj(user)} />,
+          <Ranks key={"ranksforstats"} />])}
         {getRoutesList("/join", ["/join_games"], [
-          <Navbar simpusrobj={getSimplifiedUserObj(user)} />,
-          <GameList simpusrobj={getSimplifiedUserObj(user)} />
+          <Navbar key={"nvbarforjoin"} simpusrobj={getSimplifiedUserObj(user)} />,
+          <GameList key={"gamelistforjoin"} simpusrobj={getSimplifiedUserObj(user)} />
         ])}
         <Route exact path="/rules">
           <Navbar simpusrobj={getSimplifiedUserObj(user)} />

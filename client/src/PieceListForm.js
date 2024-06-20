@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { createContext, useState } from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import NewPiece from "./NewPiece";
+import CommonClass from "./commonclass";
 
 function PieceListForm(props)
 {
+    let cc = new CommonClass();
+    
     //const prefsSignUpSchema = yup.object().shape({
     //    username: yup.string().required("You must enter a username!").min(1),
     //    password: yup.string().required("You must enter a password!").min(1),
@@ -38,23 +41,48 @@ function PieceListForm(props)
     
 
     const [mypieces, setMyPieces] = useState([]);
+    console.log("mypieces = ", mypieces);
 
-    function remPiece(indx)
+    function getPcs()
     {
-        console.log("INSIDE remPiece! indx = " + indx);
-        let mynwpcs = mypieces.filter((mpc, index) => {
-            console.log("rem pc filter index = " + index);
-            if (indx === index) return false;
+        console.log("GETPCS: mypieces = ", mypieces);
+        return mypieces;
+    }
+
+    function remPiece(mid)
+    {
+        console.log("INSIDE remPiece!");
+        //console.log("REMPC indx = " + indx);
+        //console.log("REMPC: mpcs = ", getPcs());
+        console.log("mid = " + mid);
+        
+        if (cc.isStringEmptyNullOrUndefined(getPcs()))
+        {
+            throw new Error("either illegal id (" + mid +
+                ") or array was empty when not supposed to!");
+        }
+        //else;//do nothing
+
+        let mynwpcs = getPcs().filter((mpc, index) => {
+            console.log("REMPC: filter index = " + index);
+            if (mpc.id === mid) return false;
             else return true;
         });
+        console.log("REMPC: mynwpcs = ", mynwpcs);
+        
         setMyPieces(mynwpcs);
     }
 
     function addPiece()
     {
         let mynwpcs = [...mypieces];
-        mynwpcs.push(<NewPiece key={"pid" + mynwpcs.length} formik={formik}
-            arrindx={mynwpcs.length} rempiece={remPiece} />);
+        console.log("ADDPC: OLD mypieces = ", mypieces);
+        
+        mynwpcs.push(<NewPiece key={"pid" + mynwpcs.length} id={"pid" + mynwpcs.length}
+            formik={formik} arrindx={mynwpcs.length}
+            rempiece={remPiece.bind(this, "pid" + mynwpcs.length)} />);
+        console.log("ADDPC: mynwpcs = ", mynwpcs);
+        
         setMyPieces(mynwpcs);
     }
 
@@ -62,6 +90,7 @@ function PieceListForm(props)
     <form onSubmit={formik.handleSubmit}>
         {mypieces}
         <button type="button" onClick={addPiece}>Add Piece</button>
+        <input type="submit" value="Submit" />
     </form>
     </div>);
 }
