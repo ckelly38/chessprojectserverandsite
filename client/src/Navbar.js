@@ -1,13 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Switch, Route, Link, useParams } from "react-router-dom";
+import { UserContext } from "./UserProvider";
 import CommonClass from "./commonclass";
 
-function Navbar({simpusrobj}) {
+function Navbar(props) {
     let params = useParams();
     console.log("NAVBAR params = ", params);
-    console.log("NAVBAR simpusrobj = ", simpusrobj);
 
     const cc = new CommonClass();
+    const { user, setUser } = useContext(UserContext);
+    const simpusrobj = cc.getSimplifiedUserObj(user);
+    console.log("NAVBAR simpusrobj = ", simpusrobj);
+
     cc.letMustBeDefinedAndNotNull(simpusrobj, "simpusrobj");
 
     let mysid = "";

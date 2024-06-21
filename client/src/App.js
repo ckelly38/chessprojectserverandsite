@@ -21,27 +21,6 @@ function App() {
     ["SignUp", "Login", "Logout", "Preferences"]);
   const { user, setUser } = useContext(UserContext);
     
-  function getSimplifiedUserObj(muser)
-  {
-    let musrnm = "";
-    let lgi = false;
-    let alv = 0;
-    let pswd = "";
-    let usrid = -1;
-    if (muser === undefined || muser === null) musrnm = "not logged in";
-    else
-    {
-      musrnm = muser.name;
-      alv = muser.access_level;
-      lgi = true;
-      usrid = muser.id;
-      pswd = muser.password;
-    }
-
-    return {"id": usrid, "username": musrnm, "access_level": alv, "instatus": lgi,
-      "password": pswd};
-  }
-
   function makeLoginPrefsItem(redonin, useloginredulr, typenm)
   {
     cc.letMustBeBoolean(redonin, "redonin");
@@ -55,12 +34,12 @@ function App() {
     }
     else throw new Error(loginprefsetctypenmerrmsg);
 
-    const mysimpusrobj = getSimplifiedUserObj(user);
-    const nvbar = (<Navbar simpusrobj={mysimpusrobj} />);
+    const mysimpusrobj = cc.getSimplifiedUserObj(user);
+    const nvbar = (<Navbar />);//simpusrobj={mysimpusrobj}
     const reditem = (<Redirect to={(useloginredulr ? "/login": "/")} />);
-    const sprefsitem = (<SignUpLoginPreferences typenm={typenm} setuser={setUser}
-        simpusrobj={mysimpusrobj} />);
-    const lgoutitem = (<Logout setuser={setUser} />);
+    const sprefsitem = (<SignUpLoginPreferences typenm={typenm} />);//setuser={setUser}
+    //simpusrobj={mysimpusrobj}
+    const lgoutitem = (<Logout />);//setuser={setUser}
     
     if (redonin === mysimpusrobj.instatus) return reditem;
     else return (<>{nvbar}{(typenm === "Logout") ? lgoutitem: sprefsitem}</>);
@@ -74,24 +53,25 @@ function App() {
   //-IF THAT IS NOT LAST IN THE LIST AND NOT THE LAST ROUTE,
   //-THE REST OF YOUR ROUTING WILL BE IGNORED!
   //NOTE: THE SWITCH COMPONENT WILL ONLY RENDER ROUTE COMPONENTS AND ANYTHING THAT EXTENDS IT ONLY
+  //simpusrobj={cc.getSimplifiedUserObj(user)}
   return (<div>
       <Switch>
         {getRoutesList("/", ["/home"], [
-          <Navbar key={"nvbarforhome"} simpusrobj={getSimplifiedUserObj(user)} />,
-          <Home key={"homeforhome"} simpusrobj={getSimplifiedUserObj(user)} />])}
+          <Navbar key={"nvbarforhome"} />,
+          <Home key={"homeforhome"} />])}
         {getRoutesList("/stats", ["/ranks", "/statistics"], [
-          <Navbar key={"nvbarforstats"} simpusrobj={getSimplifiedUserObj(user)} />,
+          <Navbar key={"nvbarforstats"} />,
           <Ranks key={"ranksforstats"} />])}
         {getRoutesList("/join", ["/join_games"], [
-          <Navbar key={"nvbarforjoin"} simpusrobj={getSimplifiedUserObj(user)} />,
-          <GameList key={"gamelistforjoin"} simpusrobj={getSimplifiedUserObj(user)} />
+          <Navbar key={"nvbarforjoin"} />,
+          <GameList key={"gamelistforjoin"} />
         ])}
         <Route exact path="/rules">
-          <Navbar simpusrobj={getSimplifiedUserObj(user)} />
+          <Navbar />
           <MyRules />
         </Route>
         <Route exact path="/play">
-          <Navbar simpusrobj={getSimplifiedUserObj(user)} />
+          <Navbar />
           <GameBoard />
         </Route>
         <Route exact path="/preferences" render={(props) => 

@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { UserContext } from "./UserProvider";
 
-function Logout({setuser=null})
+function Logout(props)//{setuser=null}
 {
     let [errmsg, setErrMsg] = useState("");
+    const { user, setUser } = useContext(UserContext);
 
     useEffect(() => {
         fetch("/logout").then((res) => res.json()).then((data) => {
@@ -10,7 +12,7 @@ function Logout({setuser=null})
             //but on failure do that too
             //success
             console.log("logging out successful!");
-            setuser(null);
+            setUser(null);
         }).catch((err) => {
             console.error("there was an error attempting to logout!");
             console.error(err);

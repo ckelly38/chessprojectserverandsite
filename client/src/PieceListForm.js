@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import NewPiece from "./NewPiece";
@@ -53,7 +53,7 @@ function PieceListForm(props)
     {
         console.log("INSIDE remPiece!");
         //console.log("REMPC indx = " + indx);
-        //console.log("REMPC: mpcs = ", getPcs());
+        console.log("REMPC: mpcs = ", getPcs());
         console.log("mid = " + mid);
         
         if (cc.isStringEmptyNullOrUndefined(getPcs()))
@@ -78,13 +78,19 @@ function PieceListForm(props)
         let mynwpcs = [...mypieces];
         console.log("ADDPC: OLD mypieces = ", mypieces);
         
-        mynwpcs.push(<NewPiece key={"pid" + mynwpcs.length} id={"pid" + mynwpcs.length}
-            formik={formik} arrindx={mynwpcs.length}
-            rempiece={remPiece.bind(this, "pid" + mynwpcs.length)} />);
+        let mpc = (<NewPiece key={"pid" + mynwpcs.length} id={"pid" + mynwpcs.length}
+        formik={formik} arrindx={mynwpcs.length}
+        rempiece={remPiece.bind(this, "pid" + mynwpcs.length)} />);
+
+        //mynwpcs.push(<NewPiece key={"pid" + mynwpcs.length} id={"pid" + mynwpcs.length}
+        //    formik={formik} arrindx={mynwpcs.length}
+        //    rempiece={remPiece.bind(this, "pid" + mynwpcs.length)} />);
         console.log("ADDPC: mynwpcs = ", mynwpcs);
         
-        setMyPieces(mynwpcs);
+        setMyPieces([...mypieces, mpc]);
     }
+
+    console.log("mypieces = ", mypieces);
 
     return (<div style={{ backgroundColor: "cyan" }}><h1>New Piece List Form:</h1>
     <form onSubmit={formik.handleSubmit}>

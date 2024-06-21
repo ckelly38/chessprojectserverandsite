@@ -1,14 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Switch, Route, Link, useParams, useHistory, Redirect } from "react-router-dom";
 import { useFormik } from "formik";
+import { UserContext } from "./UserProvider";
 import * as yup from "yup";
 import CommonClass from "./commonclass";
 
-function SignUpLoginPreferences({typenm, simpusrobj, setuser}) {
-    let cc = new CommonClass();
+function SignUpLoginPreferences({typenm}) {
+    let cc = new CommonClass();//, simpusrobj, setuser
+    const { user, setUser } = useContext(UserContext);
+    const simpusrobj = cc.getSimplifiedUserObj(user);
     cc.letMustBeDefinedAndNotNull(typenm, "typenm");
     cc.letMustBeDefinedAndNotNull(simpusrobj, "simpusrobj");
-    cc.letMustBeDefinedAndNotNull(setuser, "setuser");
+    //cc.letMustBeDefinedAndNotNull(setuser, "setuser");
 
     let [errmsg, setErrMsg] = useState("");
     let [sucsmsg, setSuccessMsg] = useState("");
@@ -270,7 +273,7 @@ function SignUpLoginPreferences({typenm, simpusrobj, setuser}) {
                             mynwusr["password"] = values["password"];
 
                             setSuccessMsg(mysucmsg);
-                            setuser(mynwusr);
+                            setUser(mynwusr);
                         }
                         else throw new Error(typenmerrmsg);
                     }

@@ -212,6 +212,27 @@ class CommonClass{
         }
     }
 
+    getSimplifiedUserObj(muser)
+    {
+        let musrnm = "";
+        let lgi = false;
+        let alv = 0;
+        let pswd = "";
+        let usrid = -1;
+        if (muser === undefined || muser === null) musrnm = "not logged in";
+        else
+        {
+            musrnm = muser.name;
+            alv = muser.access_level;
+            lgi = true;
+            usrid = muser.id;
+            pswd = muser.password;
+        }
+
+        return {"id": usrid, "username": musrnm, "access_level": alv, "instatus": lgi,
+            "password": pswd};
+    }
+
     //PROBABLY WILL NEVER USE ANYTHING BELOW THIS LINE
 
     getAndGenInitDataObjectForType(typenm)

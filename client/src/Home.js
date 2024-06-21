@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Switch, Route, Link, useParams, useHistory, Redirect } from "react-router-dom";
+import { UserContext } from "./UserProvider";
 import CommonClass from "./commonclass";
 
-function Home({simpusrobj}) {
+function Home(props) {
     let cc = new CommonClass();
+    const { user, setUser } = useContext(UserContext);
+    const simpusrobj = cc.getSimplifiedUserObj(user);
     cc.letMustBeDefinedAndNotNull(simpusrobj);
     
     const logoutcautionmsg = "reloading the page, navigating to /login, or sometimes " +

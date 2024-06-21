@@ -1,15 +1,18 @@
-import React, { useState, useEffect, createContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useHistory, Redirect } from "react-router-dom";
 import { useFormik } from "formik";
 import * as yup from "yup";
+import { UserContext } from "./UserProvider";
 import CommonClass from "./commonclass";
 
-function GameList({simpusrobj})
+function GameList(props)
 {
     //need to get the list of games
     let games = null;
     let usedummydata = false;
     let cc = new CommonClass();
+    const { user, setUser } = useContext(UserContext);
+    const simpusrobj = cc.getSimplifiedUserObj(user);
     let [errormsg, setErrorMessage] = useState(null);
     let [loaded, setLoaded] = useState(false);
     let [initdata, setInitData] = useState(null);
