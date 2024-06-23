@@ -1,5 +1,13 @@
-import React, { useState } from "react";
+import React, { useState} from "react";
+import MyImageComponent from "./MyImageComponent";
 import CommonClass from "./commonclass";
+//import logo from './logo.svg';
+//import BishopImg from './Bishop.png';
+//import CastleImg from './Castle.png';
+//import KnightImg from './Knight.png';
+//import QueenImg from './Queen.png';
+//import KingImg from './King.png';
+//import PawnImg from './Pawn.png';
 
 function GameBoard(props)
 {
@@ -9,8 +17,9 @@ function GameBoard(props)
     //{iserr ? <p>{errormsg}</p>: null}
     //backgroundColor: cc.getBGColorToBeUsed(false, "GameBoard")
     //console.log("backgroundColor: " + cc.getBGColorToBeUsed(false, "GameBoard"));
+    //<img src={logo} className="App-logo" alt="logo" />
     
-    function generateTableRows(whitemovesdownranks, lsqrclr, dsqrclr)
+    function generateTableRows(wtmvsdwnrks, lsqrclr, dsqrclr, lpcclr, dpcclr)
     {
         let myrws = [];
         let uselightclr = true;
@@ -26,15 +35,24 @@ function GameBoard(props)
                 else mysqrclr = "" + dsqrclr;
                 if (c < 8)
                 {
+                    //these need to come from the piece list
+                    let pcttp = "Queen";
+                    let uselightpcclr = false;
+                    let ispcatloc = true;
+                    let pcclr = null;//"pink";//#118800
+                    if (uselightpcclr) pcclr = "" + lpcclr;
+                    else pcclr = "" + dpcclr;
                     mycolsonrw.push(<td key={"(" + r + ", " + c + ")"}
                         style={{backgroundColor: mysqrclr, height: 60, width: 60}}>
-                            {c}</td>);//need to replace this
+                            {(ispcatloc) ? (<MyImageComponent type={pcttp} color={pcclr} />): null}
+                    </td>);
+                    //need to replace this
                     uselightclr = !uselightclr;
                 }
                 else if (c === 8)
                 {
                     let myrnk = -1;
-                    if (whitemovesdownranks) myrnk = r + 1;
+                    if (wtmvsdwnrks) myrnk = r + 1;
                     else myrnk = 8 - r;
                     mycolsonrw.push(<td key={"rank" + myrnk}>{myrnk}</td>);
                 }
@@ -141,6 +159,14 @@ function GameBoard(props)
         //
         //, "CREATE", "DELETE"
 
+        const allpctpvals = ["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE", "PAWN"];
+        const allpctpdispvals = ["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE (ROOK)", "PAWN"];
+        
+        const pctpsel = (<select id={"piece_type"} name="piece_type" value={"KING"}
+            onChange={null}>
+                {cc.genOptionListFromArray(allpctpvals, allpctpdispvals)}
+        </select>);
+
         if (cmdtp === "COLOR HINTS")
         {
             return (<div style={{display: "inline-block", paddingLeft: 5}}>
@@ -150,36 +176,23 @@ function GameBoard(props)
         {
             return (<div style={{display: "inline-block", paddingLeft: 5}}>
                 {(iswturn ? " WHITE ": " BLACK ")} 
-                <select id={"piece_type"} name="piece_type" onChange={null} value={"KING"}>
-                    {cc.genOptionListFromArray(["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE",
-                        "PAWN"],
-                        ["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE (ROOK)", "PAWN"])}
-                </select>
-                {genRowColLocOrStringLocElements(userowcolloc, true)}
-                {" HINTS"}
+                {pctpsel}
+                {genRowColLocOrStringLocElements(userowcolloc, true)}{" HINTS"}
             </div>);
         }
-        else if (cmdtp === "CASTLEING")
+        else if (cmdtp === "CASTLEING" || cmdtp === "PAWNING")
         {
+            let pctp = null;
+            if (cmdtp === "CASTLEING") pctp = "CASTLE";
+            else pctp = "PAWN";
             return (<div style={{display: "inline-block", paddingLeft: 5}}>
                 {(iswturn ? " WHITE ": " BLACK ")} 
                 <select id={"dir"} name="dir" onChange={null} value={"LEFT"}>
                     {cc.genOptionListFromArray(["LEFT", "RIGHT"], null)}
-                </select>
-                {" CASTLE"}
-            </div>);
-        }
-        else if (cmdtp === "PAWNING")
-        {
-            return (<div style={{display: "inline-block", paddingLeft: 5}}>
-                {(iswturn ? " WHITE ": " BLACK ")}
-                <select id={"dir"} name="dir" onChange={null}
-                    value={"LEFT"}>
-                    {cc.genOptionListFromArray(["LEFT", "RIGHT"], null)}
-                </select>
-                {" PAWN"}
-                {genRowColLocOrStringLocElements(userowcolloc, true)}
-                {genRowColLocOrStringLocElements(userowcolloc, false)}
+                </select>{" " + pctp}
+                {(cmdtp === "PAWNING") ? 
+                    (<>{genRowColLocOrStringLocElements(userowcolloc, true)}
+                    {genRowColLocOrStringLocElements(userowcolloc, false)}</>): null}
             </div>);
         }
         else if (cmdtp === "RESIGNATION")
@@ -202,11 +215,7 @@ function GameBoard(props)
                 <select id={"piece_color"} name="piece_color" onChange={null} value={"WHITE"}>
                     {cc.genOptionListFromArray(["WHITE", "BLACK"], null)}
                 </select>
-                <select id={"piece_type"} name="piece_type" onChange={null} value={"KING"}>
-                    {cc.genOptionListFromArray(["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE",
-                        "PAWN"],
-                        ["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE (ROOK)", "PAWN"])}
-                </select>
+                {pctpsel}
                 {genRowColLocOrStringLocElements(userowcolloc, true)}
                 {(cmdtp === "CREATE") ? (<>{" with "}<input id={"myinitmvcnt"} type="number"
                 step={1} min={0} name="move_count" placeholder={0} onChange={null}
@@ -221,9 +230,7 @@ function GameBoard(props)
                     {cc.genOptionListFromArray(["WHITE", "BLACK"], null)}
                 </select>{" "}<select id={"piece_type"} name="piece_type" onChange={null}
                     value={"PAWN"}>
-                    {cc.genOptionListFromArray(["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE",
-                        "PAWN"],
-                        ["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE (ROOK)", "PAWN"])}
+                    {cc.genOptionListFromArray(allpctpvals, allpctpdispvals)}
                 </select>
                 {genRowColLocOrStringLocElements(userowcolloc, true)}{" INTO "}
                 <select id={"promo_type"} name="promo_type" onChange={null}
@@ -237,12 +244,7 @@ function GameBoard(props)
         {
             return (<div style={{display: "inline-block", paddingLeft: 5}}>
                 {(iswturn ? " WHITE ": " BLACK ")}
-                <select id={"piece_type"} name="piece_type" onChange={null}
-                    value={"KING"}>
-                    {cc.genOptionListFromArray(["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE",
-                        "PAWN"],
-                        ["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE (ROOK)", "PAWN"])}
-                </select>
+                {pctpsel}
                 {genRowColLocOrStringLocElements(userowcolloc, true)}
                 {genRowColLocOrStringLocElements(userowcolloc, false)}
             </div>);
@@ -259,7 +261,9 @@ function GameBoard(props)
     let currentsideisincheck = true;
     let acurrentsidequeenisincheck = false;
     let iswhiteturn = false;
-    let useroworcollocdisp = true;
+    let [useroworcollocdisp, setUseRowColLocDisplay] = useState(false);
+    let [showqnwarning, setShowQueenWarning] = useState(true);
+    let [whitemovesdownranks, setWhiteMovesDownRanks] = useState(true);
     let playertwousrnm = "tu";
     let playeroneusrnm = "me";
     let playeronecolor = "WHITE";
@@ -293,25 +297,38 @@ function GameBoard(props)
                 </tr>
             </thead>
             <tbody>
-                {generateTableRows(true, "orange", "black")}
+                {generateTableRows(whitemovesdownranks, "white", "orange", "grey", "black")}
             </tbody>
         </table>
         
-        <div>Check Status: {currentsideisincheck ? (<b>You're in Check!</b>): "No!"}<br /></div>
-        <div>Queen WARNING: {acurrentsidequeenisincheck ? "You're Queen is in Check!": "No!"}</div>
+        <div>Check Status: {currentsideisincheck ? (<b>You're in Check!</b>): "No!"}
+            <button style={{marginLeft: 50}}
+                onClick={(event) => setWhiteMovesDownRanks(!whitemovesdownranks)}>
+                White moves {whitemovesdownranks ? "down": "up"} ranks!</button>
+        </div>
+        {showqnwarning ? (<div style={{display: "inline-block"}}>
+            Queen WARNING: {acurrentsidequeenisincheck ? "You're Queen is in Check!": "No!"}
+                </div>) : null}
         
-        <button>{"< " + (iscompleted ? "Previous": "Undo") + " Move"}</button>
-        <button>{"> " + (iscompleted ? "Next": "Redo") + " Move"}</button>
-        <button>{(iswhiteturn ? "Black": "White") + "'s Turn!"}</button>
-        <br />
+        <div>
+            <button onClick={(event) => setShowQueenWarning(!showqnwarning)}>
+                {(showqnwarning) ? "Hide ": "Show "} Queen Warning</button>
+            <button>{"< " + (iscompleted ? "Previous": "Undo") + " Move"}</button>
+            <button>{"> " + (iscompleted ? "Next": "Redo") + " Move"}</button>
+            <button>{(iswhiteturn ? "Black": "White") + "'s Turn!"}</button>
+            <button onClick={(event) => setUseRowColLocDisplay(!useroworcollocdisp)}>
+                {useroworcollocdisp ? "Use string loc(s)" : "Use row-col loc(s)"}
+            </button>
+        </div>
 
-        <select id={"cmd_type"} name="cmd_type"
-            onChange={(event) => setCMDType(event.target.value)}
-            value={cmd_type}>
+        <select id={"cmd_type"} name="cmd_type" value={cmd_type}
+            onChange={(event) => setCMDType(event.target.value)}>
             {cc.genOptionListFromArray(["COLOR HINTS", "PIECE HINTS", "CASTLEING", "PAWNING",
                 "RESIGNATION", "DRAW", "MOVE", "PROMOTION", "CREATE", "DELETE"], null)}
         </select>
+        
         {genCommandInterface(cmd_type, iswhiteturn, useroworcollocdisp)}
+        <button onClick={null}>Execute!</button>
         
         <table style={{marginLeft: 10, marginBottom: 10, marginTop: 10}}>
             <thead>

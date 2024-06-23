@@ -99,3 +99,13 @@ table, tr, td, th, .border, .namecol, .seasnum, .epnum, .seasnumalign, .epnumali
 .horizontal-gradient {
   background: linear-gradient(to right, cyan, lime, yellow, orange, pink);
 }
+
+/*https://bdwm.be/css-change-a-transparent-png-to-any-color-you-want/*/
+.png-container {
+  overflow: hidden;
+}
+
+.png-container img {  
+  filter: drop-shadow(0px 100px 0 #118800);
+  transform: translateY(-100px);
+}
