@@ -1,3 +1,5 @@
+import { createContext } from "react";
+
 class CommonClass{
     isItemNullOrUndefined(val)
     {
@@ -69,6 +71,24 @@ class CommonClass{
     isNumber(val)//, vnm="numvarnm"
     {
         return this.isNumberOrInteger(val, false);//, vnm
+    }
+
+    letMustBeANumber(val, vnm="numvarnm")
+    {
+        let varnm = "";
+        if (this.isStringEmptyNullOrUndefined(vnm)) varnm = "numvarnm";
+        else varnm = "" + vnm;
+        if (this.isNumber(val));
+        else throw new Error("" + varnm + " must be a number, but it was not!");
+    }
+
+    letMustBeAnInteger(val, vnm="numvarnm")
+    {
+        let varnm = "";
+        if (this.isStringEmptyNullOrUndefined(vnm)) varnm = "numvarnm";
+        else varnm = "" + vnm;
+        if (this.isInteger(val));
+        else throw new Error("" + varnm + " must be an integer, but it was not!");
     }
 
     isStringAOnStringBList(stra, mstrs)

@@ -1,6 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
-import React, { useContext } from "react";
+import React, { useState, useContext } from "react";
 import { Switch, Route, Redirect, useHistory } from "react-router-dom";
 import { MyRoute, getRoutesList, addOtherRouteNamesForRoute } from "./MyRoute";
 import { UserContext } from "./UserProvider";
@@ -12,6 +12,7 @@ import MyRules from "./MyRules";
 import GameList from "./GameList";
 import GameBoard from "./GameBoard";
 import Ranks from "./Ranks";
+import NewPiece from "./NewPiece";
 import PieceListForm from "./PieceListForm";
 import CommonClass from "./commonclass";
 
@@ -20,6 +21,8 @@ function App() {
   const loginprefsetctypenmerrmsg = cc.getTypeErrorMsgFromList(
     ["SignUp", "Login", "Logout", "Preferences"]);
   const { user, setUser } = useContext(UserContext);
+  const [mypieces, setMyPieces] = useState([]);
+  console.log("mypieces = ", mypieces);
     
   function makeLoginPrefsItem(redonin, useloginredulr, typenm)
   {
@@ -45,6 +48,59 @@ function App() {
     else return (<>{nvbar}{(typenm === "Logout") ? lgoutitem: sprefsitem}</>);
   }
 
+  function getPcs()
+  {
+      console.log("GETPCS: mypieces = ", mypieces);
+      return mypieces;
+  }
+
+  function remPiece(mid)
+  {
+      console.log("INSIDE remPiece!");
+      //console.log("REMPC indx = " + indx);
+      console.log("REMPC: mpcs = ", getPcs());
+      console.log("mid = " + mid);
+      
+      //getPcs() === null || getPcs() === undefined || getPcs().length < 1 
+      if (cc.isStringEmptyNullOrUndefined(getPcs()))
+      {
+          throw new Error("either illegal id (" + mid +
+              ") or array was empty when not supposed to!");
+      }
+      //else;//do nothing
+
+      let mynwpcs = getPcs().filter((mpc, index) => {
+          console.log("REMPC: filter index = " + index);
+          if (mpc.id === mid) return false;
+          else return true;
+      });
+      console.log("REMPC: mynwpcs = ", mynwpcs);
+      
+      setMyPieces(mynwpcs);
+  }
+
+  function addPiece()
+  {
+      //let mynwpcs = [...mypieces];
+      let lenpcs = mypieces.length;
+      console.log("ADDPC: OLD mypieces = ", mypieces);
+      
+      //formik={formik} 
+      let mpc = (<NewPiece key={"pid" + lenpcs} id={"pid" + lenpcs}
+      arrindx={lenpcs}
+      rempiece={remPiece.bind(this, "pid" + lenpcs)} />);
+
+      //mynwpcs.push(mpc);
+      //console.log("ADDPC: mynwpcs = ", mynwpcs);
+      
+      setMyPieces([...mypieces, mpc]);
+      //setMyPieces(mynwpcs);
+      //setMyPieces(() => {
+      //    console.log("ADDPC: mynwpcs = ", mynwpcs);
+      //    return mynwpcs;
+      //});
+      //console.log("ADDPC: NEW mypieces = ", mypieces);
+  }
   
   //className="App", className="App-header", className="App-logo", className="App-link"
   //<img src={logo} className="App-logo" alt="logo" />
@@ -54,6 +110,7 @@ function App() {
   //-THE REST OF YOUR ROUTING WILL BE IGNORED!
   //NOTE: THE SWITCH COMPONENT WILL ONLY RENDER ROUTE COMPONENTS AND ANYTHING THAT EXTENDS IT ONLY
   //simpusrobj={cc.getSimplifiedUserObj(user)}
+  console.log("mypieces = ", mypieces);
   return (<div>
       <Switch>
         {getRoutesList("/", ["/home"], [
@@ -85,7 +142,7 @@ function App() {
           makeLoginPrefsItem(true, false, "SignUp")} />
         <Route path="*"><Redirect to="/" /></Route>
       </Switch>
-      <PieceListForm />
+      <PieceListForm addpiece={addPiece} mpcs={mypieces} />
     </div>);
 }
 
