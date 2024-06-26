@@ -1,7 +1,7 @@
 import React from "react";
 import CommonClass from "./commonclass";
 
-function NewPiece({formik=null, arrindx, rempiece, getpcs})
+function NewPiece({formik=null, mid, arrindx, rempiece, getpcs})
 {
     //select color
     //select type
@@ -20,8 +20,8 @@ function NewPiece({formik=null, arrindx, rempiece, getpcs})
     //cc.letMustBeDefinedAndNotNull(formik, "formik");
     cc.letMustBeDefinedAndNotNull(rempiece, "rempiece");
     cc.letMustBeDefinedAndNotNull(arrindx, "arrindx");
-    if (cc.isInteger(arrindx));
-    else throw new Error("arrindx must be an integer!");
+    cc.letMustBeDefinedAndNotNull(mid, "mid");
+    cc.letMustBeAnInteger(arrindx, "arrindx");
 
     //formik.handleChange
     //formik.values.colors[arrindx]
@@ -34,7 +34,7 @@ function NewPiece({formik=null, arrindx, rempiece, getpcs})
     //<p> {formik.errors.row}</p>
     //<p> {formik.errors.col}</p>
     //<p> {formik.errors.color}</p>
-    return (<>
+    return (<div id={mid}>
         <label id={"playercolorlbl" + arrindx} htmlFor={"color" + arrindx}>Color: </label>
         <select id={"color" + arrindx} name="color" onChange={null}
             value={"WHITE"}>
@@ -58,9 +58,9 @@ function NewPiece({formik=null, arrindx, rempiece, getpcs})
         <input id={"myinitmvcnt" + arrindx} type="number" step={1} min={0}
             name="move_count" placeholder={0}
             onChange={null} value={0} />
-        <button type="button" onClick={(event) => rempiece()}>
+        <button type="button" onClick={(event) => rempiece(mid)}>
             Remove Piece</button>
-    </>);
+    </div>);
 }
 
 export default NewPiece;

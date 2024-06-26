@@ -86,9 +86,9 @@ function App() {
       console.log("ADDPC: OLD mypieces = ", mypieces);
       
       //formik={formik} 
-      let mpc = (<NewPiece key={"pid" + lenpcs} id={"pid" + lenpcs}
+      let mpc = (<NewPiece key={"pid" + lenpcs} id={"pid" + lenpcs} mid={"pid" + lenpcs}
       arrindx={lenpcs}
-      rempiece={remPiece.bind(this, "pid" + lenpcs)} />);
+      rempiece={remPiece} />);//.bind(this, "pid" + lenpcs)
 
       //mynwpcs.push(mpc);
       //console.log("ADDPC: mynwpcs = ", mynwpcs);
