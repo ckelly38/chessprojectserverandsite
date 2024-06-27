@@ -547,7 +547,7 @@ class ChessPiece {
 		return false;
 	}
 	
-	public static int[][] transpose(int[][] myarr)
+	static [] transpose(int[][] myarr)
 	{
 		if (myarr == null) return null;
 		else if (myarr.length < 1) return new int[0][myarr.length];
@@ -659,7 +659,7 @@ class ChessPiece {
 		return [this.getRow(), this.getCol()];
 	}
 	//by default set the move
-	public void setLoc(let rval, let cval, let skipsetmv=false)
+	setLoc(let rval, let cval, let skipsetmv=false)
 	{
 		let terr = false;
 		if (isvalidrorc(rval) && isvalidrorc(cval))
@@ -1212,7 +1212,7 @@ class ChessPiece {
 	}
 	
 	//WILL ONLY USE ONE PIECE FOR A LOCATION IF THEY ARE DIFFERENT TYPES ONLY THE ONE ON LISTA WILL BE USED
-	public static ArrayList<ChessPiece> combineTwoPieceLists(ArrayList<ChessPiece> lista, ArrayList<ChessPiece> listb)
+	static ArrayList<ChessPiece> combineTwoPieceLists(ArrayList<ChessPiece> lista, ArrayList<ChessPiece> listb)
 	{
 		if (getNumItemsInList(lista) < 1) return listb;
 		else if (getNumItemsInList(listb) < 1) return lista;
@@ -1258,7 +1258,7 @@ class ChessPiece {
 	
 	//GET PIECE AT AND IS LOCATION EMPTY METHODS
 	
-	public static ChessPiece getPieceAt(let rval, let cval, ArrayList<ChessPiece> mpclist)
+	static ChessPiece getPieceAt(let rval, let cval, ArrayList<ChessPiece> mpclist)
 	{
 		if (mpclist == null || mpclist.length < 1);
 		else
@@ -1274,47 +1274,47 @@ class ChessPiece {
 		//console.log("NO ITEMS FOUND AT: " + getLocString(rval, cval) + "!");
 		return null;
 	}
-	public static ChessPiece getPieceAt(int[] loc, ArrayList<ChessPiece> mpclist)
+	static ChessPiece getPieceAt(int[] loc, ArrayList<ChessPiece> mpclist)
 	{
 		if (loc == null || loc.length != 2) throw new Error("the loc array must have two integers on it!");
 		else return getPieceAt(loc[0], loc[1], mpclist);
 	}
-	public static ChessPiece getPieceAt(let rval, let cval, let gid)
+	static ChessPiece getPieceAt(let rval, let cval, let gid)
 	{
 		return getPieceAt(rval, cval, getAllPiecesWithGameID(gid));
 	}
-	public static ChessPiece getPieceAt(int[] mloc, let gid)
+	static ChessPiece getPieceAt(int[] mloc, let gid)
 	{
 		if (mloc == null || mloc.length != 2) throw new Error("the loc array must have two integers on it!");
 		else return getPieceAt(mloc[0], mloc[1], gid);
 	}
-	public ChessPiece getPieceAt(let rval, let cval)
+	ChessPiece getPieceAt(let rval, let cval)
 	{
 		return getPieceAt(rval, cval, getAllPiecesWithGameID());
 	}
-	public ChessPiece getPieceAt(int[] mloc)
+	ChessPiece getPieceAt(int[] mloc)
 	{
 		if (mloc == null || mloc.length != 2) throw new Error("the loc array must have two integers on it!");
 		else return getPieceAt(mloc[0], mloc[1]);
 	}
 	
-	public static let isLocationEmpty(let rval, let cval, ArrayList<ChessPiece> mpclist)
+	static isLocationEmpty(let rval, let cval, ArrayList<ChessPiece> mpclist)
 	{
 		ChessPiece cp = getPieceAt(rval, cval, mpclist);
 		return (cp == null);
 	}
-	public static let isLocationEmpty(let rval, let cval, let gid)
+	static isLocationEmpty(let rval, let cval, let gid)
 	{
 		ChessPiece cp = getPieceAt(rval, cval, gid);
 		return (cp == null);
 	}
 	//prioritize addpcs list above board list
-	public static let isLocationEmpty(let rval, let cval, let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
+	static isLocationEmpty(let rval, let cval, let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		if (isLocationEmpty(rval, cval, combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid))) return true;
 		else return false;
 	}
-	public static let isLocationEmpty(int[] loc, let gid)
+	static isLocationEmpty(int[] loc, let gid)
 	{
 		if (loc == null || loc.length != 2)
 		{
@@ -1322,11 +1322,11 @@ class ChessPiece {
 		}
 		else return isLocationEmpty(loc[0], loc[1], gid);
 	}
-	public let isLocationEmpty(let rval, let cval)
+	let isLocationEmpty(let rval, let cval)
 	{
 		return isLocationEmpty(rval, cval, getGameID());
 	}
-	public let isLocationEmpty(int[] loc)
+	let isLocationEmpty(int[] loc)
 	{
 		if (loc == null || loc.length != 2)
 		{
@@ -1337,7 +1337,7 @@ class ChessPiece {
 	
 	//FILTER METHODS BY COLOR, TYPE, OR BOTH
 	
-	public static ArrayList<ChessPiece> filterListByColor(ArrayList<ChessPiece> mylist, String clrval)
+	static ArrayList<ChessPiece> filterListByColor(ArrayList<ChessPiece> mylist, String clrval)
 	{
 		if (itemIsOnGivenList(clrval, validColors));
 		else throw new Error("ILLEGAL COLOR (" + clrval + ") FOUND AND USED HERE!");
@@ -1359,7 +1359,7 @@ class ChessPiece {
 		}
 	}
 	
-	public static ArrayList<ChessPiece> filterListByType(ArrayList<ChessPiece> mylist, String typeval)
+	static ArrayList<ChessPiece> filterListByType(ArrayList<ChessPiece> mylist, String typeval)
 	{
 		if (itemIsOnGivenList(typeval, validTypes));
 		else throw new Error("ILLEGAL TYPE (" + typeval + ") FOUND AND USED HERE!");
@@ -1382,45 +1382,45 @@ class ChessPiece {
 		}
 	}
 	
-	public static ArrayList<ChessPiece> filterListByColorAndType(String typeval, String clrval,
+	static ArrayList<ChessPiece> filterListByColorAndType(String typeval, String clrval,
 		ArrayList<ChessPiece> allpcs)
 	{
 		return filterListByColor(filterListByType(allpcs, typeval), clrval);
 	}
-	public static ArrayList<ChessPiece> filterListByColorAndType(String typeval, String clrval, let gid)
+	static ArrayList<ChessPiece> filterListByColorAndType(String typeval, String clrval, let gid)
 	{
 		return filterListByColorAndType(typeval, clrval, getAllPiecesWithGameID(gid));
 	}
 	
 	//GET CURRENT SIDE PIECES
 	
-	public static ArrayList<ChessPiece> getCurrentSidePieces(String clrval, ArrayList<ChessPiece> allpcs)
+	static ArrayList<ChessPiece> getCurrentSidePieces(String clrval, ArrayList<ChessPiece> allpcs)
 	{
 		return filterListByColor(allpcs, clrval);
 	}
-	public static ArrayList<ChessPiece> getCurrentSidePieces(String clrval, let gid, int[][] ignorelist,
+	static ArrayList<ChessPiece> getCurrentSidePieces(String clrval, let gid, int[][] ignorelist,
 		ArrayList<ChessPiece> addpcs)
 	{
 		return getCurrentSidePieces(clrval, combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid));
 	}
-	public static ArrayList<ChessPiece> getCurrentSidePieces(String clrval, let gid)
+	static ArrayList<ChessPiece> getCurrentSidePieces(String clrval, let gid)
 	{
 		return getCurrentSidePieces(clrval, getAllPiecesWithGameID(gid));
 	}
-	public static ArrayList<ChessPiece> getOpposingSidePieces(String clrval, ArrayList<ChessPiece> allpcs)
+	static ArrayList<ChessPiece> getOpposingSidePieces(String clrval, ArrayList<ChessPiece> allpcs)
 	{
 		return getCurrentSidePieces(getOppositeColor(clrval), allpcs);
 	}
-	public static ArrayList<ChessPiece> getOpposingSidePieces(String clrval, let gid, int[][] ignorelist,
+	static ArrayList<ChessPiece> getOpposingSidePieces(String clrval, let gid, int[][] ignorelist,
 		ArrayList<ChessPiece> addpcs)
 	{
 		return getOpposingSidePieces(clrval, combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid));
 	}
-	public static ArrayList<ChessPiece> getOpposingSidePieces(String clrval, let gid)
+	static ArrayList<ChessPiece> getOpposingSidePieces(String clrval, let gid)
 	{
 		return getOpposingSidePieces(clrval, getAllPiecesWithGameID(gid));
 	}
-	public ArrayList<ChessPiece> getMySidePieces()
+	ArrayList<ChessPiece> getMySidePieces()
 	{
 		return getCurrentSidePieces(getColor(), getGameID());
 	}
@@ -1428,127 +1428,127 @@ class ChessPiece {
 	
 	//GET ALL OF A CERTAIN TYPE
 	
-	public static ArrayList<ChessPiece> getAllOfType(String typeval, ArrayList<ChessPiece> allpcs)
+	static ArrayList<ChessPiece> getAllOfType(String typeval, ArrayList<ChessPiece> allpcs)
 	{
 		return filterListByType(allpcs, typeval);
 	}
-	public static ArrayList<ChessPiece> getAllOfType(String typeval, let gid)
+	static ArrayList<ChessPiece> getAllOfType(String typeval, let gid)
 	{
 		return getAllOfType(typeval, getAllPiecesWithGameID(gid));
 	}
 	
 	
-	public static ArrayList<ChessPiece> getAllKings(ArrayList<ChessPiece> allpcs)
+	static ArrayList<ChessPiece> getAllKings(ArrayList<ChessPiece> allpcs)
 	{
 		return getAllOfType("KING", allpcs);
 	}
-	public static ArrayList<ChessPiece> getAllKings(let gid)
+	static ArrayList<ChessPiece> getAllKings(let gid)
 	{
 		return getAllKings(getAllPiecesWithGameID(gid));//return getAllOfType("KING", gid);
 	}
-	public static ArrayList<ChessPiece> getAllCastles(ArrayList<ChessPiece> allpcs)
+	static ArrayList<ChessPiece> getAllCastles(ArrayList<ChessPiece> allpcs)
 	{
 		return getAllOfType("CASTLE", allpcs);
 	}
-	public static ArrayList<ChessPiece> getAllCastles(let gid)
+	static ArrayList<ChessPiece> getAllCastles(let gid)
 	{
 		return getAllCastles(getAllPiecesWithGameID(gid));//return getAllOfType("CASTLE", gid);
 	}
-	public static ArrayList<ChessPiece> getAllRooks(ArrayList<ChessPiece> allpcs)
+	static ArrayList<ChessPiece> getAllRooks(ArrayList<ChessPiece> allpcs)
 	{
 		return getAllCastles(allpcs);
 	}
-	public static ArrayList<ChessPiece> getAllRooks(let gid)
+	static ArrayList<ChessPiece> getAllRooks(let gid)
 	{
 		return getAllCastles(gid);
 	}
-	public static ArrayList<ChessPiece> getAllQueens(ArrayList<ChessPiece> allpcs)
+	static ArrayList<ChessPiece> getAllQueens(ArrayList<ChessPiece> allpcs)
 	{
 		return getAllOfType("QUEEN", allpcs);
 	}
-	public static ArrayList<ChessPiece> getAllQueens(let gid)
+	static ArrayList<ChessPiece> getAllQueens(let gid)
 	{
 		return getAllQueens(getAllPiecesWithGameID(gid));//return getAllOfType("QUEEN", gid);
 	}
-	public static ArrayList<ChessPiece> getAllKnights(ArrayList<ChessPiece> allpcs)
+	static ArrayList<ChessPiece> getAllKnights(ArrayList<ChessPiece> allpcs)
 	{
 		return getAllOfType("KNIGHT", allpcs);
 	}
-	public static ArrayList<ChessPiece> getAllKnights(let gid)
+	static ArrayList<ChessPiece> getAllKnights(let gid)
 	{
 		return getAllKnights(getAllPiecesWithGameID(gid));//return getAllOfType("KNIGHT", gid);
 	}
-	public static ArrayList<ChessPiece> getAllBishops(ArrayList<ChessPiece> allpcs)
+	static ArrayList<ChessPiece> getAllBishops(ArrayList<ChessPiece> allpcs)
 	{
 		return getAllOfType("BISHOP", allpcs);
 	}
-	public static ArrayList<ChessPiece> getAllBishops(let gid)
+	static ArrayList<ChessPiece> getAllBishops(let gid)
 	{
 		return getAllBishops(getAllPiecesWithGameID(gid));//return getAllOfType("BISHOP", gid);
 	}
-	public static ArrayList<ChessPiece> getAllPawns(ArrayList<ChessPiece> allpcs)
+	static ArrayList<ChessPiece> getAllPawns(ArrayList<ChessPiece> allpcs)
 	{
 		return getAllOfType("PAWN", allpcs);
 	}
-	public static ArrayList<ChessPiece> getAllPawns(let gid)
+	static ArrayList<ChessPiece> getAllPawns(let gid)
 	{
 		return getAllPawns(getAllPiecesWithGameID(gid));//return getAllOfType("PAWN", gid);
 	}
 	
 	
-	public static ArrayList<ChessPiece> getAllKnightsOfColor(String clrval, ArrayList<ChessPiece> allpcs)
+	static ArrayList<ChessPiece> getAllKnightsOfColor(String clrval, ArrayList<ChessPiece> allpcs)
 	{
 		return filterListByColor(getAllKnights(allpcs), clrval);
 	}
-	public static ArrayList<ChessPiece> getAllKnightsOfColor(String clrval, let gid)
+	static ArrayList<ChessPiece> getAllKnightsOfColor(String clrval, let gid)
 	{
 		return getAllKnightsOfColor(clrval, getAllKnights(gid));
 	}
-	public static ArrayList<ChessPiece> getAllKingsOfColor(String clrval, ArrayList<ChessPiece> allpcs)
+	static ArrayList<ChessPiece> getAllKingsOfColor(String clrval, ArrayList<ChessPiece> allpcs)
 	{
 		return filterListByColor(getAllKings(allpcs), clrval);
 	}
-	public static ArrayList<ChessPiece> getAllKingsOfColor(String clrval, let gid)
+	static ArrayList<ChessPiece> getAllKingsOfColor(String clrval, let gid)
 	{
 		return getAllKingsOfColor(clrval, getAllKings(gid));
 	}
-	public static ArrayList<ChessPiece> getAllCastlesOfColor(String clrval, ArrayList<ChessPiece> allpcs)
+	static ArrayList<ChessPiece> getAllCastlesOfColor(String clrval, ArrayList<ChessPiece> allpcs)
 	{
 		return filterListByColor(getAllCastles(allpcs), clrval);
 	}
-	public static ArrayList<ChessPiece> getAllCastlesOfColor(String clrval, let gid)
+	static ArrayList<ChessPiece> getAllCastlesOfColor(String clrval, let gid)
 	{
 		return getAllCastlesOfColor(clrval, getAllCastles(gid));
 	}
-	public static ArrayList<ChessPiece> getAllRooksOfColor(String clrval, ArrayList<ChessPiece> allpcs)
+	static ArrayList<ChessPiece> getAllRooksOfColor(String clrval, ArrayList<ChessPiece> allpcs)
 	{
 		return getAllCastlesOfColor(clrval, allpcs);
 	}
-	public static ArrayList<ChessPiece> getAllRooksOfColor(String clrval, let gid)
+	static ArrayList<ChessPiece> getAllRooksOfColor(String clrval, let gid)
 	{
 		return getAllCastlesOfColor(clrval, gid);
 	}
-	public static ArrayList<ChessPiece> getAllQueensOfColor(String clrval, ArrayList<ChessPiece> allpcs)
+	static ArrayList<ChessPiece> getAllQueensOfColor(String clrval, ArrayList<ChessPiece> allpcs)
 	{
 		return filterListByColor(getAllQueens(allpcs), clrval);
 	}
-	public static ArrayList<ChessPiece> getAllQueensOfColor(String clrval, let gid)
+	static ArrayList<ChessPiece> getAllQueensOfColor(String clrval, let gid)
 	{
 		return getAllQueensOfColor(clrval, getAllQueens(gid));
 	}
-	public static ArrayList<ChessPiece> getAllBishopsOfColor(String clrval, ArrayList<ChessPiece> allpcs)
+	static ArrayList<ChessPiece> getAllBishopsOfColor(String clrval, ArrayList<ChessPiece> allpcs)
 	{
 		return filterListByColor(getAllBishops(allpcs), clrval);
 	}
-	public static ArrayList<ChessPiece> getAllBishopsOfColor(String clrval, let gid)
+	static ArrayList<ChessPiece> getAllBishopsOfColor(String clrval, let gid)
 	{
 		return getAllBishopsOfColor(clrval, getAllBishops(gid));
 	}
-	public static ArrayList<ChessPiece> getAllPawnsOfColor(String clrval, ArrayList<ChessPiece> allpcs)
+	static ArrayList<ChessPiece> getAllPawnsOfColor(String clrval, ArrayList<ChessPiece> allpcs)
 	{
 		return filterListByColor(getAllPawns(allpcs), clrval);
 	}
-	public static ArrayList<ChessPiece> getAllPawnsOfColor(String clrval, let gid)
+	static ArrayList<ChessPiece> getAllPawnsOfColor(String clrval, let gid)
 	{
 		return getAllPawnsOfColor(clrval, getAllPawns(gid));
 	}
@@ -1556,7 +1556,7 @@ class ChessPiece {
 	
 	//GET CURRENT SIDE KING
 	
-	public static ChessPiece getCurrentSideKing(String clrval, ArrayList<ChessPiece> allpcs)
+	static ChessPiece getCurrentSideKing(String clrval, ArrayList<ChessPiece> allpcs)
 	{
 		if (itemIsOnGivenList(clrval, validColors));
 		else throw new Error("ILLEGAL COLOR (" + clrval + ") FOUND AND USED HERE!");
@@ -1572,19 +1572,19 @@ class ChessPiece {
 			return null;
 		}
 	}
-	public static ChessPiece getCurrentSideKing(String clrval, let gid)
+	static ChessPiece getCurrentSideKing(String clrval, let gid)
 	{
 		return getCurrentSideKing(clrval, getAllPiecesWithGameID(gid));
 	}
-	public static ChessPiece getOppositeSideKing(String clrval, ArrayList<ChessPiece> allpcs)
+	static ChessPiece getOppositeSideKing(String clrval, ArrayList<ChessPiece> allpcs)
 	{
 		return getCurrentSideKing(getOppositeColor(clrval), allpcs);
 	}
-	public static ChessPiece getOppositeSideKing(String clrval, let gid)
+	static ChessPiece getOppositeSideKing(String clrval, let gid)
 	{
 		return getOppositeSideKing(clrval, getAllPiecesWithGameID(gid));
 	}
-	public ChessPiece getMySideKing()
+	ChessPiece getMySideKing()
 	{
 		if (getType().equals("KING")) return this;
 		else return getCurrentSideKing(getColor(), getGameID());
@@ -1593,7 +1593,7 @@ class ChessPiece {
 	
 	//IS BOARD VALID METHODS
 	
-	public static let getCountForPieceTypeForASide(int[] pccnts, String tpval)
+	static getCountForPieceTypeForASide(int[] pccnts, String tpval)
 	{
 		if (tpval == null || tpval.length < 1) throw new Error("illegal type found and used here!");
 		//else;//do nothing
@@ -1622,7 +1622,7 @@ class ChessPiece {
 		else return pccnts[tpi];
 	}
 	
-	public static int[] getCountsForEachPieceTypeForASide(let pcstpcs)
+	static  getCountsForEachPieceTypeForASide(let pcstpcs)
 	{
 		if (pcstpcs == null) throw new Error("there must be pieces on the list!");
 		//else;//do nothing
@@ -1703,7 +1703,7 @@ class ChessPiece {
 		return pccnts;
 	}
 	
-	public static let getPieceTypes(ArrayList<ChessPiece> allpcs)
+	static getPieceTypes(ArrayList<ChessPiece> allpcs)
 	{
 		if (allpcs == null) return null;
 		else
@@ -2136,16 +2136,16 @@ class ChessPiece {
 				this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid));
 		}
 	}
-	public static let isPieceAtLocationOnAListOfTypes(int[] loc, let gid, let mtypes,
+	static isPieceAtLocationOnAListOfTypes(int[] loc, let gid, let mtypes,
 		int[][] ignorelist)
 	{
 		return this.isPieceAtLocationOnAListOfTypes(loc, gid, mtypes, ignorelist, null);
 	}
-	public static let isPieceAtLocationOnAListOfTypes(let rval, let cval, let gid, let mtypes)
+	static isPieceAtLocationOnAListOfTypes(let rval, let cval, let gid, let mtypes)
 	{
 		return this.isPieceAtLocationOnAListOfTypes(rval, cval, gid, mtypes, null);
 	}
-	public static let isPieceAtLocationOnAListOfTypes(int[] loc, let gid, let mtypes)
+	static isPieceAtLocationOnAListOfTypes(int[] loc, let gid, let mtypes)
 	{
 		if (loc == null || loc.length != 2)
 		{
@@ -2158,7 +2158,7 @@ class ChessPiece {
 	//this checks the diagnals for a Bishop a Pawn or a Queen the first one it finds starting at rval cval it will return true
 	//that means if you call this on a Bishop, Pawn, or Queen it will return true immediately
 	//it will not be conclusive as to if it is protected by one.
-	public static let isSameDiagnalLocationGuarded(let rval, let cval, let gid)
+	static isSameDiagnalLocationGuarded(let rval, let cval, let gid)
 	{
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
@@ -2235,7 +2235,7 @@ class ChessPiece {
 	//this checks the rows or columns for a CASTLE, ROOK, QUEEN, OR KING and returns true
 	//on the first one found
 	//this will return true immediately if called on one of the above.
-	public static let isSameRowOrSameColLocationGuarded(let rval, let cval, let gid)
+	static isSameRowOrSameColLocationGuarded(let rval, let cval, let gid)
 	{
 		//row or col is the same
 		//assume if we run into a piece other than a castle or a queen
@@ -2670,7 +2670,7 @@ class ChessPiece {
 	
 	//LOCATIONS GUARDED BY BISHOP (OR QUEEN) METHODS
 	
-	public static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameDiagnal(let rval, let cval, let gid,
+	static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameDiagnal(let rval, let cval, let gid,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		if (this.isvalidrorc(rval) && this.isvalidrorc(cval));
@@ -2859,7 +2859,7 @@ class ChessPiece {
 	{
 		return this.getPiecesGuardingLocationOnSameDiagnal(rval, cval, gid, ignorelist, null);
 	}
-	public static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameDiagnal(int[] loc, let gid, int[][] ignorelist,
+	static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameDiagnal(int[] loc, let gid, int[][] ignorelist,
 		ArrayList<ChessPiece> addpcs)
 	{
 		if (loc == null || loc.length != 2)
@@ -2868,22 +2868,22 @@ class ChessPiece {
 		}
 		else return this.getPiecesGuardingLocationOnSameDiagnal(loc[0], loc[1], gid, ignorelist, addpcs);
 	}
-	public static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameDiagnal(int[] loc, let gid, int[][] ignorelist)
+	static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameDiagnal(int[] loc, let gid, int[][] ignorelist)
 	{
 		return this.getPiecesGuardingLocationOnSameDiagnal(loc, gid, ignorelist, null);
 	}
-	public static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameDiagnal(let rval, let cval, let gid)
+	static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameDiagnal(let rval, let cval, let gid)
 	{
 		return this.getPiecesGuardingLocationOnSameDiagnal(rval, cval, gid, null);
 	}
-	public static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameDiagnal(int[] loc, let gid)
+	static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameDiagnal(int[] loc, let gid)
 	{
 		return this.getPiecesGuardingLocationOnSameDiagnal(loc, gid, null);
 	}
 	
 	//LOCATIONS GUARDED BY CASTLE (OR QUEEN) METHODS
 	
-	public static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameRowOrCol(let rval, let cval, let gid,
+	static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameRowOrCol(let rval, let cval, let gid,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		if (this.isvalidrorc(rval) && this.isvalidrorc(cval));
@@ -3212,7 +3212,7 @@ class ChessPiece {
 		//console.log("OUTSIDE OF FINAL FOR LOOP STATEMENT");
 		return gpcs;
 	}
-	public static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameRowOrCol(int[] loc, let gid, int[][] ignorelist,
+	static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameRowOrCol(int[] loc, let gid, int[][] ignorelist,
 		ArrayList<ChessPiece> addpcs)
 	{
 		if (loc == null || loc.length != 2)
@@ -3221,7 +3221,7 @@ class ChessPiece {
 		}
 		else return this.getPiecesGuardingLocationOnSameRowOrCol(loc[0], loc[1], gid, ignorelist, addpcs);
 	}
-	public static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameRowOrCol(int[] loc, let gid, int[][] ignorelist)
+	static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameRowOrCol(int[] loc, let gid, int[][] ignorelist)
 	{
 		if (loc == null || loc.length != 2)
 		{
@@ -3229,16 +3229,16 @@ class ChessPiece {
 		}
 		else return this.getPiecesGuardingLocationOnSameRowOrCol(loc[0], loc[1], gid, ignorelist, null);
 	}
-	public static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameRowOrCol(let rval, let cval, let gid,
+	static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameRowOrCol(let rval, let cval, let gid,
 		int[][] ignorelist)
 	{
 		return this.getPiecesGuardingLocationOnSameRowOrCol(rval, cval, gid, ignorelist, null);
 	}
-	public static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameRowOrCol(let rval, let cval, let gid)
+	static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameRowOrCol(let rval, let cval, let gid)
 	{
 		return this.getPiecesGuardingLocationOnSameRowOrCol(rval, cval, gid, null);
 	}
-	public static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameRowOrCol(int[] loc, let gid)
+	static ArrayList<ChessPiece> getPiecesGuardingLocationOnSameRowOrCol(int[] loc, let gid)
 	{
 		return this.getPiecesGuardingLocationOnSameRowOrCol(loc, gid, null);
 	}
@@ -3246,7 +3246,7 @@ class ChessPiece {
 	
 	//MAIN GET PIECES GUARDING LOCATION METHODS
 	
-	public static ArrayList<ChessPiece> getPiecesGuardingLocation(let rval, let cval, let gid, int[][] ignorelist,
+	static ArrayList<ChessPiece> getPiecesGuardingLocation(let rval, let cval, let gid, int[][] ignorelist,
 		ArrayList<ChessPiece> addpcs)
 	{
 		//console.log("INSIDE GET PIECES GUARDING LOCATION: " + getLocString(rval, cval));
@@ -3310,7 +3310,7 @@ class ChessPiece {
 		//else;//do nothing
 		return alocs;
 	}
-	public static ArrayList<ChessPiece> getPiecesGuardingLocation(int[] loc, let gid, int[][] ignorelist,
+	static ArrayList<ChessPiece> getPiecesGuardingLocation(int[] loc, let gid, int[][] ignorelist,
 		ArrayList<ChessPiece> addpcs)
 	{
 		if (loc == null || loc.length != 2)
@@ -3319,15 +3319,15 @@ class ChessPiece {
 		}
 		else return this.getPiecesGuardingLocation(loc[0], loc[1], gid, ignorelist, addpcs);
 	}
-	public static ArrayList<ChessPiece> getPiecesGuardingLocation(let rval, let cval, let gid, int[][] ignorelist)
+	static ArrayList<ChessPiece> getPiecesGuardingLocation(let rval, let cval, let gid, int[][] ignorelist)
 	{
 		return this.getPiecesGuardingLocation(rval, cval, gid, ignorelist, null);
 	}
-	public static ArrayList<ChessPiece> getPiecesGuardingLocation(let rval, let cval, let gid)
+	static ArrayList<ChessPiece> getPiecesGuardingLocation(let rval, let cval, let gid)
 	{
 		return this.getPiecesGuardingLocation(rval, cval, gid, null);
 	}
-	public static ArrayList<ChessPiece> getPiecesGuardingLocation(int[] loc, let gid, int[][] ignorelist)
+	static ArrayList<ChessPiece> getPiecesGuardingLocation(int[] loc, let gid, int[][] ignorelist)
 	{
 		if (loc == null || loc.length != 2)
 		{
@@ -3335,7 +3335,7 @@ class ChessPiece {
 		}
 		else return this.getPiecesGuardingLocation(loc[0], loc[1], gid, ignorelist);
 	}
-	public static ArrayList<ChessPiece> getPiecesGuardingLocation(int[] loc, let gid)
+	static ArrayList<ChessPiece> getPiecesGuardingLocation(int[] loc, let gid)
 	{
 		return this.getPiecesGuardingLocation(loc, gid, null);
 	}
@@ -3343,13 +3343,13 @@ class ChessPiece {
 	
 	//THE CURRENT SIDE PIECES GUARDING THE LOCATION METHODS
 	
-	public static ArrayList<ChessPiece> getSidePiecesGuardingLocation(let rval, let cval, let gid, String clrval,
+	static ArrayList<ChessPiece> getSidePiecesGuardingLocation(let rval, let cval, let gid, String clrval,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		if (clrval == null) return null;
 		else return this.filterListByColor(getPiecesGuardingLocation(rval, cval, gid, ignorelist, addpcs), clrval);
 	}
-	public static ArrayList<ChessPiece> getSidePiecesGuardingLocation(int[] loc, let gid, String clrval,
+	static ArrayList<ChessPiece> getSidePiecesGuardingLocation(int[] loc, let gid, String clrval,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		if (loc == null || loc.length != 2)
@@ -3358,30 +3358,30 @@ class ChessPiece {
 		}
 		else return this.getSidePiecesGuardingLocation(loc[0], loc[1], gid, clrval, ignorelist, addpcs);
 	}
-	public static ArrayList<ChessPiece> getSidePiecesGuardingLocation(let rval, let cval, let gid, String clrval,
+	static ArrayList<ChessPiece> getSidePiecesGuardingLocation(let rval, let cval, let gid, String clrval,
 		int[][] ignorelist)
 	{
 		return this.getSidePiecesGuardingLocation(rval, cval, gid, clrval, ignorelist, null);
 	}
-	public static ArrayList<ChessPiece> getSidePiecesGuardingLocation(int[] loc, let gid, String clrval, int[][] ignorelist)
+	static ArrayList<ChessPiece> getSidePiecesGuardingLocation(int[] loc, let gid, String clrval, int[][] ignorelist)
 	{
 		return this.getSidePiecesGuardingLocation(loc, gid, clrval, ignorelist, null);	
 	}
-	public static ArrayList<ChessPiece> getSidePiecesGuardingLocationNoList(let rval, let cval, let gid, String clrval)
+	static ArrayList<ChessPiece> getSidePiecesGuardingLocationNoList(let rval, let cval, let gid, String clrval)
 	{
 		return this.getSidePiecesGuardingLocation(rval, cval, gid, clrval, null);
 	}
-	public static ArrayList<ChessPiece> getSidePiecesGuardingLocationNoList(int[] loc, let gid, String clrval)
+	static ArrayList<ChessPiece> getSidePiecesGuardingLocationNoList(int[] loc, let gid, String clrval)
 	{
 		return this.getSidePiecesGuardingLocation(loc, gid, clrval, null);
 	}
-	public static ArrayList<ChessPiece> getSidePiecesGuardingLocation(let rval, let cval, let gid, int[][] ignorelist)
+	static ArrayList<ChessPiece> getSidePiecesGuardingLocation(let rval, let cval, let gid, int[][] ignorelist)
 	{
 		ChessPiece cp = this.getPieceAt(rval, cval, gid);
 		if (cp == null) return null;
 		else return this.getSidePiecesGuardingLocation(rval, cval, gid, cp.getColor(), ignorelist);
 	}
-	public static ArrayList<ChessPiece> getSidePiecesGuardingLocation(int[] loc, let gid, int[][] ignorelist)
+	static ArrayList<ChessPiece> getSidePiecesGuardingLocation(int[] loc, let gid, int[][] ignorelist)
 	{
 		if (loc == null || loc.length != 2)
 		{
@@ -3393,21 +3393,21 @@ class ChessPiece {
 	
 	//THE ENEMY PIECES GUARDING THE LOCATION METHODS
 	
-	public static ArrayList<ChessPiece> getEnemyPiecesGuardingLocation(let rval, let cval, let gid, String clrval,
+	static ArrayList<ChessPiece> getEnemyPiecesGuardingLocation(let rval, let cval, let gid, String clrval,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		return this.getSidePiecesGuardingLocation(rval, cval, gid, getOppositeColor(clrval), ignorelist, addpcs);
 	}
-	public static ArrayList<ChessPiece> getEnemyPiecesGuardingLocation(let rval, let cval, let gid, String clrval,
+	static ArrayList<ChessPiece> getEnemyPiecesGuardingLocation(let rval, let cval, let gid, String clrval,
 		int[][] ignorelist)
 	{
 		return this.getEnemyPiecesGuardingLocation(rval, cval, gid, clrval, ignorelist, null);
 	}
-	public static ArrayList<ChessPiece> getEnemyPiecesGuardingLocationNoList(let rval, let cval, let gid, String clrval)
+	static ArrayList<ChessPiece> getEnemyPiecesGuardingLocationNoList(let rval, let cval, let gid, String clrval)
 	{
 		return this.getEnemyPiecesGuardingLocation(rval, cval, gid, clrval, null);
 	}
-	public static ArrayList<ChessPiece> getEnemyPiecesGuardingLocation(int[] loc, let gid, String clrval,
+	static ArrayList<ChessPiece> getEnemyPiecesGuardingLocation(int[] loc, let gid, String clrval,
 		int[][] ignorelist)
 	{
 		if (loc == null || loc.length != 2)
@@ -3416,17 +3416,17 @@ class ChessPiece {
 		}
 		else return this.getEnemyPiecesGuardingLocation(loc[0], loc[1], gid, clrval, ignorelist);
 	}
-	public static ArrayList<ChessPiece> getEnemyPiecesGuardingLocationNoList(int[] loc, let gid, String clrval)
+	static ArrayList<ChessPiece> getEnemyPiecesGuardingLocationNoList(int[] loc, let gid, String clrval)
 	{
 		return this.getEnemyPiecesGuardingLocation(loc, gid, clrval, null);
 	}
-	public static ArrayList<ChessPiece> getEnemyPiecesGuardingLocation(let rval, let cval, let gid, int[][] ignorelist)
+	static ArrayList<ChessPiece> getEnemyPiecesGuardingLocation(let rval, let cval, let gid, int[][] ignorelist)
 	{
 		ChessPiece cp = this.getPieceAt(rval, cval, gid);
 		if (cp == null) return null;
 		else return this.getSidePiecesGuardingLocation(rval, cval, gid, getOppositeColor(cp.getColor()), ignorelist);
 	}
-	public static ArrayList<ChessPiece> getEnemyPiecesGuardingLocation(int[] loc, let gid, int[][] ignorelist)
+	static ArrayList<ChessPiece> getEnemyPiecesGuardingLocation(int[] loc, let gid, int[][] ignorelist)
 	{
 		if (loc == null || loc.length != 2)
 		{
@@ -3454,38 +3454,38 @@ class ChessPiece {
 		return this.inCheck(null, null);
 	}
 	
-	public let isMySideInCheck(int[][] ignorelist, ArrayList<ChessPiece> addpcs)
+	let isMySideInCheck(int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		//get my king
 		//then ask can I be directly attacked by the opposing side?
 		//if yes you are in check
 		return this.getMySideKing().inCheck(ignorelist, addpcs);
 	}
-	public let isMySideInCheck()
+	let isMySideInCheck()
 	{
 		return this.isMySideInCheck(null, null);
 	}
 	
 	//this gets the king with the specified color and then calls inCheck on it
-	public static let isSideInCheck(String clrval, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static isSideInCheck(String clrval, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		let mkg = this.getCurrentSideKing(clrval, combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid));
 		if (mkg == null) throw new Error("the king must be found!");
 		else return mkg.inCheck(ignorelist, addpcs);
 	}
-	public static let isSideInCheck(String clrval, let gid)
+	static isSideInCheck(String clrval, let gid)
 	{
 		return this.isSideInCheck(clrval, null, null, gid);
 	}
 	
 	//checks to see if a side is in check and checks the given color first, if no color provided it starts with white
 	//it will also check black; white then black or black then white
-	public static let isASideInCheck(String clrval, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static isASideInCheck(String clrval, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return (this.isSideInCheck(clrval, ignorelist, addpcs, gid) ||
 		this.isSideInCheck(this.getOppositeColor(clrval), ignorelist, addpcs, gid));
 	}
-	public static let isASideInCheck(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static isASideInCheck(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.isASideInCheck("WHITE", ignorelist, addpcs, gid);
 	}
@@ -3494,7 +3494,7 @@ class ChessPiece {
 	//CAN A GIVEN TYPE OF PIECE FOR A SIDE BE DIRECTLY ATTACKED
 	
 	//asks if a certain color and kind of piece can be directly attacked
-	public static let isAtLeastOnePieceOfTypeForSideInCheck(String typeval, String clrval,
+	static isAtLeastOnePieceOfTypeForSideInCheck(String typeval, String clrval,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		ArrayList<ChessPiece> myclrpcs = this.filterListByColorAndType(typeval, clrval,
@@ -3511,34 +3511,34 @@ class ChessPiece {
 		}
 		return false;
 	}
-	public static let isAtLeastOneQueenForSideInCheck(String clrval, int[][] ignorelist,
+	static isAtLeastOneQueenForSideInCheck(String clrval, int[][] ignorelist,
 		ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.isAtLeastOnePieceOfTypeForSideInCheck("QUEEN", clrval, ignorelist, addpcs, gid);
 	}
-	public static let isAtLeastOneWhitePieceOfTypeInCheck(String typeval, int[][] ignorelist,
+	static isAtLeastOneWhitePieceOfTypeInCheck(String typeval, int[][] ignorelist,
 		ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.isAtLeastOnePieceOfTypeForSideInCheck(typeval, "WHITE", ignorelist, addpcs, gid);
 	}
-	public static let isAtLeastOneWhiteQueenInCheck(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static isAtLeastOneWhiteQueenInCheck(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.isAtLeastOneWhitePieceOfTypeInCheck("QUEEN", ignorelist, addpcs, gid);
 	}
-	public static let isAtLeastOneBlackPieceOfTypeInCheck(String typeval, int[][] ignorelist,
+	static isAtLeastOneBlackPieceOfTypeInCheck(String typeval, int[][] ignorelist,
 		ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.isAtLeastOnePieceOfTypeForSideInCheck(typeval, "BLACK", ignorelist, addpcs, gid);
 	}
-	public static let isAtLeastOneBlackQueenInCheck(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static isAtLeastOneBlackQueenInCheck(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.isAtLeastOneBlackPieceOfTypeInCheck("QUEEN", ignorelist, addpcs, gid);
 	}
-	public let isAQueenForMySideInCheck(int[][] ignorelist, ArrayList<ChessPiece> addpcs)
+	let isAQueenForMySideInCheck(int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		return this.isAtLeastOneQueenForSideInCheck(getColor(), ignorelist, addpcs, getGameID());
 	}
-	public let isAQueenForMySideInCheck()
+	let isAQueenForMySideInCheck()
 	{
 		return this.isAQueenForMySideInCheck(null, null);
 	}
@@ -3546,7 +3546,7 @@ class ChessPiece {
 	
 	//GET CAN MOVE TO LOCATIONS METHODS
 	
-	public static let canAddThisMoveToLoc(let sr, let sc, let nr, let nc, String myclr, String mytpval,
+	static canAddThisMoveToLoc(let sr, let sc, let nr, let nc, String myclr, String mytpval,
 		int[][] oignorelist, ArrayList<ChessPiece> oaddpcs, let gid)
 	{
 		if (this.isvalidrorc(sr) && this.isvalidrorc(sc));
@@ -3677,7 +3677,7 @@ class ChessPiece {
 		return addit;
 	}
 	
-	public static int[][] getBishopCanMoveToLocs(let sr, let sc, String myclr,
+	static [] getBishopCanMoveToLocs(let sr, let sc, String myclr,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		if (isvalidrorc(sr) && isvalidrorc(sc));
@@ -3770,7 +3770,7 @@ class ChessPiece {
 		return rlist;
 	}
 	//NOTE: this does not take into account castling
-	public static int[][] getCastleCanMoveToLocs(let sr, let sc, String myclr,
+	static [] getCastleCanMoveToLocs(let sr, let sc, String myclr,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		if (this.isvalidrorc(sr) && this.isvalidrorc(sc));
@@ -3890,7 +3890,7 @@ class ChessPiece {
 		}
 		return rlist;
 	}
-	public static int[][] getQueenCanMoveToLocs(let sr, let sc, String myclr,
+	static [] getQueenCanMoveToLocs(let sr, let sc, String myclr,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		if (isvalidrorc(sr) && isvalidrorc(sc));
@@ -3932,7 +3932,7 @@ class ChessPiece {
 		}
 	}
 	//NOTE: this does not take into account pawning
-	public static int[][] getPawnCanMoveToLocs(let sr, let sc, String myclr,
+	static [] getPawnCanMoveToLocs(let sr, let sc, String myclr,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		if (this.isvalidrorc(sr) && this.isvalidrorc(sc));
@@ -4023,7 +4023,7 @@ class ChessPiece {
     	}
 		return rlist;
 	}
-	public static int[][] getKnightCanMoveToLocs(let sr, let sc, String myclr,
+	static [] getKnightCanMoveToLocs(let sr, let sc, String myclr,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		if (this.isvalidrorc(sr) && this.isvalidrorc(sc));
@@ -4093,7 +4093,7 @@ class ChessPiece {
 		}
 	}
 	//NOTE: this does not take into account castling
-	public static int[][] getKingCanMoveToLocs(let sr, let sc, String myclr,
+	static [] getKingCanMoveToLocs(let sr, let sc, String myclr,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		if (this.isvalidrorc(sr) && this.isvalidrorc(sc));
@@ -4156,7 +4156,7 @@ class ChessPiece {
 	}
 	
 	//THIS TAKES INTO ACCOUNT PAWNING TOO; IF NOT CALLED ON A PAWN WITH THE SAME COLOR JUST RETURNS ABOVE
-	public static int[][] getAllPawnCanMoveToLocs(let sr, let sc, String myclr,
+	static [] getAllPawnCanMoveToLocs(let sr, let sc, String myclr,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid, let bpassimnxtmv)
 	{
 		ArrayList<ChessPiece> allpcs = this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
@@ -4227,7 +4227,7 @@ class ChessPiece {
 	}
 	
 	//THIS TAKES INTO ACCOUNT CASTLEING FOR KING ONLY; IF NOT CALLED ON A KING WITH THE SAME COLOR JUST RETURNS ABOVE
-	public static int[][] getAllKingCanMoveToLocs(let sr, let sc, String myclr,
+	static [] getAllKingCanMoveToLocs(let sr, let sc, String myclr,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		int[][] kcmvlocs = this.getKingCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid);
@@ -4300,7 +4300,7 @@ class ChessPiece {
 	}
 	
 	//calls the above methods
-	public static int[][] getPieceCanMoveToLocs(let sr, let sc, String myclr, String mytpval,
+	static [] getPieceCanMoveToLocs(let sr, let sc, String myclr, String mytpval,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid, let nocsling, let bpassimnxtmv)
 	{
 		if (mytpval == null) throw new Error("mytpval must not be null!");
@@ -4325,22 +4325,22 @@ class ChessPiece {
 			else throw new Error("illegal value found and used here for mytpval (" + mytpval + ")!");
 		}
 	}
-	public static int[][] getPieceCanMoveToLocs(let sr, let sc, String myclr, String mytpval,
+	static [] getPieceCanMoveToLocs(let sr, let sc, String myclr, String mytpval,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.getPieceCanMoveToLocs(sr, sc, myclr, mytpval, ignorelist, addpcs, gid, false, false);
 	}
-	public int[][] getPieceCanMoveToLocs(int[][] ignorelist, ArrayList<ChessPiece> addpcs,
+	int[][] getPieceCanMoveToLocs(int[][] ignorelist, ArrayList<ChessPiece> addpcs,
 		let nocsling, let bpassimnxtmv)
 	{
 		return this.getPieceCanMoveToLocs(getRow(), getCol(), getColor(), getType(), ignorelist, addpcs, getGameID(),
 			nocsling, bpassimnxtmv);
 	}
-	public int[][] getPieceCanMoveToLocs(int[][] ignorelist, ArrayList<ChessPiece> addpcs)
+	int[][] getPieceCanMoveToLocs(int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		return this.getPieceCanMoveToLocs(ignorelist, addpcs, false, false);
 	}
-	public int[][] getPieceCanMoveToLocs()
+	int[][] getPieceCanMoveToLocs()
 	{
 		return this.getPieceCanMoveToLocs(null, null);
 	}
@@ -4352,7 +4352,7 @@ class ChessPiece {
 	//if more than one piece can move there the starting location is ambigious and will throw an error
 	//if no piece can move there it returns null
 	//it is done differently depending on the type of piece, how a king does it is different than how a knight does it
-	public static int[] getStartLocForBishopThatCanMoveTo(let er, let ec, String myclr,
+	static  getStartLocForBishopThatCanMoveTo(let er, let ec, String myclr,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid, let useqn)
 	{
 		//moves on a diagnal must be free
@@ -4463,7 +4463,7 @@ class ChessPiece {
 		else return blloc;
 		return null;
 	}
-	public static int[] getStartLocForCastleThatCanMoveTo(let er, let ec, String myclr,
+	static  getStartLocForCastleThatCanMoveTo(let er, let ec, String myclr,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid, let useqn)
 	{
 		//the castle or rook or queen must be unobstructed
@@ -4577,7 +4577,7 @@ class ChessPiece {
 		else return cdecloc;
 		return null;
 	}
-	public static int[] getStartLocForQueenThatCanMoveTo(let er, let ec, String myclr,
+	static  getStartLocForQueenThatCanMoveTo(let er, let ec, String myclr,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		int[] bsloc = this.getStartLocForBishopThatCanMoveTo(er, ec, myclr, ignorelist, addpcs, gid, true);
@@ -4589,7 +4589,7 @@ class ChessPiece {
 			else throw new Error("FOUND MORE THAN ONE QUEEN!");
 		}
 	}
-	public static int[] getStartLocForKnightThatCanMoveTo(let er, let ec, String myclr,
+	static  getStartLocForKnightThatCanMoveTo(let er, let ec, String myclr,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		//we can use the all possible knight locs and provied the ending location to get the starting location
@@ -4667,7 +4667,7 @@ class ChessPiece {
     	}
     	return null;
 	}
-	public static int[] getStartLocForKingThatCanMoveTo(let er, let ec, String myclr,
+	static  getStartLocForKingThatCanMoveTo(let er, let ec, String myclr,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid, let nocsling)
 	{
 		ChessPiece mkg = this.getCurrentSideKing(myclr, combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid));
@@ -4696,7 +4696,7 @@ class ChessPiece {
 		}
 		return null;
 	}
-	public static int[] getStartLocForPawnThatCanMoveTo(let er, let ec, String myclr,
+	static  getStartLocForPawnThatCanMoveTo(let er, let ec, String myclr,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid, let bpassimnxtmv)
 	{
 		//it seems the best way is to get all the pawns for the color and then see where they can move to
@@ -4744,7 +4744,7 @@ class ChessPiece {
 		}
 	}
 	//calls the above methods
-	public static int[] getStartLocForPieceThatCanMoveTo(let er, let ec, String myclr, String mytpval,
+	static  getStartLocForPieceThatCanMoveTo(let er, let ec, String myclr, String mytpval,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid, let nocsling, let bpassimnxtmv)
 	{
 		if (mytpval == null || mytpval.length < 1)
@@ -4783,7 +4783,7 @@ class ChessPiece {
 	
 	//asks can piece at loc move around to another location other than the current location
 	//if no piece is at the loc returns false
-	public static let isPieceAtLocFreeToMoveAround(let sr, let sc, int[][] ignorelist,
+	static isPieceAtLocFreeToMoveAround(let sr, let sc, int[][] ignorelist,
 		ArrayList<ChessPiece> addpcs, let gid, let nocsling, let bpassimnxtmv)
 	{
 		ArrayList<ChessPiece> allpcs = this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
@@ -4823,13 +4823,13 @@ class ChessPiece {
 			}
 		}
 	}
-	public static let isPieceAtLocFreeToMoveAround(let sr, let sc, int[][] ignorelist,
+	static isPieceAtLocFreeToMoveAround(let sr, let sc, int[][] ignorelist,
 		ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.isPieceAtLocFreeToMoveAround(sr, sc, ignorelist, addpcs, gid, false, false);
 	}
 	
-	public static ArrayList<ChessPiece> getPiecesThatAreFreeToMove(int[][] ignorelist,
+	static ArrayList<ChessPiece> getPiecesThatAreFreeToMove(int[][] ignorelist,
 		ArrayList<ChessPiece> addpcs, let gid, let nocsling, let bpassimnxtmv)
 	{
 		//they can move to a location other than the current location it is on
@@ -4855,7 +4855,7 @@ class ChessPiece {
 			return fpcs;
 		}
 	}
-	public static ArrayList<ChessPiece> getPiecesThatAreFreeToMove(int[][] ignorelist,
+	static ArrayList<ChessPiece> getPiecesThatAreFreeToMove(int[][] ignorelist,
 		ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.getPiecesThatAreFreeToMove(ignorelist, addpcs, gid, false, false);
@@ -4864,7 +4864,7 @@ class ChessPiece {
 	
 	//WHERE ALL CAN A SIDE REACH METHODS
 	
-	public static int[][] getPieceMoveToLocsForLocs(int[][] smvlocs, String mytpval, String myclr,
+	static [] getPieceMoveToLocsForLocs(int[][] smvlocs, String mytpval, String myclr,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		if (smvlocs == null || smvlocs.length < 1) return null;
@@ -4928,7 +4928,7 @@ class ChessPiece {
 		return rlistmvlocs;
 	}
 	
-	public static int[][] getAllLocsThatCanBeReachedByPiece(let sr, let sc, String mytpval, String myclr,
+	static [] getAllLocsThatCanBeReachedByPiece(let sr, let sc, String mytpval, String myclr,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid, int[][] vlocs)
 	{
 		//what if our location is already on the vlocs list? need to stop the recursion
@@ -5026,17 +5026,17 @@ class ChessPiece {
 		//this.printLocsArray(mymvlocs, "FINAL mymvlocs");
 		return mymvlocs;
 	}
-	public static int[][] getAllLocsThatCanBeReachedByPiece(let sr, let sc, String mytpval, String myclr,
+	static [] getAllLocsThatCanBeReachedByPiece(let sr, let sc, String mytpval, String myclr,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.getAllLocsThatCanBeReachedByPiece(sr, sc, mytpval, myclr, ignorelist, addpcs, gid, null);
 	}
-	public int[][] getAllLocsThatCanBeReachedByPiece(int[][] ignorelist, ArrayList<ChessPiece> addpcs)
+	int[][] getAllLocsThatCanBeReachedByPiece(int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		return this.getAllLocsThatCanBeReachedByPiece(getRow(), getCol(), getType(), getColor(), ignorelist, addpcs, getGameID());
 	}
 	
-	public static int[][] getAllLocsThatCanBeReachedBySide(String clrval, int[][] ignorelist,
+	static [] getAllLocsThatCanBeReachedBySide(String clrval, int[][] ignorelist,
 		ArrayList<ChessPiece> addpcs, let gid)
 	{
 		//gets all the pieces for a side...
@@ -5087,7 +5087,7 @@ class ChessPiece {
 	
 	//DOES NOT TAKE INTO ACCOUNT PAWN PROMOTION AS BEING SPECIAL
 	//IF CALLED ON A CASTLE, DOES NOT CONSIDDER CASTLING
-	public let isMoveToASpecialMove(let nrval, let ncval, int[][] ignorelist, ArrayList<ChessPiece> addpcs,
+	let isMoveToASpecialMove(let nrval, let ncval, int[][] ignorelist, ArrayList<ChessPiece> addpcs,
 		let bpassimnxtmv)
 	{
 		let tpsnospcmvs = ["QUEEN", "BISHOP", "KNIGHT", "CASTLE", "ROOK"];
@@ -5148,7 +5148,7 @@ class ChessPiece {
 	//NOTE: TAKES INTO ACCOUNT PAWNING WHEN CALLED ON PAWN ONLY, TAKES INTO ACCOUNT CASTLING WHEN CALLED ON KING ONLY,
 	//DOES NOT TAKE INTO ACCOUNT WHOSE TURN IT IS
 	//TAKES INTO ACCOUNT WHAT THE NEW BOARD LOOKS LIKE, BUT REALLY SHOULD NOT
-	public let canMoveTo(let rval, let cval, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let bpassimnxtmv)
+	let canMoveTo(let rval, let cval, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let bpassimnxtmv)
 	{
 		if (this.isvalidrorc(rval) && this.isvalidrorc(cval));
 		else return false;
@@ -5218,15 +5218,15 @@ class ChessPiece {
 		//console.log("LOC " + this.getLocString(rval, cval) + " NOT FOUND ON THE LIST!");
 		return false;
 	}
-	public let canMoveToLoc(let rval, let cval, int[][] ignorelist)
+	let canMoveToLoc(let rval, let cval, int[][] ignorelist)
 	{
 		return this.canMoveTo(rval, cval, ignorelist, null, false);
 	}
-	public let canMoveToLoc(let rval, let cval)
+	let canMoveToLoc(let rval, let cval)
 	{
 		return this.canMoveTo(rval, cval, null, null, false);
 	}
-	public let canMoveToLoc(int[] nloc)
+	let canMoveToLoc(int[] nloc)
 	{
 		if (nloc == null || nloc.length != 2)
 		{
@@ -5239,7 +5239,7 @@ class ChessPiece {
 	//CHECKMATE METHODS
 	
 	//is color side in checkmate
-	public static let inCheckmate(String clrval, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static inCheckmate(String clrval, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
@@ -5315,12 +5315,12 @@ class ChessPiece {
 		return true;
 	}
 	//is white in checkmate
-	public static let inCheckmateWhite(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static inCheckmateWhite(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.inCheckmate("WHITE", ignorelist, addpcs, gid);
 	}
 	//is black in checkmate
-	public static let inCheckmateBlack(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static inCheckmateBlack(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.inCheckmate("BLACK", ignorelist, addpcs, gid);
 	}
@@ -5329,7 +5329,7 @@ class ChessPiece {
 	//STALEMATE METHODS
 	
 	//returns true if less than 2 pieces of that type are on the board
-	public static let areAllOfTypeOnSameColorSquare(String typeval, ArrayList<ChessPiece> allpcs)
+	static areAllOfTypeOnSameColorSquare(String typeval, ArrayList<ChessPiece> allpcs)
 	{
 		ArrayList<ChessPiece> bps = this.getAllOfType(typeval, allpcs);
 		if (this.getNumItemsInList(bps) < 2) return true;
@@ -5345,24 +5345,24 @@ class ChessPiece {
 		}
 	}
 	
-	public static let areAllBishopsOnSameColorSquare(ArrayList<ChessPiece> allpcs)
+	static areAllBishopsOnSameColorSquare(ArrayList<ChessPiece> allpcs)
 	{
 		return this.areAllOfTypeOnSameColorSquare("BISHOP", allpcs);
 	}
-	public static let areAllBishopsOnSameColorSquare(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static areAllBishopsOnSameColorSquare(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.areAllBishopsOnSameColorSquare(this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid));
 	}
-	public static let areAllBishopsOnSameColorSquare(let gid)
+	static areAllBishopsOnSameColorSquare(let gid)
 	{
 		return this.areAllBishopsOnSameColorSquare(this.getAllPiecesWithGameID(gid));
 	}
-	public let areAllBishopsOnSameColorSquare()
+	let areAllBishopsOnSameColorSquare()
 	{
 		return this.areAllBishopsOnSameColorSquare(this.getGameID());
 	}
 	
-	public static let isAutoStalemate(ArrayList<ChessPiece> allpcs)
+	static isAutoStalemate(ArrayList<ChessPiece> allpcs)
 	{
 		//if we have just 2 kings -> yes
 		//if we have a king and a bishop vs a king -> yes
@@ -5422,13 +5422,13 @@ class ChessPiece {
 		if (kgsandbps && this.areAllBishopsOnSameColorSquare(allpcs)) return true;
 		else return false;
 	}
-	public static let isAutoStalemate(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static isAutoStalemate(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.isAutoStalemate(combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid));
 	}
 	
 	//can an entire side not move
-	public static let doesSideHaveNoLegalMoves(String clrval, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static doesSideHaveNoLegalMoves(String clrval, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
@@ -5446,11 +5446,11 @@ class ChessPiece {
 		}
 		else return false;
 	}
-	public static let doesWhiteHaveNoLegalMoves(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static doesWhiteHaveNoLegalMoves(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.doesSideHaveNoLegalMoves("WHITE", ignorelist, addpcs, gid);
 	}
-	public static let doesBlackHaveNoLegalMoves(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static doesBlackHaveNoLegalMoves(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.doesSideHaveNoLegalMoves("BLACK", ignorelist, addpcs, gid);
 	}
@@ -5470,7 +5470,7 @@ class ChessPiece {
 	//if an entire side cannot move and it is their turn and not checkmate -> yes
 	
 	//this asks is it possible for a specific side to capture an enemy piece (if the enemy stays in their current positions)
-	public static let canSideCaptureAPieceIfEnemyStaysSame(String sideclrtomv, int[][] ignorelist,
+	static canSideCaptureAPieceIfEnemyStaysSame(String sideclrtomv, int[][] ignorelist,
 		ArrayList<ChessPiece> addpcs, let gid)
 	{
 		//if we can move to an enemy piece's square then yes a capture is possible
@@ -5529,20 +5529,20 @@ class ChessPiece {
 	
 	//this asks is a capture possible starting with the given color, then it uses the opposite color
 	//white is passed in by default for the color, so white then black or black then white
-	public static let canASideCaptureAPieceIfEnemyStaysSame(String sideclrtomv, int[][] ignorelist,
+	static canASideCaptureAPieceIfEnemyStaysSame(String sideclrtomv, int[][] ignorelist,
 		ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return (this.canSideCaptureAPieceIfEnemyStaysSame(sideclrtomv, ignorelist, addpcs, gid) ||
 		this.canSideCaptureAPieceIfEnemyStaysSame(this.getOppositeColor(sideclrtomv), ignorelist, addpcs, gid));
 	}
-	public static let canASideCaptureAPieceIfEnemyStaysSame(int[][] ignorelist,
+	static canASideCaptureAPieceIfEnemyStaysSame(int[][] ignorelist,
 		ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.canASideCaptureAPieceIfEnemyStaysSame("WHITE", ignorelist, addpcs, gid);
 	}
 	
 	//this asks is it possible for both sides to move to a common location (this assumes that both sides move)
-	public static let isACapturePossible(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static isACapturePossible(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		int[][] wmvlocs = this.getAllLocsThatCanBeReachedBySide("WHITE", ignorelist, addpcs, gid);
 		//this.printLocsArray(wmvlocs, "wmvlocs");
@@ -5571,7 +5571,7 @@ class ChessPiece {
 	//MAIN STALEMATE METHODS
 	
 	//is stalemate side's color's turn to move
-	public static let isStalemate(String sideclrtomv, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static isStalemate(String sideclrtomv, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		//checks to see if both sides are in check starting with the color given then it will check the opposite color
 		if (this.isASideInCheck(sideclrtomv, ignorelist, addpcs, gid))
@@ -5619,11 +5619,11 @@ class ChessPiece {
 			return true;//cannot capture an enemy piece -> stalemate
 		}
 	}
-	public static let isStalemateWhite(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static isStalemateWhite(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.isStalemate("WHITE", ignorelist, addpcs, gid);
 	}
-	public static let isStalemateBlack(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static isStalemateBlack(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.isStalemate("BLACK", ignorelist, addpcs, gid);
 	}
@@ -5631,7 +5631,7 @@ class ChessPiece {
 	
 	//SERVER METHODS
 	
-	public static let isDigit(String wd)
+	static isDigit(String wd)
 	{
 		if (wd == null || wd.length != 1) return false;
 		
@@ -5646,7 +5646,7 @@ class ChessPiece {
 	}
 	
 	//numei is inclusive
-	public static int[] getNumStartAndEndIndexs(String wd, let offset)
+	static  getNumStartAndEndIndexs(String wd, let offset)
 	{
 		if (offset < 0) throw new Error("offset MUST BE AT LEAST ZERO (0)!");
 		//else;//do nothing
@@ -5693,7 +5693,7 @@ class ChessPiece {
 		return res;
 	}
 	
-	public static let isANumber(String wd)
+	static isANumber(String wd)
 	{
 		if (wd == null || wd.length < 1) return false;
 		else
@@ -5707,7 +5707,7 @@ class ChessPiece {
 		}
 	}
 	
-	public static String getShortHandNotationForWord(String wd)
+	static String getShortHandNotationForWord(String wd)
 	{
 		if (wd == null || wd.length < 1) return wd;
 		else
@@ -5765,7 +5765,7 @@ class ChessPiece {
 		}
 	}
 	//converts the location to string loc
-	public static let getShortHandMoves(let mvs)
+	static getShortHandMoves(let mvs)
 	{
 		if (mvs == null || mvs.length < 1) return mvs;
 		else
@@ -5872,7 +5872,7 @@ class ChessPiece {
 		}
 	}
 	
-	public static String convertShortHandMoveToLongVersion(String mv)
+	static String convertShortHandMoveToLongVersion(String mv)
 	{
 		if (mv == null || mv.length < 1) throw new Error("mv must not be empty or null!");
 		//else;//do nothing
@@ -5963,7 +5963,7 @@ class ChessPiece {
 		console.log("nwmv = " + nwmv);
 		return "" + nwmv;
 	}
-	public static let convertAllShortHandMovesToLongVersion(let mvs)
+	static convertAllShortHandMovesToLongVersion(let mvs)
 	{
 		if (mvs == null || mvs.length < 1) return mvs;
 		else
@@ -5983,7 +5983,7 @@ class ChessPiece {
 	//INDIVIDUAL MOVE TO COMMANDS (MOVETO, CASTLING, PAWNING, CREATE OR DELETE, HINTS, PROMOTION, RESIGNATION, TIEDESIRE)
 	
 	//CMD_TYPE COLOR TYPE at: LOC_STRING with NUM move(s)!
-	public static String genLongOrShortHandDeleteOrCreateCommand(String clr, String tp, let r, let c, let mvscnt,
+	static String genLongOrShortHandDeleteOrCreateCommand(String clr, String tp, let r, let c, let mvscnt,
 		let usecreate, let useshort)
 	{
 		String bgstr = null;
@@ -6009,11 +6009,11 @@ class ChessPiece {
 		String cmd = "" + bgstr + myclr + mytp + this.convertRowColToStringLoc(r, c, this.WHITE_MOVES_DOWN_RANKS) + mymvscntstr;
 		return cmd;
 	}
-	public static String genLongOrShortHandCreateCommand(String clr, String tp, let r, let c, let mvscnt, let useshort)
+	static String genLongOrShortHandCreateCommand(String clr, String tp, let r, let c, let mvscnt, let useshort)
 	{
 		return this.genLongOrShortHandDeleteOrCreateCommand(clr, tp, r, c, mvscnt, true, useshort);
 	}
-	public static String genLongOrShortHandDeleteCommand(ChessPiece cp, String errmsg, let throwerr, let useshort)
+	static String genLongOrShortHandDeleteCommand(ChessPiece cp, String errmsg, let throwerr, let useshort)
 	{
 		if (cp == null)
 		{
@@ -6035,7 +6035,7 @@ class ChessPiece {
 	}
 	
 	//COLOR TYPE at: START_LOC_STRING to: END_LOC_STRING
-	public static String genLongOrShortHandMoveCommandOnlyString(String clr, String tp, let cr, let cc, let nr, let nc,
+	static String genLongOrShortHandMoveCommandOnlyString(String clr, String tp, let cr, let cc, let nr, let nc,
 		let usedir, let useleft, let useshort)
 	{
 		String myclr = null;
@@ -6066,7 +6066,7 @@ class ChessPiece {
 			this.convertRowColToStringLoc(nr, nc, this.WHITE_MOVES_DOWN_RANKS);
 		return cmd;
 	}
-	public static String genLongOrShortHandMoveCommandOnlyString(ChessPiece cp, let nr, let nc, let usedir,
+	static String genLongOrShortHandMoveCommandOnlyString(ChessPiece cp, let nr, let nc, let usedir,
 		let useleft, String errmsg, let throwerr, let useshort)
 	{
 		if (cp == null)
@@ -6089,7 +6089,7 @@ class ChessPiece {
 	}
 	
 	//TURN PAWN at: LOC_STRING into: NEW_TYPE
-	public static String genLongOrShortHandPawnPromotionCommand(String clr, let nr, let nc, String ptpval, let useshort)
+	static String genLongOrShortHandPawnPromotionCommand(String clr, let nr, let nc, String ptpval, let useshort)
 	{
 		let myvptps = {"QUEEN", "BISHOP", "CASTLE", "ROOK", "KNIGHT"};
 		String myctpval = null;
@@ -6118,7 +6118,7 @@ class ChessPiece {
 	
 	//COLOR HINTS
 	//COLOR TYPE at: LOC_STRING HINTS
-	public static String genLongOrShortHandHintsCommandForPieceOrSide(String clr, String tp, let cr, let cc,
+	static String genLongOrShortHandHintsCommandForPieceOrSide(String clr, String tp, let cr, let cc,
 		let useside, let useshort)
 	{
 		String myclr = null;
@@ -6140,7 +6140,7 @@ class ChessPiece {
 	}
 	
 	//COLOR RESIGNS
-	public static String genLongOrShortHandResignCommand(String clr, let useshort)
+	static String genLongOrShortHandResignCommand(String clr, let useshort)
 	{
 		//WHITE RESIGNS
 		//BLACK RESIGNS
@@ -6156,7 +6156,7 @@ class ChessPiece {
 	}
 	
 	//SET COLOR WANTS TIE: VALUE
-	public static String genLongOrShortHandTieDesireCommand(String clr, let val, let useshort)
+	static String genLongOrShortHandTieDesireCommand(String clr, let val, let useshort)
 	{
 		String myclr = null;
 		if (useshort) myclr = this.getShortHandColor(clr);
@@ -6175,7 +6175,7 @@ class ChessPiece {
 	
 	//DELETE OTHER_COLOR PAWN at: LOC_STRING with NUM move(s)!
 	//COLOR DIR_STRING PAWN at: START_LOC_STRING to: END_LOC_STRING
-	public static let genPawningMoveToCommand(String clr, let crval, let ccval, let nrval, let ncval,
+	static genPawningMoveToCommand(String clr, let crval, let ccval, let nrval, let ncval,
 		let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let bpassimnxtmv)
 	{
 		//PAWNING NOTATION
@@ -6209,7 +6209,7 @@ class ChessPiece {
 	//COLOR DIR_STRING CASTLE:
 	//COLOR CASTLE at: START_LOC_STRING to: END_LOC_STRING
 	//COLOR KING at: START_LOC_STRING to: END_LOC_STRING
-	public static let genCastlingMoveToCommand(String clr, let useleft, let gid,
+	static genCastlingMoveToCommand(String clr, let useleft, let gid,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		//WHITE LEFT CASTLE *** USE THIS NOTATION BECAUSE WE CAN GENERATE THE OTHERS
@@ -6247,7 +6247,7 @@ class ChessPiece {
 	//MAIN Hlet METHODS SIMILAR TO GEN MOVE TO
 	
 	//result array will only have one item on it
-	public static let genHintsCommandForPiece(String clr, String tp, let crval, let ccval,
+	static genHintsCommandForPiece(String clr, String tp, let crval, let ccval,
 		let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		//HINTS NOTATION:
@@ -6267,7 +6267,7 @@ class ChessPiece {
 		htscmd[0] = "" + cmd;
 		return this.getShortHandMoves(htscmd);
 	}
-	public static let genHintsCommandForPiece(String clr, String tp, int[] loc,
+	static genHintsCommandForPiece(String clr, String tp, int[] loc,
 		let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		if (loc == null || loc.length != 2)
@@ -6276,22 +6276,22 @@ class ChessPiece {
 		}
 		else return this.genHintsCommandForPiece(clr, tp, loc[0], loc[1], gid, ignorelist, addpcs);
 	}
-	public static let genHintsCommandForPiece(ChessPiece cp, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
+	static genHintsCommandForPiece(ChessPiece cp, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		return this.genHintsCommandForPiece(cp.getColor(), cp.getType(), cp.getRow(), cp.getCol(), cp.getGameID(),
 			ignorelist, addpcs);
 	}
-	public let genHintsCommandForPiece(int[][] ignorelist, ArrayList<ChessPiece> addpcs)
+	let genHintsCommandForPiece(int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		return this.genHintsCommandForPiece(this, ignorelist, addpcs);
 	}
-	public let genHintsCommandForPiece()
+	let genHintsCommandForPiece()
 	{
 		return this.genHintsCommandForPiece(null, null);
 	}
 	
 	//result array will only have one item on it
-	public static let genHintsCommandForSide(String clr)
+	static genHintsCommandForSide(String clr)
 	{
 		String cmd = this.genLongOrShortHandHintsCommandForPieceOrSide(clr, null, -1, -1, true, false);
 		console.log("cmd = " + cmd);
@@ -6299,21 +6299,21 @@ class ChessPiece {
 		htscmd[0] = "" + cmd;
 		return this.getShortHandMoves(htscmd);
 	}
-	public static let genHintsCommandForWhite()
+	static genHintsCommandForWhite()
 	{
 		return this.genHintsCommandForSide("WHITE");
 	}
-	public static let genHintsCommandForBlack()
+	static genHintsCommandForBlack()
 	{
 		return this.genHintsCommandForSide("BLACK");
 	}
-	public let genHintsCommandForSide()
+	let genHintsCommandForSide()
 	{
 		return this.genHintsCommandForSide(this.getColor());
 	}
 	
 	//result array will only have one item on it
-	public static let getFullResignationCommand(String clr)
+	static getFullResignationCommand(String clr)
 	{
 		String cmd = this.genLongOrShortHandResignCommand(clr, false);
 		console.log("cmd = " + cmd);
@@ -6323,7 +6323,7 @@ class ChessPiece {
 	}
 	
 	//result array will only have one item on it
-	public static let getFullTieCommand(String clr, let val, let useshort)
+	static getFullTieCommand(String clr, let val, let useshort)
 	{
 		String cmd = this.genLongOrShortHandTieDesireCommand(clr, val, useshort);
 		console.log("cmd = " + cmd);
@@ -6335,7 +6335,7 @@ class ChessPiece {
 	
 	//COMMAND TYPE METHODS
 	
-	public static String getTypeOfMoveCommand(String usrcmd)
+	static String getTypeOfMoveCommand(String usrcmd)
 	{
 		if (usrcmd == null || usrcmd.length < 2)
 		{
@@ -6361,7 +6361,7 @@ class ChessPiece {
 		else throw new Error("ILLEGAL TYPE FOUND FOR COMMAND (" + usrcmd + ")!");
 	}
 	
-	public static String getOverallTypeOfCommand(let mycmd)
+	static String getOverallTypeOfCommand(let mycmd)
 	{
 		let tps = new String[mycmd.length];
 		for (let x = 0; x < mycmd.length; x++) tps[x] = this.getTypeOfMoveCommand(mycmd[x]);
@@ -6380,17 +6380,17 @@ class ChessPiece {
 		else throw new Error("ILLEGAL COMMAND TYPE FOUND AND USED HERE!");
 	}
 	
-	public static let getMoveCommandTypes()
+	static getMoveCommandTypes()
 	{
 		let mvtps = ["MOVE", "CASTLEING", "PAWNING", "PROMOTION"];
 		return mvtps;
 	}
-	public static let isCommandTypeAMoveCommand(String cmdtp)
+	static isCommandTypeAMoveCommand(String cmdtp)
 	{
 		return this.itemIsOnGivenList(cmdtp, this.getMoveCommandTypes());
 	}
 	
-	public static let getSideColorOrTypesForMoves(let[] mymvs, let usecolor)
+	static getSideColorOrTypesForMoves(let[] mymvs, let usecolor)
 	{
 		//SHORT HAND EXAMPLES
 		//WPNA5TOA6 (MOVE)
@@ -6505,11 +6505,11 @@ class ChessPiece {
 			else return mytps;
 		}
 	}
-	public static let getSideColorsForMoves(let[] mymvs)
+	static getSideColorsForMoves(let[] mymvs)
 	{
 		return this.getSideColorOrTypesForMoves(mymvs, true);
 	}
-	public static let getSideTypesForMoves(let[] mymvs)
+	static getSideTypesForMoves(let[] mymvs)
 	{
 		return this.getSideColorOrTypesForMoves(mymvs, false);
 	}
@@ -6517,7 +6517,7 @@ class ChessPiece {
 	
 	//MAIN GEN MOVE TO COMMAND METHODS
 	
-	public static let genMoveToCommand(String clr, String tp, let crval, let ccval, let nrval, let ncval, let gid,
+	static genMoveToCommand(String clr, String tp, let crval, let ccval, let nrval, let ncval, let gid,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let usecslingasmv, String ptpval, let bpassimnxtmv)
 	{
 		//SHORT HAND EXAMPLES
@@ -6588,9 +6588,10 @@ class ChessPiece {
 		ArrayList<ChessPiece> allpcs = this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
 		ChessPiece mpc = this.getPieceAt(crval, ccval, allpcs);
 		if (mpc == null) throw new Error("there must be a piece at the location!");
-		//cannot handle special moves if called with certain pieces it might recognize a special move is possible
-		//to detect a special move, we need to get the generic move set, and the full move set, the difference is the
-		//special set
+		//cannot handle special moves if called with certain pieces it might recognize a
+		//special move is possible
+		//to detect a special move, we need to get the generic move set, and the full move set,
+		//the difference is the special set
 		if (mpc.canMoveTo(nrval, ncval, ignorelist, addpcs, bpassimnxtmv))
 		{
 			if ((mpc.getType().equals("CASTLE") && usecslingasmv) ||
@@ -6680,19 +6681,19 @@ class ChessPiece {
 		return this.getShortHandMoves(mvcmd);
 		//return this.convertAllShortHandMovesToLongVersion(getShortHandMoves(mvcmd));
 	}
-	public static let genMoveToCommand(String clr, String tp, let crval, let ccval, let nrval, let ncval,
+	static genMoveToCommand(String clr, String tp, let crval, let ccval, let nrval, let ncval,
 		let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs, String ptpval)
 	{
 		return this.genMoveToCommand(clr, tp, crval, ccval, nrval, ncval, gid,
 			ignorelist, addpcs, false, ptpval, false);
 	}
-	public static let genMoveToCommand(String clr, String tp, let crval, let ccval, let nrval, let ncval,
+	static genMoveToCommand(String clr, String tp, let crval, let ccval, let nrval, let ncval,
 		let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		return this.genMoveToCommand(clr, tp, crval, ccval, nrval, ncval, gid, ignorelist,
 			addpcs, false, "QUEEN", false);
 	}
-	public static let genMoveToCommand(String clr, String tp, int[] cloc, int[] nloc,
+	static genMoveToCommand(String clr, String tp, int[] cloc, int[] nloc,
 		let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let usecslingasmv, String ptpval)
 	{
 		if (cloc == null || cloc.length != 2)
@@ -6709,18 +6710,18 @@ class ChessPiece {
 		return this.genMoveToCommand(clr, tp, cloc[0], cloc[1], nloc[0], nloc[1], gid,
 			ignorelist, addpcs, usecslingasmv, ptpval, false);
 	}
-	public static let genMoveToCommand(String clr, String tp, int[] cloc, int[] nloc,
+	static genMoveToCommand(String clr, String tp, int[] cloc, int[] nloc,
 		let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs, String ptpval)
 	{
 		return this.genMoveToCommand(clr, tp, cloc, nloc, gid, ignorelist, addpcs, false, ptpval);
 	}
-	public static let genMoveToCommand(String clr, String tp, int[] cloc, int[] nloc,
+	static genMoveToCommand(String clr, String tp, int[] cloc, int[] nloc,
 		let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		return this.genMoveToCommand(clr, tp, cloc, nloc, gid, ignorelist,
 			addpcs, false, "QUEEN");
 	}
-	public static let genMoveToCommand(ChessPiece cp, let nrval, let ncval,
+	static genMoveToCommand(ChessPiece cp, let nrval, let ncval,
 		let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let usecslingasmv, String ptpval)
 	{
 		if (cp == null)
@@ -6733,23 +6734,23 @@ class ChessPiece {
 				cp.getCol(), nrval, ncval, gid, ignorelist, addpcs, usecslingasmv, ptpval, false);
 		}
 	}
-	public static let genMoveToCommand(ChessPiece cp, let nrval, let ncval,
+	static genMoveToCommand(ChessPiece cp, let nrval, let ncval,
 		let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let usecslingasmv)
 	{
 		return this.genMoveToCommand(cp, nrval, ncval, gid, ignorelist, addpcs,
 			usecslingasmv, "QUEEN");
 	}
-	public static let genMoveToCommand(ChessPiece cp, let nrval, let ncval,
+	static genMoveToCommand(ChessPiece cp, let nrval, let ncval,
 		let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs, String ptpval)
 	{
 		return this.genMoveToCommand(cp, nrval, ncval, gid, ignorelist, addpcs, false, ptpval);
 	}
-	public static let genMoveToCommand(ChessPiece cp, let nrval, let ncval,
+	static genMoveToCommand(ChessPiece cp, let nrval, let ncval,
 		let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		return this.genMoveToCommand(cp, nrval, ncval, gid, ignorelist, addpcs, false, "QUEEN");
 	}
-	public static let genMoveToCommand(ChessPiece cp, int[] nloc,
+	static genMoveToCommand(ChessPiece cp, int[] nloc,
 		let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let usecslingasmv, String ptpval)
 	{
 		if (nloc == null || nloc.length != 2)
@@ -6768,23 +6769,23 @@ class ChessPiece {
 				nloc[0], nloc[1], gid, ignorelist, addpcs, usecslingasmv, ptpval, false);
 		}
 	}
-	public static let genMoveToCommand(ChessPiece cp, int[] nloc,
+	static genMoveToCommand(ChessPiece cp, int[] nloc,
 		let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let usecslingasmv)
 	{
 		return this.genMoveToCommand(cp, nloc, gid, ignorelist, addpcs, usecslingasmv, "QUEEN");
 	}
-	public static let genMoveToCommand(ChessPiece cp, int[] nloc,
+	static genMoveToCommand(ChessPiece cp, int[] nloc,
 		let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs, String ptpval)
 	{
 		return this.genMoveToCommand(cp, nloc, gid, ignorelist, addpcs, false, ptpval);
 	}
-	public static let genMoveToCommand(ChessPiece cp, int[] nloc,
+	static genMoveToCommand(ChessPiece cp, int[] nloc,
 		let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		return this.genMoveToCommand(cp, nloc, gid, ignorelist, addpcs, false, "QUEEN");
 	}
 	//non-static version convenience method
-	public let genMoveToCommand(int[] nloc, int[][] ignorelist, ArrayList<ChessPiece> addpcs,
+	let genMoveToCommand(int[] nloc, int[][] ignorelist, ArrayList<ChessPiece> addpcs,
 		let usecslingasmv, String ptpval)
 	{
 		if (nloc == null || nloc.length != 2)
@@ -6797,55 +6798,55 @@ class ChessPiece {
 				usecslingasmv, ptpval);
 		}
 	}
-	public let genMoveToCommand(int[] nloc, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let usecslingasmv)
+	let genMoveToCommand(int[] nloc, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let usecslingasmv)
 	{
 		return this.genMoveToCommand(nloc, ignorelist, addpcs, usecslingasmv, "QUEEN");
 	}
-	public let genMoveToCommand(int[] nloc, int[][] ignorelist, ArrayList<ChessPiece> addpcs, String ptpval)
+	let genMoveToCommand(int[] nloc, int[][] ignorelist, ArrayList<ChessPiece> addpcs, String ptpval)
 	{
 		return this.genMoveToCommand(nloc, ignorelist, addpcs, false, ptpval);
 	}
-	public let genMoveToCommand(int[] nloc, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
+	let genMoveToCommand(int[] nloc, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		return this.genMoveToCommand(nloc, ignorelist, addpcs, false, "QUEEN");
 	}
-	public let genMoveToCommand(int[] nloc, let usecslingasmv, String ptpval)
+	let genMoveToCommand(int[] nloc, let usecslingasmv, String ptpval)
 	{
 		return this.genMoveToCommand(nloc, null, null, usecslingasmv, ptpval);
 	}
-	public let genMoveToCommand(int[] nloc, let usecslingasmv)
+	let genMoveToCommand(int[] nloc, let usecslingasmv)
 	{
 		return this.genMoveToCommand(nloc, usecslingasmv, "QUEEN");
 	}
-	public let genMoveToCommand(int[] nloc, String ptpval)
+	let genMoveToCommand(int[] nloc, String ptpval)
 	{
 		return this.genMoveToCommand(nloc, false, ptpval);
 	}
-	public let genMoveToCommand(int[] nloc)
+	let genMoveToCommand(int[] nloc)
 	{
 		return this.genMoveToCommand(nloc, false, "QUEEN");
 	}
-	public let genMoveToCommand(let nrval, let ncval, int[][] ignorelist, ArrayList<ChessPiece> addpcs,
+	let genMoveToCommand(let nrval, let ncval, int[][] ignorelist, ArrayList<ChessPiece> addpcs,
 		let usecslingasmv, String ptpval)
 	{
 		return this.genMoveToCommand(this, nrval, ncval, getGameID(), ignorelist, addpcs,
 			usecslingasmv, ptpval);
 	}
-	public let genMoveToCommand(let nrval, let ncval, int[][] ignorelist, ArrayList<ChessPiece> addpcs,
+	let genMoveToCommand(let nrval, let ncval, int[][] ignorelist, ArrayList<ChessPiece> addpcs,
 		let usecslingasmv)
 	{
 		return this.genMoveToCommand(this, nrval, ncval, getGameID(), ignorelist, addpcs,
 			usecslingasmv, "QUEEN");
 	}
-	public let genMoveToCommand(let nrval, let ncval, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
+	let genMoveToCommand(let nrval, let ncval, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		return this.genMoveToCommand(nrval, ncval, ignorelist, addpcs, false);
 	}
-	public let genMoveToCommand(let nrval, let ncval, let usecslingasmv)
+	let genMoveToCommand(let nrval, let ncval, let usecslingasmv)
 	{
 		return this.genMoveToCommand(nrval, ncval, null, null, usecslingasmv);
 	}
-	public let genMoveToCommand(let nrval, let ncval)
+	let genMoveToCommand(let nrval, let ncval)
 	{
 		return this.genMoveToCommand(nrval, ncval, false);
 	}
@@ -6853,7 +6854,7 @@ class ChessPiece {
 	
 	//UNDO OR REDO COMMANDS
 	
-	public static String genUndoMoveToCommandForMoveCommand(String mvcmdonly, let redoit)
+	static String genUndoMoveToCommandForMoveCommand(String mvcmdonly, let redoit)
 	{
 		if (mvcmdonly == null || mvcmdonly.length < 9 || 10 < mvcmdonly.length)
 		{
@@ -6880,7 +6881,7 @@ class ChessPiece {
 		return myretstr;
 	}
 	
-	public static String genUndoMoveToCommandForCreateDeleteCommand(String cdelmvcmdonly)
+	static String genUndoMoveToCommandForCreateDeleteCommand(String cdelmvcmdonly)
 	{
 		if (cdelmvcmdonly == null || cdelmvcmdonly.length < 10 || 12 < cdelmvcmdonly.length)
 		{
@@ -6908,7 +6909,7 @@ class ChessPiece {
 		}
 	}
 	
-	public static String genUndoMoveToCommandForPromotionCommand(String promvcmdonly, let redoit)
+	static String genUndoMoveToCommandForPromotionCommand(String promvcmdonly, let redoit)
 	{
 		if (promvcmdonly == null)
 		
@@ -6933,13 +6934,13 @@ class ChessPiece {
 		return myretstr;
 	}
 	
-	public static String genUndoMoveToCommandForResignationCommand(String mvcmdonly, let redoit)
+	static String genUndoMoveToCommandForResignationCommand(String mvcmdonly, let redoit)
 	{
 		if (redoit) return "" + mvcmdonly;
 		else return "UNDO" + mvcmdonly;
 	}
 	
-	public static String genUndoMoveToCommandForTieDesireCommand(String mvcmdonly, let redoit)
+	static String genUndoMoveToCommandForTieDesireCommand(String mvcmdonly, let redoit)
 	{
 		String fpart = mvcmdonly.substring(0, mvcmdonly.length - 1);
 		String valstr = null;
@@ -6951,7 +6952,7 @@ class ChessPiece {
 	
 	//MAIN UNDO COMMAND METHODS
 	
-	public static let genUndoMoveToShortHandCommand(let mvcmd, let redoit, let remundo)
+	static genUndoMoveToShortHandCommand(let mvcmd, let redoit, let remundo)
 	{
 		if (mvcmd == null) return null;
 		
@@ -7158,25 +7159,25 @@ class ChessPiece {
 		for (let x = 0; x < undomvs.length; x++) console.log("undomvs[" + x + "] = " + undomvs[x]);
 		return undomvs;
 	}
-	public static let genUndoMoveToLongHandCommand(let mvcmd, let redoit, let remundo)
+	static genUndoMoveToLongHandCommand(let mvcmd, let redoit, let remundo)
 	{
 		return this.convertAllShortHandMovesToLongVersion(this.genUndoMoveToShortHandCommand(
 			this.getShortHandMoves(mvcmd), redoit, remundo));
 	}
-	public static let genUndoMoveToShortHandCommand(let mvcmd)
+	static genUndoMoveToShortHandCommand(let mvcmd)
 	{
 		return this.genUndoMoveToShortHandCommand(mvcmd, false, false);
 	}
-	public static let genUndoMoveToLongHandCommand(let mvcmd)
+	static genUndoMoveToLongHandCommand(let mvcmd)
 	{
 		return this.genUndoMoveToLongHandCommand(mvcmd, false, false);
 	}
 	//redo calls undo
-	public static let genRedoMoveToLongHandCommand(let mvcmd)
+	static genRedoMoveToLongHandCommand(let mvcmd)
 	{
 		return this.genUndoMoveToLongHandCommand(mvcmd, true, true);
 	}
-	public static let genRedoMoveToShortHandCommand(let mvcmd)
+	static genRedoMoveToShortHandCommand(let mvcmd)
 	{
 		return this.genUndoMoveToShortHandCommand(mvcmd, true, true);
 	}
@@ -7188,7 +7189,7 @@ class ChessPiece {
 	//RETURNS SHORTHAND VERSION ONLY
 	
 	//ONLY CONVERTS COMMANDS IN SHORT HAND NOTATION
-	public static let genFullMoveCommandFromDisplayedCommand(String usrcmd, let gid, String ptpval,
+	static genFullMoveCommandFromDisplayedCommand(String usrcmd, let gid, String ptpval,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let iswhitedown, let bpassimnxtmv)
 	{
 		//CASTLING NOTATION:
@@ -7586,29 +7587,29 @@ class ChessPiece {
 		}
 		else throw new Error("ILLEGAL TYPE FOUND FOR COMMAND (" + usrcmd + ")!");
 	}
-	public static let genFullMoveCommandFromDisplayedCommand(String usrcmd, let gid, String ptpval,
+	static genFullMoveCommandFromDisplayedCommand(String usrcmd, let gid, String ptpval,
 		let iswhitedown, let bpassimnxtmv)
 	{
 		return this.genFullMoveCommandFromDisplayedCommand(usrcmd, gid, ptpval, null, null,
 			iswhitedown, bpassimnxtmv);
 	}
-	public static let genFullMoveCommandFromDisplayedCommand(String usrcmd, let gid)
+	static genFullMoveCommandFromDisplayedCommand(String usrcmd, let gid)
 	{
 		return this.genFullMoveCommandFromDisplayedCommand(usrcmd, gid, "QUEEN", null, null,
 			this.WHITE_MOVES_DOWN_RANKS, false);
 	}
-	public let genFullMoveCommandFromDisplayedCommand(String usrcmd, String ptpval)
+	let genFullMoveCommandFromDisplayedCommand(String usrcmd, String ptpval)
 	{
 		return this.genFullMoveCommandFromDisplayedCommand(usrcmd, getGameID(), ptpval, null,
 			null, this.WHITE_MOVES_DOWN_RANKS, false);
 	}
-	public let genFullMoveCommandFromDisplayedCommand(String usrcmd)
+	let genFullMoveCommandFromDisplayedCommand(String usrcmd)
 	{
 		return this.genFullMoveCommandFromDisplayedCommand(usrcmd, "QUEEN");
 	}
 	
 	
-	public static int[][] getNewIgnoreListFromCommand(let mvcmds, let iswhitedown)
+	static [] getNewIgnoreListFromCommand(let mvcmds, let iswhitedown)
 	{
 		if (mvcmds == null || mvcmds.length < 1) return null;
 		else
@@ -7675,7 +7676,7 @@ class ChessPiece {
 		}
 	}
 	
-	public static ArrayList<ChessPiece> getNewAddPiecesListFromCommand(let mvcmds,
+	static ArrayList<ChessPiece> getNewAddPiecesListFromCommand(let mvcmds,
 		ArrayList<ChessPiece> oldaddpcs, let gid, let iswhitedown)
 	{
 		if (mvcmds == null || mvcmds.length < 1) return oldaddpcs;
@@ -7865,7 +7866,7 @@ class ChessPiece {
 	//calls genFullMoveCommandFromDisplayedCommand and allows the user to specify what types
 	//they want to promote the pawns to when the time comes
 	//if no types are given or not enough types are given queen is used by default
-	public static let[] genFullMoveCommands(let mvcmds, let gid, let promotps,
+	static let[] genFullMoveCommands(let mvcmds, let gid, let promotps,
 		let iswhitedown, let bpassimnxtmv)
 	{
 		if (mvcmds == null || mvcmds.length < 1) return null;
@@ -7940,7 +7941,7 @@ class ChessPiece {
 			//if the location gets converted then that flips the iswhitedown variable
 			//if the location does not get converted then the iswhitedown variable stays the same
 			
-			let noloccnv = (iswhitedown == this.WHITE_MOVES_DOWN_RANKS);
+			let noloccnv = (iswhitedown === this.WHITE_MOVES_DOWN_RANKS);
 			//if true, no conversion took place
 			//if false, the conversion already took place
 			console.log("iswhitedown = " + iswhitedown);
@@ -7960,7 +7961,7 @@ class ChessPiece {
 			addpcs = this.getNewAddPiecesListFromCommand(myfullcmds[x], addpcs, gid,
 				nwiswhitedown);
 			
-			printPiecesList(addpcs, false, "NEW ");
+			this.printPiecesList(addpcs, false, "NEW ");
 			
 			ignorelist = this.combineIgnoreLists(ignorelist, nwiglist);
 			this.printLocsArray(ignorelist, "NEW ignorelist");
@@ -7971,7 +7972,7 @@ class ChessPiece {
 	//this converts the locations from the full move commands given to this if needed
 	//this does not verify if the commands are legal and are ASSUMED TO BE LEGAL
 	//all commands must be in SHORT HAND NOTATION
-	public static let[] convertAllLocationsForFullMoveCommands(let[] mvcmds, let iswhitedown)
+	static let[] convertAllLocationsForFullMoveCommands(let[] mvcmds, let iswhitedown)
 	{
 		//CASTLING NOTATION:
 		//WLCE:
@@ -8026,7 +8027,7 @@ class ChessPiece {
 		{
 			//if we do not need a conversion return the input unchanged
 			//else make the changes below
-			if (iswhitedown == this.WHITE_MOVES_DOWN_RANKS) return mvcmds;
+			if (iswhitedown === this.WHITE_MOVES_DOWN_RANKS) return mvcmds;
 			//else;//do nothing
 			
 			let[] nwmvcmds = new String[mvcmds.length][];
@@ -8184,10 +8185,16 @@ class ChessPiece {
 	//EXECUTES THE COMMANDS ABOVE ON THE LOCAL BOARD ONLY
 	//ONLY EXECUTES COMMANDS IN SHORT HAND NOTATION
 	///*
-	public static void makeLocalShortHandMove(let mvcmd, let gid, let isundo, let iswhitedown, let isuser,
+	static makeLocalShortHandMove(let mvcmd, let gid, let isundo, let iswhitedown, let isuser,
 		let isofficial)
 	{
-		if (mvcmd == null || mvcmd.length < 1) return;
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeBoolean(isundo, "isundo");
+		cc.letMustBeBoolean(iswhitedown, "iswhitedown");
+		cc.letMustBeBoolean(isuser, "isuser");
+		cc.letMustBeBoolean(isofficial, "isofficial");
+		
+		if (cc.isStringEmptyNullOrUndefined(mvcmd)) return;
 		//else;//do nothing
 		
 		//CASTLING NOTATION
@@ -8730,28 +8737,28 @@ class ChessPiece {
 		console.log("DONE MAKING THE FULL MOVE!");
 		console.log();
 	}
-	public static void makeLocalShortHandMove(let mvcmd, let gid, let isundo, let iswhitedown, let isuser)
+	static makeLocalShortHandMove(let mvcmd, let gid, let isundo, let iswhitedown, let isuser)
 	{
 		this.makeLocalShortHandMove(mvcmd, gid, isundo, iswhitedown, isuser, false);
 	}
-	public static void makeLocalShortHandMove(let mvcmd, let gid, let isundo, let isuser)
+	static makeLocalShortHandMove(let mvcmd, let gid, let isundo, let isuser)
 	{
 		this.makeLocalShortHandMove(mvcmd, gid, isundo, WHITE_MOVES_DOWN_RANKS, isuser);
 	}
-	public static void makeLocalShortHandMove(let mvcmd, let gid, let isuser)
+	static makeLocalShortHandMove(let mvcmd, let gid, let isuser)
 	{
 		this.makeLocalShortHandMove(mvcmd, gid, false, WHITE_MOVES_DOWN_RANKS, isuser, false);
 	}
-	public static void makeLocalLongHandMove(let mvcmd, let gid, let isundo, let iswhitedown, let isuser,
+	static makeLocalLongHandMove(let mvcmd, let gid, let isundo, let iswhitedown, let isuser,
 		let isofficial)
 	{
 		this.makeLocalShortHandMove(getShortHandMoves(mvcmd), gid, isundo, iswhitedown, isuser, isofficial);
 	}
-	public static void makeLocalLongHandMove(let mvcmd, let gid, let isuser)
+	static makeLocalLongHandMove(let mvcmd, let gid, let isuser)
 	{
 		this.makeLocalLongHandMove(mvcmd, gid, false, WHITE_MOVES_DOWN_RANKS, isuser, false);
 	}
-	public static void makeLocalMove(let mvcmd, let gid, let isundo, let isshorthand, let iswhitedown,
+	static makeLocalMove(let mvcmd, let gid, let isundo, let isshorthand, let iswhitedown,
 		let isuser, let isofficial)
 	{
 		console.log("CALLING SHORT OR LONG HAND MOVE with: iswhitedown = " + iswhitedown);
@@ -8761,20 +8768,20 @@ class ChessPiece {
 		}
 		else this.makeLocalLongHandMove(mvcmd, gid, isundo, iswhitedown, isuser, isofficial);
 	}
-	public static void makeLocalMove(let mvcmd, let gid, let isundo, let iswhitedown, let isuser,
+	static makeLocalMove(let mvcmd, let gid, let isundo, let iswhitedown, let isuser,
 		let isofficial)
 	{
 		this.makeLocalMove(mvcmd, gid, isundo, true, iswhitedown, isuser, isofficial);
 	}
-	public static void makeLocalMove(let mvcmd, let gid, let isundo, let iswhitedown, let isuser)
+	static makeLocalMove(let mvcmd, let gid, let isundo, let iswhitedown, let isuser)
 	{
 		this.makeLocalMove(mvcmd, gid, isundo, iswhitedown, isuser, false);
 	}
-	public static void makeLocalMove(let mvcmd, let gid, let isundo, let isuser)
+	static makeLocalMove(let mvcmd, let gid, let isundo, let isuser)
 	{
 		this.makeLocalMove(mvcmd, gid, isundo, WHITE_MOVES_DOWN_RANKS, isuser);
 	}
-	public static void makeLocalMove(let mvcmd, let gid, let isuser)
+	static makeLocalMove(let mvcmd, let gid, let isuser)
 	{
 		this.makeLocalMove(mvcmd, gid, false, isuser);
 	}
@@ -8784,16 +8791,19 @@ class ChessPiece {
 	
 	//PAWN PROMOTION METHODS
 	
-	public static let canPawnBePromotedAt(let nrval, let ncval, String clrval, String tpval)
+	static canPawnBePromotedAt(let nrval, let ncval, String clrval, String tpval)
 	{
-		if (tpval == null) return false;
-		if (clrval == null) return false;
-		if (this.isvalidrorc(nrval) && isvalidrorc(ncval));
+		cc.letMustBeAnInteger(nrval, "nrval");
+		cc.letMustBeAnInteger(ncval, "ncval");
+		
+		if (cc.isStringEmptyNullOrUndefined(tpval)) return false;
+		if (cc.isStringEmptyNullOrUndefined(clrval)) return false;
+		if (this.isvalidrorc(nrval) && this.isvalidrorc(ncval));
 		else return false;
-		if (tpval.equals("PAWN"))
+		if (tpval === "PAWN")
 		{
-			if ((nrval == 0 && clrval.equals("WHITE")) ||
-				(nrval == 7 && clrval.equals("BLACK")))
+			if ((nrval === 0 && clrval === "WHITE") ||
+				(nrval === 7 && clrval === "BLACK"))
 			{
 				return true;
 			}
@@ -8802,13 +8812,16 @@ class ChessPiece {
 		//else console.log("THIS PIECE MUST BE A PAWN!");
 		return false;
 	}
-	public let canPawnBePromoted()
+	canPawnBePromoted()
 	{
-		return this.canPawnBePromotedAt(getRow(), getCol(), getColor(), getType());
+		return this.canPawnBePromotedAt(this.getRow(), this.getCol(), this.getColor(),
+			this.getType());
 	}
-	public static let canPawnForSideBePromoted(String clrval, ArrayList<ChessPiece> allpcs)
+	static canPawnForSideBePromoted(clrval, allpcs)
 	{
-		ArrayList<ChessPiece> pwnsclr = this.getAllPawnsOfColor(clrval, allpcs);
+		cc.letMustBeDefinedAndNotNull(clrval, "clrval");
+
+		let pwnsclr = this.getAllPawnsOfColor(clrval, allpcs);
 		if (this.getNumItemsInList(pwnsclr) < 1);
 		else
 		{
@@ -8819,14 +8832,16 @@ class ChessPiece {
 		}
 		return false;
 	}
-	public static let canPawnForSideBePromoted(String clrval, let gid)
+	static canPawnForSideBePromoted(clrval, gid)
 	{
 		return this.canPawnForSideBePromoted(clrval, this.getAllPiecesWithGameID(gid));
 	}
 	
-	public void promotePawnTo(String nwtype)
+	promotePawnTo(nwtype)
 	{
-		if (canPawnBePromoted())
+		cc.letMustBeDefinedAndNotNull(nwtype, "nwtype");
+
+		if (this.canPawnBePromoted())
 		{
 			if (nwtype.equals("PAWN") || nwtype.equals("KING"))
 			{
@@ -8842,20 +8857,24 @@ class ChessPiece {
 	
 	//CAN PAWN METHODS
 	
-	public let canPawnLeftOrRight(let useleft, ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
+	canPawnLeftOrRight(useleft, allpcs, bpassimnxtmv)
 	{
+		cc.letMustBeBoolean(useleft, "useleft");
+		cc.letMustBeBoolean(bpassimnxtmv, "bpassimnxtmv");
+		cc.letMustBeDefinedAndNotNull(allpcs, "allpcs");
+		
 		//if no pawns for one side -> false
-		ArrayList<ChessPiece> wpns = this.getAllPawnsOfColor("WHITE", allpcs);
-		ArrayList<ChessPiece> bpns = this.getAllPawnsOfColor("BLACK", allpcs);
+		let wpns = this.getAllPawnsOfColor("WHITE", allpcs);
+		let bpns = this.getAllPawnsOfColor("BLACK", allpcs);
 		if (this.getNumItemsInList(wpns) < 1 || this.getNumItemsInList(bpns) < 1)
 		{
-			//console.log("ONE SIDE HAS NO PAWNS! THERE MUST BE AT LEAST ONE PAWN ON EACH SIDE NEAR " +
-			//	"EACH OTHER TO BE ABLE TO PAWN!");
+			//console.log("ONE SIDE HAS NO PAWNS! THERE MUST BE AT LEAST ONE PAWN ON " +
+			//	"EACH SIDE NEAR EACH OTHER TO BE ABLE TO PAWN!");
 			return false;
 		}
 		//else;//do nothing
 		
-		if (this.getType().equals("PAWN"))
+		if (this.getType() === "PAWN")
 		{
 			//THIS IS WHEN AN OPPOSING PAWN CAPTURES A PAWN THAT MADE ITS FIRST MOVE
 			//row 0: ----- ---- --- ---
@@ -8871,8 +8890,8 @@ class ChessPiece {
 			//the this ChessPiece refers to the pawn at position x
 			//Pawn may not be at position x
 			
-			if (((this.getRow() == 3) && this.getColor().equals("WHITE")) ||
-				((this.getRow() == 4) && this.getColor().equals("BLACK")))
+			if (((this.getRow() === 3) && this.getColor() === "WHITE") ||
+				((this.getRow() === 4) && this.getColor() === "BLACK"))
 			{
 				//we are on the row so it might be an option
 			}
@@ -8888,34 +8907,35 @@ class ChessPiece {
 			if (this.isvalidrorc(lc));
 			else
 			{
-				//console.log("THE LOCATION " + this.getLocString(getRow(), lc) +
+				//console.log("THE LOCATION " + this.getLocString(this.getRow(), lc) +
 				//	" HAS AN INVALID COLUMN!");
 				return false;
 			}
 			
-			ChessPiece ep = this.getPieceAt(this.getRow(), lc, allpcs);
-			if (ep == null)
+			let ep = this.getPieceAt(this.getRow(), lc, allpcs);
+			if (cc.isItemNullOrUndefined(ep))
 			{
-				//console.log("THE LOCATION " + this.getLocString(getRow(), lc) + " IS EMPTY!");
+				//console.log("THE LOCATION " + this.getLocString(this.getRow(), lc) +
+				//	" IS EMPTY!");
 				return false;
 			}
 			else
 			{
 				//console.log(ep);
 				//console.log(ep.movecount);
-				if (ep.getType().equals("PAWN"));
+				if (ep.getType() === "PAWN");
 				else
 				{
 					console.log("THIS IS NOT A PAWN!");
 					return false;
 				}
-				if (ep.getColor().equals(this.getColor()))
+				if (ep.getColor() === this.getColor())
 				{
 					console.log("THIS IS YOUR PAWN!");
 					return false;
 				}
 				//else;//do nothing this is an enemy pawn
-				if (ep.movecount == 1);
+				if (ep.movecount === 1);
 				else
 				{
 					console.log("THIS IS NOT THE FIRST MOVE OF THE ENEMY PAWN!");
@@ -8925,16 +8945,16 @@ class ChessPiece {
 				if (bpassimnxtmv);
 				else
 				{
-					String lstsetlocmv = this.getGame().getLastSetLocMove();
+					let lstsetlocmv = this.getGame().getLastSetLocMove();
 					//WPN??TO??
 					//012345678
 					//if enemy piece is now at that destination location
 					//then we can say that we just moved it there...
 					//otherwise it is not the immediate next move, so cannot pawn
-					String lstmvdestlocstr = lstsetlocmv.substring(7);
-					int[] lstdestlocarr = this.convertStringLocToRowCol(lstmvdestlocstr,
+					let lstmvdestlocstr = lstsetlocmv.substring(7);
+					let lstdestlocarr = this.convertStringLocToRowCol(lstmvdestlocstr,
 						this.WHITE_MOVES_DOWN_RANKS);
-					if (ep.getRow() == lstdestlocarr[0] && ep.getCol() == lstdestlocarr[1]);
+					if (ep.getRow() === lstdestlocarr[0] && ep.getCol() === lstdestlocarr[1]);
 					else
 					{
 						console.log("lstsetlocmv = " + lstsetlocmv);
@@ -8963,24 +8983,23 @@ class ChessPiece {
 				//new location
 				//then we ask if this puts our king into check
 				//we need to know our kings location
-				ChessPiece mkg = this.getCurrentSideKing(this.getColor(), this.getGameID());
+				let mkg = this.getCurrentSideKing(this.getColor(), this.getGameID());
+				cc.letMustBeDefinedAndNotNull(mkg, "mkg");
 				
-				int[][] ignorelist = new int[2][2];
-				ignorelist[0][0] = this.getRow();
-				ignorelist[0][1] = this.getCol();
-				ignorelist[1][0] = this.getRow();
-				ignorelist[1][1] = lc;
+				let ignorelist = [];
+				ignorelist.push([this.getRow(), this.getCol()]);
+				ignorelist.push([this.getRow(), lc]);
 				
 				let nr = -1;
-				if (this.getColor().equals("WHITE")) nr = 2;
-				else if (this.getColor().equals("BLACK")) nr = 5;
+				if (this.getColor() === "WHITE") nr = 2;
+				else if (this.getColor() === "BLACK") nr = 5;
 				else throw new Error("PIECE FOUND WITH AN ILLEGAL COLOR FOUND AND USED HERE!");
 				let nc = -1;
 				if (useleft) nc = this.getCol() - 1;
 				else nc = this.getCol() + 1;
 				
-				ArrayList<ChessPiece> addpcs = new ArrayList<ChessPiece>();
-				addpcs.add(new ChessPiece("PAWN", this.getColor(), nr, nc,
+				let addpcs = [];
+				addpcs.push(new ChessPiece("PAWN", this.getColor(), nr, nc,
 					mkg.getGameID(), false));
 				if (mkg.inCheck(ignorelist, addpcs)) return false;
 				else return true;
@@ -8992,54 +9011,57 @@ class ChessPiece {
 			return false;
 		}
 	}
-	public let canPawnLeftOrRight(let useleft, ArrayList<ChessPiece> allpcs)
+	canPawnLeftOrRight(let useleft, ArrayList<ChessPiece> allpcs)
 	{
 		return this.canPawnLeftOrRight(useleft, allpcs, false);
 	}
-	public let canPawnLeftOrRight(let useleft)
+	canPawnLeftOrRight(let useleft)
 	{
-		return this.canPawnLeftOrRight(useleft, getAllPiecesWithGameID(getGameID()));
+		return this.canPawnLeftOrRight(useleft, this.getAllPiecesWithGameID(this.getGameID()));
 	}
-	public let canPawnLeft(ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
+	canPawnLeft(ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
 	{
 		return this.canPawnLeftOrRight(true, allpcs, bpassimnxtmv);
 	}
-	public let canPawnLeft(ArrayList<ChessPiece> allpcs)
+	canPawnLeft(ArrayList<ChessPiece> allpcs)
 	{
 		return this.canPawnLeft(allpcs, false);
 	}
-	public let canPawnLeft()
+	canPawnLeft()
 	{
-		return this.canPawnLeft(getAllPiecesWithGameID(getGameID()));
+		return this.canPawnLeft(this.getAllPiecesWithGameID(this.getGameID()));
 	}
-	public let canPawnRight(ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
+	canPawnRight(ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
 	{
 		return this.canPawnLeftOrRight(false, allpcs, bpassimnxtmv);
 	}
-	public let canPawnRight(ArrayList<ChessPiece> allpcs)
+	canPawnRight(ArrayList<ChessPiece> allpcs)
 	{
 		return this.canPawnRight(allpcs, false);
 	}
-	public let canPawnRight()
+	canPawnRight()
 	{
-		return this.canPawnRight(getAllPiecesWithGameID(getGameID()));
+		return this.canPawnRight(this.getAllPiecesWithGameID(this.getGameID()));
 	}
-	public let canPawn(ArrayList<ChessPiece> allpcs)
+	canPawn(ArrayList<ChessPiece> allpcs)
 	{
 		return (this.canPawnLeft(allpcs) || this.canPawnRight(allpcs));
 	}
-	public let canPawn()
+	canPawn()
 	{
-		return this.canPawnthis.(getAllPiecesWithGameID(this.getGameID()));
+		return this.canPawn(this.getAllPiecesWithGameID(this.getGameID()));
 	}
-	public static let canSidePawn(String clrval, ArrayList<ChessPiece> allpcs)
+	static canSidePawn(String clrval, ArrayList<ChessPiece> allpcs)
 	{
+		cc.letMustBeBoolean(useleft, "useleft");
+		cc.letMustBeDefinedAndNotNull(allpcs, "allpcs");
+		
 		//get all the pawns for our color
 		//then call the canPawnLeft() or canPawnRight()
 		//if true, then return true
 		//if none are true, or no pawns return false
 		
-		ArrayList<ChessPiece> pns = this.getAllPawnsOfColor(clrval, allpcs);
+		let pns = this.getAllPawnsOfColor(clrval, allpcs);
 		//console.log("pns = " + pns);
 		if (this.getNumItemsInList(pns) < 1)
 		{
@@ -9058,15 +9080,19 @@ class ChessPiece {
 			return false;
 		}
 	}
-	public static let canSidePawn(String clrval, let gid)
+	static canSidePawn(String clrval, let gid)
 	{
 		return this.canSidePawn(clrval, this.getAllPiecesWithGameID(gid));
 	}
 	
 	//GET ENEMY PAWN FOR PAWNING
 	
-	public ChessPiece getEnemyPawnForLeftOrRightPawning(let useleft, ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
+	getEnemyPawnForLeftOrRightPawning(useleft, allpcs, bpassimnxtmv)
 	{
+		cc.letMustBeBoolean(useleft, "useleft");
+		cc.letMustBeBoolean(bpassimnxtmv, "bpassimnxtmv");
+		cc.letMustBeDefinedAndNotNull(allpcs, "allpcs");
+
 		if (this.canPawnLeftOrRight(useleft, allpcs, bpassimnxtmv))
 		{
 			let lc = -1;
@@ -9075,79 +9101,81 @@ class ChessPiece {
 			if (this.isvalidrorc(lc));
 			else throw new Error("we can pawn, so there must be an enemy, but col is invalid!");
 			
-			ChessPiece ep = this.getPieceAt(this.getRow(), lc, allpcs);
+			let ep = this.getPieceAt(this.getRow(), lc, allpcs);
 			return ep;
 		}
 		else return null;
 	}
-	public ChessPiece getEnemyPawnForLeftPawning(ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
+	getEnemyPawnForLeftPawning(ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
 	{
 		return this.getEnemyPawnForLeftOrRightPawning(true, allpcs, bpassimnxtmv);
 	}
-	public ChessPiece getEnemyPawnForLeftPawning(ArrayList<ChessPiece> allpcs)
+	getEnemyPawnForLeftPawning(ArrayList<ChessPiece> allpcs)
 	{
 		return this.getEnemyPawnForLeftPawning(allpcs, false);
 	}
-	public ChessPiece getEnemyPawnForRightPawning(ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
+	getEnemyPawnForRightPawning(ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
 	{
 		return this.getEnemyPawnForLeftOrRightPawning(false, allpcs, bpassimnxtmv);
 	}
-	public ChessPiece getEnemyPawnForRightPawning(ArrayList<ChessPiece> allpcs)
+	getEnemyPawnForRightPawning(ArrayList<ChessPiece> allpcs)
 	{
 		return this.getEnemyPawnForRightPawning(allpcs, false);
 	}
-	public ChessPiece getEnemyPawnForLeftPawning()
+	getEnemyPawnForLeftPawning()
 	{
 		return this.getEnemyPawnForLeftPawning(this.getAllPiecesWithGameID(this.getGameID()));
 	}
-	public ChessPiece getEnemyPawnForRightPawning()
+	getEnemyPawnForRightPawning()
 	{
 		return this.getEnemyPawnForRightPawning(this.getAllPiecesWithGameID(this.getGameID()));
 	}
 	
 	//GET ENEMY PAWN LOCATION FOR PAWNING
 	
-	public int[] getEnemyPawnLeftOrRightLocation(let useleft, ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
+	getEnemyPawnLeftOrRightLocation(useleft, allpcs, bpassimnxtmv)
 	{
-		ChessPiece ep = this.getEnemyPawnForLeftOrRightPawning(useleft, allpcs, bpassimnxtmv);
-		if (ep == null) return null;
-		else
-		{
-			int[] loc = new int[2];
-			loc[0] = ep.getRow();
-			loc[1] = ep.getCol();
-			return loc;
-		}
+		cc.letMustBeBoolean(useleft, "useleft");
+		cc.letMustBeBoolean(bpassimnxtmv, "bpassimnxtmv");
+		cc.letMustBeDefinedAndNotNull(allpcs, "allpcs");
+		
+		let ep = this.getEnemyPawnForLeftOrRightPawning(useleft, allpcs, bpassimnxtmv);
+		if (cc.isItemNullOrUndefined(ep)) return null;
+		else return [ep.getRow(), ep.getCol()];
 	}
-	public int[] getEnemyPawnLeftLocation(ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
+	getEnemyPawnLeftLocation(ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
 	{
 		return this.getEnemyPawnLeftOrRightLocation(true, allpcs, bpassimnxtmv);
 	}
-	public int[] getEnemyPawnLeftLocation(ArrayList<ChessPiece> allpcs)
+	getEnemyPawnLeftLocation(ArrayList<ChessPiece> allpcs)
 	{
 		return this.getEnemyPawnLeftLocation(allpcs, false);
 	}
-	public int[] getEnemyPawnRightLocation(ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
+	getEnemyPawnRightLocation(ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
 	{
 		return this.getEnemyPawnLeftOrRightLocation(false, allpcs, bpassimnxtmv);
 	}
-	public int[] getEnemyPawnRightLocation(ArrayList<ChessPiece> allpcs)
+	getEnemyPawnRightLocation(ArrayList<ChessPiece> allpcs)
 	{
 		return this.getEnemyPawnRightLocation(allpcs, false);
 	}
-	public int[] getEnemyPawnLeftLocation()
+	getEnemyPawnLeftLocation()
 	{
 		return this.getEnemyPawnLeftLocation(getAllPiecesWithGameID(getGameID()));
 	}
-	public int[] getEnemyPawnRightLocation()
+	getEnemyPawnRightLocation()
 	{
 		return this.getEnemyPawnRightLocation(getAllPiecesWithGameID(getGameID()));
 	}
 	
 	//NEW PAWN LOCATION AFTER PAWNING FOR OUR PAWN
 	
-	public int[] getPawnLeftOrRightLocation(let useleft, ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
+	getPawnLeftOrRightLocation(useleft, allpcs, bpassimnxtmv)
 	{
+		cc.letMustBeBoolean(useleft, "useleft");
+		cc.letMustBeBoolean(bpassimnxtmv, "bpassimnxtmv");
+		cc.letMustBeDefinedAndNotNull(allpcs, "allpcs");
+
 		if (this.canPawnLeftOrRight(useleft, allpcs, bpassimnxtmv))
 		{
 			let nr = -1;
@@ -9155,42 +9183,39 @@ class ChessPiece {
 			else if (this.getColor().equals("BLACK")) nr = 5;
 			else throw new Error("PIECE FOUND WITH AN ILLEGAL COLOR FOUND AND USED HERE!");
 			let nc = -1;
-			if (useleft) nc = getCol() - 1;
-			else nc = getCol() + 1;
+			if (useleft) nc = this.getCol() - 1;
+			else nc = this.getCol() + 1;
 			if (this.isvalidrorc(nr) && this.isvalidrorc(nc));
 			else throw new Error("SR AND SC MUST BE VALID BECAUSE WE CAN PAWN!");
-			int[] loc = new int[2];
-			loc[0] = nr;
-			loc[1] = nc;
-			return loc;
+			return [nr, nc];
 		}
 		else return null;
 	}
-	public int[] getPawnLeftOrRightLocation(let useleft, ArrayList<ChessPiece> allpcs)
+	getPawnLeftOrRightLocation(let useleft, ArrayList<ChessPiece> allpcs)
 	{
 		return this.getPawnLeftOrRightLocation(useleft, allpcs, false);
 	}
-	public int[] getPawnLeftLocation(ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
+	getPawnLeftLocation(ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
 	{
 		return this.getPawnLeftOrRightLocation(true, allpcs, bpassimnxtmv);
 	}
-	public int[] getPawnLeftLocation(ArrayList<ChessPiece> allpcs)
+	getPawnLeftLocation(ArrayList<ChessPiece> allpcs)
 	{
 		return this.getPawnLeftLocation(allpcs, false);
 	}
-	public int[] getPawnRightLocation(ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
+	getPawnRightLocation(ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
 	{
 		return this.getPawnLeftOrRightLocation(false, allpcs, bpassimnxtmv);
 	}
-	public int[] getPawnRightLocation(ArrayList<ChessPiece> allpcs)
+	getPawnRightLocation(ArrayList<ChessPiece> allpcs)
 	{
 		return this.getPawnRightLocation(allpcs, false);
 	}
-	public int[] getPawnLeftLocation()
+	getPawnLeftLocation()
 	{
 		return this.getPawnLeftLocation(this.getAllPiecesWithGameID(this.getGameID()));
 	}
-	public int[] getPawnRightLocation()
+	getPawnRightLocation()
 	{
 		return this.getPawnRightLocation(this.getAllPiecesWithGameID(this.getGameID()));
 	}
@@ -9199,9 +9224,13 @@ class ChessPiece {
 	//THIS MAKES THE MOVE, IT INCREMENTS THE MOVE COUNT FOR THE SURVIVING PAWN AND REMOVES THE
 	//OTHER ONE ON THIS BOARD ONLY
 	//THIS MUST BE CALLED ON THE PAWN THAT CAN PAWN
-	public void pawnLeftOrRight(let useleft, ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
+	pawnLeftOrRight(useleft, allpcs, bpassimnxtmv)
 	{
-		if (canPawnLeftOrRight(useleft, allpcs, bpassimnxtmv))
+		cc.letMustBeBoolean(useleft, "useleft");
+		cc.letMustBeBoolean(bpassimnxtmv, "bpassimnxtmv");
+		cc.letMustBeDefinedAndNotNull(allpcs, "allpcs");
+
+		if (this.canPawnLeftOrRight(useleft, allpcs, bpassimnxtmv))
 		{
 			int[] eploc = this.getEnemyPawnLeftOrRightLocation(useleft, allpcs, bpassimnxtmv);
 			this.removePieceAt(eploc[0], eploc[1], this.getGameID());
@@ -9209,27 +9238,21 @@ class ChessPiece {
 			this.setLoc(npnloc[0], npnloc[1]);
 			this.incrementMoveCount();
 		}
-		else
-		{
-			String dirstr = null;
-			if (useleft) dirstr = "LEFT";
-			else dirstr = "RIGHT";
-			throw new Error("CANNOT PAWN " + dirstr + "!");
-		}
+		else throw new Error("CANNOT PAWN " + (useleft ? "LEFT": "RIGHT") + "!");
 	}
-	public void pawnLeft(ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
+	pawnLeft(ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
 	{
 		this.pawnLeftOrRight(true, allpcs, bpassimnxtmv);
 	}
-	public void pawnLeft()
+	pawnLeft()
 	{
 		this.pawnLeft(this.getAllPiecesWithGameID(this.getGameID()), false);
 	}
-	public void pawnRight(ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
+	pawnRight(ArrayList<ChessPiece> allpcs, let bpassimnxtmv)
 	{
 		this.pawnLeftOrRight(false, allpcs, bpassimnxtmv);
 	}
-	public void pawnRight()
+	pawnRight()
 	{
 		this.pawnRight(this.getAllPiecesWithGameID(this.getGameID()), false);
 	}
@@ -9239,17 +9262,23 @@ class ChessPiece {
 	
 	//CAN CASTLE METHODS
 	
-	public static let canSideCastleLeftOrRight(let useleft, String clrval,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static canSideCastleLeftOrRight(useleft, clrval, ignorelist, addpcs, gid)
 	{
+		cc.letMustBeBoolean(useleft, "useleft");
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeDefinedAndNotNull(clrval, "clrval");
+
 		if (this.itemIsOnGivenList(clrval, this.validColors));
 		else throw new Error("ILLEGAL COLOR (" + clrval + ") FOUND AND USED HERE!");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
 		
-		ArrayList<ChessPiece> allpcs = this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+		let allpcs = this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+		cc.letMustBeDefinedAndNotNull(allpcs, "allpcs");
 		
-		ChessPiece mkg = this.getCurrentSideKing(clrval, allpcs);
+		let mkg = this.getCurrentSideKing(clrval, allpcs);
+		cc.letMustBeDefinedAndNotNull(mkg, "mkg");
+
 		if (mkg.inCheck(ignorelist, addpcs))
 		{
 			//console.log("YOU CANNOT CASTLE OUT OF CHECK!");
@@ -9285,7 +9314,7 @@ class ChessPiece {
 			let mcrw = -1;
 			if (mkg.getColor().equals("WHITE")) mcrw = 7;
 			else mcrw = 0;
-			ChessPiece mc = this.getPieceAt(mcrw, mccol, allpcs);
+			let mc = this.getPieceAt(mcrw, mccol, allpcs);
 			if (mc == null) return false;
 			else
 			{
@@ -9335,9 +9364,9 @@ class ChessPiece {
 			//need to know if there are any enemy pieces attacking the locations
 			for (let c = sccol + 1; c < cmx; c++)
 			{
-				ArrayList<ChessPiece> epcs = this.getEnemyPiecesGuardingLocation(mcrw, c,
+				let epcs = this.getEnemyPiecesGuardingLocation(mcrw, c,
 					mkg.getGameID(), mkg.getColor(), ignorelist, addpcs);
-				if (getNumItemsInList(epcs) < 1);
+				if (this.getNumItemsInList(epcs) < 1);
 				else
 				{
 					//console.log("THERE IS AT LEAST ONE ENEMY PIECE ABLE TO ATTACK ONE OF " +
@@ -9360,37 +9389,37 @@ class ChessPiece {
 			return true;
 		}
 	}
-	public static let canSideCastleLeftOrRight(let useleft, String clrval, let gid)
+	static canSideCastleLeftOrRight(let useleft, String clrval, let gid)
 	{
 		return this.canSideCastleLeftOrRight(useleft, clrval, null, null, gid);
 	}
-	public static let canSideCastleLeft(String clrval, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static canSideCastleLeft(String clrval, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.canSideCastleLeftOrRight(true, clrval, ignorelist, addpcs, gid);
 	}
-	public static let canSideCastleLeft(String clrval, let gid)
+	static canSideCastleLeft(String clrval, let gid)
 	{
 		return this.canSideCastleLeftOrRight(true, clrval, gid);
 	}
-	public static let canSideCastleRight(String clrval, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static canSideCastleRight(String clrval, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.canSideCastleLeftOrRight(false, clrval, ignorelist, addpcs, gid);
 	}
-	public static let canSideCastleRight(String clrval, let gid)
+	static canSideCastleRight(String clrval, let gid)
 	{
 		return this.canSideCastleLeftOrRight(false, clrval, gid);
 	}
-	public static let canSideCastle(String clrval, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static canSideCastle(String clrval, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return (this.canSideCastleLeft(clrval, ignorelist, addpcs, gid) ||
 			this.canSideCastleRight(clrval, ignorelist, addpcs, gid));
 	}
-	public static let canSideCastle(String clrval, let gid)
+	static canSideCastle(String clrval, let gid)
 	{
 		return (this.canSideCastleLeft(clrval, gid) || this.canSideCastleRight(clrval, gid));
 	}
 	//non-static version convenience methods
-	public let canCastleLeftOrRight(let useleft)
+	let canCastleLeftOrRight(let useleft)
 	{
 		if (this.getType().equals("CASTLE") || this.getType().equals("ROOK") ||
 			this.getType().equals("KING"))
@@ -9405,15 +9434,15 @@ class ChessPiece {
 		
 		return this.canSideCastleLeftOrRight(useleft, this.getColor(), this.getGameID());
 	}
-	public let canCastleLeft()
+	let canCastleLeft()
 	{
 		return this.canCastleLeftOrRight(true);
 	}
-	public let canCastleRight()
+	let canCastleRight()
 	{
 		return this.canCastleLeftOrRight(false);
 	}
-	public let canCastle()
+	let canCastle()
 	{
 		return (this.canCastleLeft() || this.canCastleRight());
 	}
@@ -9421,10 +9450,14 @@ class ChessPiece {
 	//NEW CASTLE OR KING LOCATION METHODS
 	
 	//returns an array with 2 integers both will be invalid if cannot castle that direction
-	public static int[] getLeftOrRightCastleSideNewCastleOrKingLoc(let useleft, let usekg, String clrval,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static getLeftOrRightCastleSideNewCastleOrKingLoc(useleft, usekg, clrval, ignorelist,
+		addpcs, gid)
 	{
-		int[] myretarr = {-1, -1};
+		cc.letMustBeBoolean(useleft, "useleft");
+		cc.letMustBeBoolean(usekg, "usekg");
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeDefinedAndNotNull(clrval, "clrval");
+		let myretarr = [-1, -1];
 		if (this.canSideCastleLeftOrRight(useleft, clrval, ignorelist, addpcs, gid))
 		{
 			let cdiff = 0;
@@ -9441,78 +9474,77 @@ class ChessPiece {
 			}
 			if (usekg) cdiff = 0;
 			//else;//do nothing
-			ArrayList<ChessPiece> allpcs = this.combineBoardAddAndIgnoreLists(ignorelist,
-				addpcs, gid);
+			let allpcs = this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
 			myretarr[0] = this.getCurrentSideKing(clrval, allpcs).getRow();
 			myretarr[1] = 4 + kdiff + cdiff;
 		}
 		//else;//do nothing
 		return myretarr;
 	}
-	public static int[] getLeftOrRightCastleSideNewCastleOrKingLoc(let useleft, let usekg, String clrval, let gid)
+	static getLeftOrRightCastleSideNewCastleOrKingLoc(let useleft, let usekg, String clrval, let gid)
 	{
 		return this.getLeftOrRightCastleSideNewCastleOrKingLoc(useleft, usekg, clrval, null,
 			null, gid);
 	}
-	public static int[] getRightCastleSideNewKingLoc(String clrval, int[][] ignorelist,
+	static getRightCastleSideNewKingLoc(String clrval, int[][] ignorelist,
 		ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.getLeftOrRightCastleSideNewCastleOrKingLoc(false, true, clrval, ignorelist,
 			addpcs, gid);
 	}
-	public static int[] getRightCastleSideNewCastleLoc(String clrval, int[][] ignorelist,
+	static getRightCastleSideNewCastleLoc(String clrval, int[][] ignorelist,
 		ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.getLeftOrRightCastleSideNewCastleOrKingLoc(false, false, clrval, ignorelist,
 			addpcs, gid);
 	}
-	public static int[] getLeftCastleSideNewKingLoc(String clrval, int[][] ignorelist,
+	static getLeftCastleSideNewKingLoc(String clrval, int[][] ignorelist,
 		ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.getLeftOrRightCastleSideNewCastleOrKingLoc(true, true, clrval, ignorelist,
 			addpcs, gid);
 	}
-	public static int[] getLeftCastleSideNewCastleLoc(String clrval, int[][] ignorelist,
+	static getLeftCastleSideNewCastleLoc(String clrval, int[][] ignorelist,
 		ArrayList<ChessPiece> addpcs, let gid)
 	{
 		return this.getLeftOrRightCastleSideNewCastleOrKingLoc(true, false, clrval, ignorelist,
 			addpcs, gid);
 	}
-	public static int[] getRightCastleSideNewKingLoc(String clrval, let gid)
+	static getRightCastleSideNewKingLoc(String clrval, let gid)
 	{
 		return this.getLeftOrRightCastleSideNewCastleOrKingLoc(false, true, clrval, gid);
 	}
-	public static int[] getRightCastleSideNewCastleLoc(String clrval, let gid)
+	static getRightCastleSideNewCastleLoc(String clrval, let gid)
 	{
 		return this.getLeftOrRightCastleSideNewCastleOrKingLoc(false, false, clrval, gid);
 	}
-	public static int[] getLeftCastleSideNewKingLoc(String clrval, let gid)
+	static getLeftCastleSideNewKingLoc(String clrval, let gid)
 	{
 		return this.getLeftOrRightCastleSideNewCastleOrKingLoc(true, true, clrval, gid);
 	}
-	public static int[] getLeftCastleSideNewCastleLoc(String clrval, let gid)
+	static getLeftCastleSideNewCastleLoc(String clrval, let gid)
 	{
 		return this.getLeftOrRightCastleSideNewCastleOrKingLoc(true, false, clrval, gid);
 	}
 	//non-static version convenience methods
-	public int[] getLeftOrRightCastleNewCastleOrKingLoc(let useleft, let usekg)
+	getLeftOrRightCastleNewCastleOrKingLoc(let useleft, let usekg)
 	{
 		return this.getLeftOrRightCastleSideNewCastleOrKingLoc(useleft, usekg,
 			this.getColor(), this.getGameID());
 	}
-	public int[] getRightCastleNewKingLoc()
+	getRightCastleNewKingLoc()
 	{
 		return this.getRightCastleSideNewKingLoc(this.getColor(), this.getGameID());
 	}
-	public int[] getRightCastleNewCastleLoc()
+	getRightCastleNewCastleLoc()
 	{
 		return this.getRightCastleSideNewCastleLoc(this.getColor(), this.getGameID());
 	}
-	public int[] getLeftCastleNewKingLoc()
+	getLeftCastleNewKingLoc()
 	{
 		return this.getLeftCastleSideNewKingLoc(this.getColor(), this.getGameID());
 	}
-	public int[] getLeftCastleNewCastleLoc()
+	getLeftCastleNewCastleLoc()
 	{
 		return this.getLeftCastleSideNewCastleLoc(this.getColor(), this.getGameID());
 	}
@@ -9520,17 +9552,20 @@ class ChessPiece {
 	
 	//THIS MAKES THE MOVE, AND INCREMENTS THE MOVE COUNT FOR THE KING FOR THE SIDE WHO
 	//DID IT ON THIS SIDE OF THE BOARD
-	public static void sideCastleLeftOrRight(String clrval, let useleft, let gid,
+	static sideCastleLeftOrRight(String clrval, let useleft, let gid,
 		int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
+		cc.letMustBeBoolean(useleft, "useleft");
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeDefinedAndNotNull(clrval, "clrval");
 		if (this.canSideCastleLeftOrRight(useleft, clrval, ignorelist, addpcs, gid))
 		{
-			ArrayList<ChessPiece> allpcs = this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
-			ChessPiece mkg = this.getCurrentSideKing(clrval, allpcs);
+			let allpcs = this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+			let mkg = this.getCurrentSideKing(clrval, allpcs);
 			let oc = -1;
 			if (useleft) oc = 0;
 			else oc = 7;
-			ChessPiece csl = this.getPieceAt(mkg.getRow(), oc, allpcs);
+			let csl = this.getPieceAt(mkg.getRow(), oc, allpcs);
 			int[] nwkgloc = this.getLeftOrRightCastleSideNewCastleOrKingLoc(useleft, true,
 				clrval, ignorelist, addpcs, gid);
 			int[] nwcsloc = this.getLeftOrRightCastleSideNewCastleOrKingLoc(useleft, false,
@@ -9541,47 +9576,47 @@ class ChessPiece {
 		}
 		else throw new Error("" + clrval + " CANNOT CASTLE!");
 	}
-	public static void sideCastleLeftOrRight(String clrval, let useleft, let gid)
+	static sideCastleLeftOrRight(String clrval, let useleft, let gid)
 	{
 		this.sideCastleLeftOrRight(clrval, useleft, gid, null, null);
 	}
-	public static void whiteCastleLeftOrRight(let useleft, let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
+	static whiteCastleLeftOrRight(let useleft, let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		this.sideCastleLeftOrRight("WHITE", useleft, gid, ignorelist, addpcs);
 	}
-	public static void whiteCastleLeft(let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
+	static whiteCastleLeft(let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		this.whiteCastleLeftOrRight(true, gid, ignorelist, addpcs);
 	}
-	public static void whiteCastleRight(let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
+	static whiteCastleRight(let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		this.whiteCastleLeftOrRight(false, gid, ignorelist, addpcs);
 	}
-	public static void whiteCastleLeft(let gid)
+	static whiteCastleLeft(let gid)
 	{
 		this.whiteCastleLeft(gid, null, null);
 	}
-	public static void whiteCastleRight(let gid)
+	static whiteCastleRight(let gid)
 	{
 		this.whiteCastleRight(gid, null, null);
 	}
-	public static void blackCastleLeftOrRight(let useleft, let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
+	static blackCastleLeftOrRight(let useleft, let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		this.sideCastleLeftOrRight("BLACK", useleft, gid, ignorelist, addpcs);
 	}
-	public static void blackCastleLeft(let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
+	static blackCastleLeft(let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		this.blackCastleLeftOrRight(true, gid, ignorelist, addpcs);
 	}
-	public static void blackCastleRight(let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
+	static blackCastleRight(let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs)
 	{
 		this.blackCastleLeftOrRight(false, gid, ignorelist, addpcs);
 	}
-	public static void blackCastleLeft(let gid)
+	static blackCastleLeft(let gid)
 	{
 		this.blackCastleLeft(gid, null, null);
 	}
-	public static void blackCastleRight(let gid)
+	static blackCastleRight(let gid)
 	{
 		this.blackCastleRight(gid, null, null);
 	}
@@ -9589,7 +9624,7 @@ class ChessPiece {
 	
 	//GENERIC TO STRING METHOD FOR THE PIECE
 	
-	public String toString()
+	String toString()
 	{
 		return "<ChessPiece of Type: " + this.getType() + " and Color: " + this.getColor() +
 			" at: " + this.getLocString(this.getRow(), this.getCol()) + " of Gender: " +
