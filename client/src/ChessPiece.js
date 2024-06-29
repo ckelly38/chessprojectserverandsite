@@ -3771,19 +3771,27 @@ class ChessPiece {
 	
 	//GET CAN MOVE TO LOCATIONS METHODS
 	
-	static canAddThisMoveToLoc(let sr, let sc, let nr, let nc, String myclr, String mytpval,
-		int[][] oignorelist, ArrayList<ChessPiece> oaddpcs, let gid)
+	static canAddThisMoveToLoc(sr, sc, nr, nc, myclr, mytpval,
+		oignorelist=null, oaddpcs=null, gid)
 	{
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeAnInteger(sr, "sr");
+		cc.letMustBeAnInteger(sc, "sc");
+		cc.letMustBeAnInteger(nr, "nr");
+		cc.letMustBeAnInteger(nc, "nc");
+		cc.letMustBeDefinedAndNotNull(myclr, "myclr");
+		cc.letMustBeDefinedAndNotNull(mytpval, "mytpval");
+
 		if (this.isvalidrorc(sr) && this.isvalidrorc(sc));
 		else throw new Error("SR AND SC MUST BE VALID!");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
-		ArrayList<ChessPiece> initbdpcs = this.combineBoardAddAndIgnoreLists(oignorelist, oaddpcs, gid);
-		ChessPiece cp = this.getPieceAt(nr, nc, initbdpcs);
+		let initbdpcs = this.combineBoardAddAndIgnoreLists(oignorelist, oaddpcs, gid);
+		let cp = this.getPieceAt(nr, nc, initbdpcs);
 		//console.log("cp = " + cp);
 		
 		let addit = true;
-		if (cp == null);
+		if (cc.isItemNullOrUndefined(cp));
 		else
 		{
 			if (cp.getColor() === myclr)
@@ -3795,7 +3803,10 @@ class ChessPiece {
 		}
 		//console.log("OLD addit = " + addit);
 		
-		if (mytpval == null) throw new Error("mytpval must not be null!");
+		if (cc.isStringEmptyNullOrUndefined(mytpval))
+		{
+			throw new Error("mytpval must not be null!");
+		}
 		else if (mytpval === "PAWN")
 		{
 			if (nr != sr && nc != sc)
@@ -3809,7 +3820,7 @@ class ChessPiece {
 				if (1 < rdiff || 1 < cdiff) addit = false;
 				else if (rdiff === 1 && cdiff === 1)
 				{
-					if (cp == null) addit = false;
+					if (cc.isItemNullOrUndefined(cp)) addit = false;
 					else
 					{
 						if (cp.getColor() === myclr) addit = false;
@@ -3829,22 +3840,25 @@ class ChessPiece {
 				if (rdiff === 2)
 				{
 					let dirfact = 0;
-					if (myclr == null) throw new Error("color must not be null!");
-					if (myclr === "WHITE") dirfact = -1;
+					if (cc.isStringEmptyNullOrUndefined(myclr))
+					{
+						throw new Error("color must not be null!");
+					}
+					else if (myclr === "WHITE") dirfact = -1;
 					else if (myclr === "BLACK") dirfact = 1;
 					else throw new Error("illegal color (" + myclr + ") found and used here");
 					//console.log("PAWN dirfact = " + dirfact);
 					//console.log("initbdpcs = " + initbdpcs);
 						
-					ChessPiece ocp = this.getPieceAt(sr + dirfact, nc, initbdpcs);
+					let ocp = this.getPieceAt(sr + dirfact, nc, initbdpcs);
 					//console.log("ocp = " + ocp);
 					
-					if (ocp == null);//do nothing add it
+					if (cc.isItemNullOrUndefined(ocp));//do nothing add it
 					else addit = false;
 				}
 				//else;//do nothing add it
 				
-				if (cp == null);//do nothing
+				if (cc.isItemNullOrUndefined(cp));//do nothing
 				else addit = false;
 			}
 			//else;//do nothing
@@ -3854,18 +3868,16 @@ class ChessPiece {
 		
 		if (addit)
 		{
-			//need to know if ignoring piece at sr and sc and putting a castle/queen piece at this location
-			//puts my king in check
+			//need to know if ignoring piece at sr and sc and putting a castle/queen piece
+			//at this location puts my king in check
 			//if it puts my king in check -> do not add it
 			//else add it
 			
-			int[][] ilista = new int[1][2];
-			ilista[0][0] = sr;
-			ilista[0][1] = sc;
-			int[][] ignorelist = this.combineIgnoreLists(ilista, oignorelist);
+			let ilista = [[sr, sc]];//new int[1][2];
+			let ignorelist = this.combineIgnoreLists(ilista, oignorelist);
 			
-			ArrayList<ChessPiece> addpcs = new ArrayList<ChessPiece>();
-			addpcs.add(new ChessPiece(mytpval, myclr, nr, nc, gid, false));
+			let addpcs = [];
+			addpcs.push(new ChessPiece(mytpval, myclr, nr, nc, gid, false));
 			if (this.getNumItemsInList(oaddpcs) < 1);
 			else
 			{
@@ -3874,23 +3886,27 @@ class ChessPiece {
 					let addpctoit = true;
 					for (let c = 0; c < addpcs.length; c++)
 					{
-						if (oaddpcs[x].getRow() == addpcs[c].getRow() &&
-							oaddpcs[x].getCol() == addpcs[c].getCol())
+						if (oaddpcs[x].getRow() === addpcs[c].getRow() &&
+							oaddpcs[x].getCol() === addpcs[c].getCol())
 						{
 							addpctoit = false;
 							break;
 						}
 						//else;//do nothing
 					}
-					if (addpctoit) addpcs.add(oaddpcs[x]);
+					if (addpctoit) addpcs.push(oaddpcs[x]);
 					//else;//do nothing
 				}
 			}
-			ChessPiece mkg = this.getCurrentSideKing(myclr, this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid));
+			let mkg = this.getCurrentSideKing(myclr,
+				this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid));
 			//console.log("mkg = " + mkg);
 			//console.log("addpcs = " + addpcs);
-			//printLocsArray(ignorelist, "ignorelist");
-			if (mkg == null) throw new Error("our king must be on the board, but it was not found!");
+			//this.printLocsArray(ignorelist, "ignorelist");
+			if (cc.isItemNullOrUndefined(mkg))
+			{
+				throw new Error("our king must be on the board, but it was not found!");
+			}
 			else
 			{
 				if (mkg.inCheck(ignorelist, addpcs)) addit = false;
@@ -3902,22 +3918,24 @@ class ChessPiece {
 		return addit;
 	}
 	
-	static [] getBishopCanMoveToLocs(let sr, let sc, String myclr,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static getBishopCanMoveToLocs(sr, sc, myclr, ignorelist=null, addpcs=null, gid)
 	{
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeAnInteger(sr, "sr");
+		cc.letMustBeAnInteger(sc, "sc");
+		cc.letMustBeDefinedAndNotNull(myclr, "myclr");
+
 		if (isvalidrorc(sr) && isvalidrorc(sc));
 		else throw new Error("SR AND SC MUST BE VALID!");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
 		
-		int[][] keeplist = new int[16][2];
-		for (let x = 0; x < keeplist.length; x++)
+		let keeplist = [];//new int[16][2];
+		for (let x = 0; x < 16; x++)
 		{
-			keeplist[x][0] = -1;
-			keeplist[x][1] = -1;
+			if (x === 0) keeplist.push([sr, sc]);
+			else keeplist.push([-1, -1]);
 		}
-		keeplist[0][0] = sr;
-		keeplist[0][1] = sc;
 		let kli = 1;
 		
 		for (let x = 0; x < 4; x++)
@@ -3930,7 +3948,8 @@ class ChessPiece {
 			{
 				//console.log("r = " + r);
 				//console.log("c = " + c);
-				if (this.canAddThisMoveToLoc(sr, sc, r, c, myclr, "BISHOP", ignorelist, addpcs, gid))
+				if (this.canAddThisMoveToLoc(sr, sc, r, c, myclr, "BISHOP",
+					ignorelist, addpcs, gid))
 				{
 					//console.log("KEEP THIS LOCATION!");
 					//need to make sure we are not adding a duplicate loc to the list...
@@ -3943,39 +3962,40 @@ class ChessPiece {
 					}
 				}
 				//else;//do nothing
-				ChessPiece cp = this.getPieceAt(r, c, this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid));
+				let cp = this.getPieceAt(r, c, this.combineBoardAddAndIgnoreLists(ignorelist,
+					addpcs, gid));
 				//console.log("cp = " + cp);
-				if (cp == null);
+				if (cc.isItemNullOrUndefined(cp));
 				else
 				{
-					if (r == sr && c == sc);
+					if (r === sr && c === sc);
 					else break;
 				}
 				
 				//increment the variables
 				//console.log("x = " + x);
-				if (x == 0)
+				if (x === 0)
 				{
 					//go towards bottom right
 					//console.log("TOWARDS BOTTOM RIGHT!");
 					r++;
 					c++;
 				}
-				else if (x == 1)
+				else if (x === 1)
 				{
 					//go towards top left
 					//console.log("TOWARDS TOP LEFT!");
 					r--;
 					c--;
 				}
-				else if (x == 2)
+				else if (x === 2)
 				{
 					//go towards top right
 					//console.log("TOWARDS TOP RIGHT!");
 					r--;
 					c++;
 				}
-				else if (x == 3)
+				else if (x === 3)
 				{
 					//go towards bottom left
 					//console.log("TOWARDS BOTTOM LEFT!");
@@ -3986,50 +4006,53 @@ class ChessPiece {
 			}//end of while loop
 		}//end of x for loop
 		//copy keeplist to rlist
-		int[][] rlist = new int[kli][2];
-		for (let x = 0; x < kli; x++)
-		{
-			rlist[x][0] = keeplist[x][0];
-			rlist[x][1] = keeplist[x][1];
-		}
-		return rlist;
+		let rlist = [];//new int[kli][2];
+		for (let x = 0; x < kli; x++) rlist.push([keeplist[x][0], keeplist[x][1]]);
+		if (rlist.length === kli && rlist[0].length === 2) return rlist;
+		else throw new Error("illegal resultant array size for the list of locs!");
 	}
 	//NOTE: this does not take into account castling
-	static [] getCastleCanMoveToLocs(let sr, let sc, String myclr,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static getCastleCanMoveToLocs(sr, sc, myclr, ignorelist=null, addpcs=null, gid)
 	{
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeAnInteger(sr, "sr");
+		cc.letMustBeAnInteger(sc, "sc");
+		cc.letMustBeDefinedAndNotNull(myclr, "myclr");
+
 		if (this.isvalidrorc(sr) && this.isvalidrorc(sc));
 		else throw new Error("SR AND SC MUST BE VALID!");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
 		
-		//we do not include sr and sc only (WE ASSUME THERE IS A PIECE THERE THAT IS A CASTLE OR A QUEEN)
-		//moving on rows or columns checking to see if the location is empty according to all pieces list
+		//we do not include sr and sc only (WE ASSUME THERE IS A PIECE THERE THAT IS A CASTLE
+		//OR A QUEEN)
+		//moving on rows or columns checking to see if the location is empty according to
+		//all pieces list
 		//if the location is empty, add it to keep list
 		//if the location is not empty:
 		//-check to see if we can kill it:
 		//--if we can kill it, add it;
 		//--if not, do not add it;
 		//-but done
-		//we must make sure that the location lets us not be in check or results in our side not in check
+		//we must make sure that the location lets us not be in check or results in our
+		//side not in check
 		//
 		//column stays the same
 		//at most there will be 8 locations in any row or column so 8 different positions
-		//the castle therefore will have at most 16 possible moves (if allowed to stay at its current position)
-		int[][] keeplist = new int[16][2];
-		for (let x = 0; x < keeplist.length; x++)
+		//the castle therefore will have at most 16 possible moves (if allowed to stay
+		//at its current position)
+		let keeplist = [];//new int[16][2];
+		for (let x = 0; x < 16; x++)
 		{
-			keeplist[x][0] = -1;
-			keeplist[x][1] = -1;
+			if (x === 0) keeplist.push([sr, sc]);
+			else keeplist.push([-1, -1]);
 		}
-		keeplist[0][0] = sr;
-		keeplist[0][1] = sc;
 		let kli = 1;
 		for (let r = sr; r < 8; r++)
 		{
 			//console.log("r = " + r);
 			//console.log("c = " + sc);
-			if (r == sr) continue;
+			if (r === sr) continue;
 			//else;//do nothing
 			
 			if (this.canAddThisMoveToLoc(sr, sc, r, sc, myclr, "CASTLE", ignorelist, addpcs, gid))
@@ -4040,16 +4063,17 @@ class ChessPiece {
 				kli++;
 			}
 			//else;//do nothing
-			ChessPiece cp = this.getPieceAt(r, sc, this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid));
+			let cp = this.getPieceAt(r, sc, this.combineBoardAddAndIgnoreLists(ignorelist,
+				addpcs, gid));
 			//console.log("cp = " + cp);
-			if (cp == null);
+			if (cc.isItemNullOrUndefined(cp));
 			else break;
 		}
 		for (let r = sr; (0 < r || r == 0 && r < 8); r--)
 		{
 			//console.log("r = " + r);
 			//console.log("c = " + sc);
-			if (r == sr) continue;
+			if (r === sr) continue;
 			//else;//do nothing
 			
 			if (this.canAddThisMoveToLoc(sr, sc, r, sc, myclr, "CASTLE", ignorelist, addpcs, gid))
@@ -4060,9 +4084,10 @@ class ChessPiece {
 				kli++;
 			}
 			//else;//do nothing
-			ChessPiece cp = this.getPieceAt(r, sc, this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid));
+			let cp = this.getPieceAt(r, sc, this.combineBoardAddAndIgnoreLists(ignorelist,
+				addpcs, gid));
 			//console.log("cp = " + cp);
-			if (cp == null);
+			if (cc.isItemNullOrUndefined(cp));
 			else break;
 		}
 		//row stays the same
@@ -4070,7 +4095,7 @@ class ChessPiece {
 		{
 			//console.log("r = " + sr);
 			//console.log("c = " + c);
-			if (c == sc) continue;
+			if (c === sc) continue;
 			//else;//do nothing
 			
 			if (this.canAddThisMoveToLoc(sr, sc, sr, c, myclr, "CASTLE", ignorelist, addpcs, gid))
@@ -4081,16 +4106,17 @@ class ChessPiece {
 				kli++;
 			}
 			//else;//do nothing
-			ChessPiece cp = this.getPieceAt(sr, c, this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid));
+			let cp = this.getPieceAt(sr, c, this.combineBoardAddAndIgnoreLists(ignorelist,
+				addpcs, gid));
 			//console.log("cp = " + cp);
-			if (cp == null);
+			if (cc.isItemNullOrUndefined(cp));
 			else break;
 		}
 		for (let c = sc; (0 < c || c == 0 && c < 8); c--)
 		{
 			//console.log("r = " + sr);
 			//console.log("c = " + c);
-			if (c == sc) continue;
+			if (c === sc) continue;
 			//else;//do nothing
 			
 			if (this.canAddThisMoveToLoc(sr, sc, sr, c, myclr, "CASTLE", ignorelist, addpcs, gid))
@@ -4101,73 +4127,74 @@ class ChessPiece {
 				kli++;
 			}
 			//else;//do nothing
-			ChessPiece cp = this.getPieceAt(sr, c, this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid));
+			let cp = this.getPieceAt(sr, c, this.combineBoardAddAndIgnoreLists(ignorelist,
+				addpcs, gid));
 			//console.log("cp = " + cp);
-			if (cp == null);
+			if (cc.isItemNullOrUndefined(cp));
 			else break;
 		}
 		//copy keeplist to rlist
-		int[][] rlist = new int[kli][2];
-		for (let x = 0; x < kli; x++)
-		{
-			rlist[x][0] = keeplist[x][0];
-			rlist[x][1] = keeplist[x][1];
-		}
-		return rlist;
+		let rlist = [];//new int[kli][2];
+		for (let x = 0; x < kli; x++) rlist.push([keeplist[x][0], keeplist[x][1]]);
+		if (rlist.length === kli && rlist[0].length === 2) return rlist;
+		else throw new Error("illegal resultant array size for the list of locs!");
 	}
-	static [] getQueenCanMoveToLocs(let sr, let sc, String myclr,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static getQueenCanMoveToLocs(sr, sc, myclr, ignorelist=null, addpcs=null, gid)
 	{
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeAnInteger(sr, "sr");
+		cc.letMustBeAnInteger(sc, "sc");
+		cc.letMustBeDefinedAndNotNull(myclr, "myclr");
+
 		if (isvalidrorc(sr) && isvalidrorc(sc));
 		else throw new Error("SR AND SC MUST BE VALID!");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
 		
 		//combines the two above
-		int[][] bmlocs = this.getBishopCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid);
-		int[][] cmlocs = this.getCastleCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid);
-		if (bmlocs == null || bmlocs.length < 1) return cmlocs;
-		else if (cmlocs == null || cmlocs.length < 1) return bmlocs;
+		let bmlocs = this.getBishopCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid);
+		let cmlocs = this.getCastleCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid);
+		if (cc.isStringEmptyNullOrUndefined(bmlocs)) return cmlocs;
+		else if (cc.isStringEmptyNullOrUndefined(cmlocs)) return bmlocs;
 		else
 		{
 			//both are non null;
-			int[][] reslocs = new int[bmlocs.length + cmlocs.length][2];
-			let resi = 0;
-			for (let r = 0; r < bmlocs.length; r++)
-			{
-				reslocs[resi] = bmlocs[r];
-				resi++;
-			}
+			//int[][] reslocs = new int[bmlocs.length + cmlocs.length][2];
+			let reslocs = bmlocs.map((mloc) => [mloc[0], mloc[1]]);
+			let resi = bmlocs.length;
 			for (let r = 0; r < cmlocs.length; r++)
 			{
-				if (isLocOnListOfLocs(cmlocs[r], reslocs));
+				if (this.isLocOnListOfLocs(cmlocs[r], reslocs));
 				else
 				{
-					reslocs[resi] = cmlocs[r];
+					reslocs.push([cmlocs[r][0], cmlocs[r][1]]);
 					resi++;
 				}
 			}
-			int[][] myretlist = new int[resi][2];
-			for (let x = 0; x < resi; x++)
-			{
-				myretlist[x][0] = reslocs[x][0];
-				myretlist[x][1] = reslocs[x][1];
-			}
-			return myretlist;
+
+			//copy reslocslist to myretlist
+			let myretlist = [];//new int[resi][2];
+			for (let x = 0; x < resi; x++) myretlist.push([reslocs[x][0], reslocs[x][1]]);
+			if (myretlist.length === resi && myretlist[0].length === 2) return myretlist;
+			else throw new Error("illegal resultant array size for the list of locs!");
 		}
 	}
 	//NOTE: this does not take into account pawning
-	static [] getPawnCanMoveToLocs(let sr, let sc, String myclr,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static getPawnCanMoveToLocs(sr, sc, myclr, ignorelist=null, addpcs=null, gid)
 	{
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeAnInteger(sr, "sr");
+		cc.letMustBeAnInteger(sc, "sc");
+		cc.letMustBeDefinedAndNotNull(myclr, "myclr");
+		
 		if (this.isvalidrorc(sr) && this.isvalidrorc(sc));
 		else throw new Error("SR AND SC MUST BE VALID!");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
 		
 		let dirfact = 0;
-		if (myclr == null) throw new Error("color must not be null!");
-		if (myclr === "WHITE") dirfact = -1;
+		if (cc.isStringEmptyNullOrUndefined(myclr)) throw new Error("color must not be null!");
+		else if (myclr === "WHITE") dirfact = -1;
 		else if (myclr === "BLACK") dirfact = 1;
 		else throw new Error("illegal color (" + myclr + ") found and used here");
 		//console.log("PAWN dirfact = " + dirfact);
@@ -4177,37 +4204,26 @@ class ChessPiece {
 		
 		//if has not moved can move forward 2 spots or 1 spot
 		//otherwise can only move forward 1 spot unless can kill a piece only attacks diagnal
-		let canmvfwdtwo = ((sr == 6 && myclr === "WHITE") || (sr == 1 && myclr === "BLACK"));
+		let canmvfwdtwo = ((sr === 6 && myclr === "WHITE") || (sr === 1 && myclr === "BLACK"));
 		//console.log("PAWN canmvfwdtwo = " + canmvfwdtwo);
 		
-		int[][] tplocs = new int[5][2];
-		tplocs[0][0] = sr;
-		tplocs[0][1] = sc;
-		if (canmvfwdtwo)
-		{
-			tplocs[1][0] = sr + (2*dirfact);
-			tplocs[1][1] = sc;
-		}
-		else
-		{
-			tplocs[1][0] = -1;
-			tplocs[1][1] = -1;
-		}
+		let tplocs = [];//new int[5][2];
+		tplocs.push([sr, sc]);
+		if (canmvfwdtwo) tplocs.push([sr + (2*dirfact), sc]);
+		else tplocs.push([-1, -1]);
 		//move forward or backwards one spot
-		tplocs[2][0] = sr + dirfact;
-		tplocs[2][1] = sc;
+		tplocs.push([sr + dirfact, sc]);
 		//now attack locations...
-		tplocs[3][0] = sr + dirfact;
-		tplocs[3][1] = sc - 1;
-		tplocs[4][0] = sr + dirfact;
-		tplocs[4][1] = sc + 1;
+		tplocs.push([sr + dirfact, sc - 1]);
+		tplocs.push([sr + dirfact, sc + 1]);
 		
-		//now we need to go through all of these locations and see how they effect the king exclude the first one
+		//now we need to go through all of these locations and see how they effect the
+		//king exclude the first one
 		//exclude all invalid locations
-		let isvloc = new let[tplocs.length];
+		let isvloc = [true, false, false, false, false];//new boolean[tplocs.length];
 		let numv = 1;
-		isvloc[0] = true;
-		//console.log("STARTING LOCATION: " + this.getLocString(sr, sc) + ": " + this.convertRowColToStringLoc(sr, sc));
+		//console.log("STARTING LOCATION: " + this.getLocString(sr, sc) + ": " +
+		//	this.convertRowColToStringLoc(sr, sc));
 		
 		for (let x = 1; x < tplocs.length; x++)
     	{
@@ -4219,10 +4235,11 @@ class ChessPiece {
     		{
     			//the loc is valid, but now see if moving there moves our king to check or
     			//see if we can even move there in the first place
-    			if (this.canAddThisMoveToLoc(sr, sc, tplocs[x][0], tplocs[x][1], myclr, "PAWN", ignorelist, addpcs, gid))
+    			if (this.canAddThisMoveToLoc(sr, sc, tplocs[x][0], tplocs[x][1], myclr,
+					"PAWN", ignorelist, addpcs, gid))
 				{
-					//console.log("VALID LOC " + this.getLocString(tplocs[x][0], tplocs[x][1]) + ": " +
-	    			//	this.convertRowColToStringLoc(tplocs[x]));
+					//console.log("VALID LOC " + this.getLocString(tplocs[x][0], tplocs[x][1]) +
+					//	": " + this.convertRowColToStringLoc(tplocs[x]));
 					isvloc[x] = true;
 				}
 				else isvloc[x] = false;
@@ -4234,30 +4251,34 @@ class ChessPiece {
     		if (isvloc[x]) numv++;
     		//else;//do nothing
     	}
-    	int[][] rlist = new int[numv][2];
+    	let rlist = [];//new int[numv][2];
     	let vki = 0;
     	for (let x = 0; x < tplocs.length; x++)
     	{
     		if (isvloc[x])
     		{
-    			rlist[vki][0] = tplocs[x][0];
-    			rlist[vki][1] = tplocs[x][1];
+    			rlist.push([tplocs[x][0], tplocs[x][1]]);
     			vki++;
     		}
     		//else;//do nothing
     	}
-		return rlist;
+		if (rlist.length === numv) return rlist;
+		else throw new Error("illegal resultant array size for the list of locs!");
 	}
-	static [] getKnightCanMoveToLocs(let sr, let sc, String myclr,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static getKnightCanMoveToLocs(sr, sc, myclr, ignorelist=null, addpcs=null, gid)
 	{
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeAnInteger(sr, "sr");
+		cc.letMustBeAnInteger(sc, "sc");
+		cc.letMustBeDefinedAndNotNull(myclr, "myclr");
+		
 		if (this.isvalidrorc(sr) && this.isvalidrorc(sc));
 		else throw new Error("SR AND SC MUST BE VALID!");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
 		
-		int[][] pktlocs = this.getAllPossibleKnightMoveToLocs(sr, sc);
-		//if (pktlocs == null) console.log("pktlocs = null");
+		let pktlocs = this.getAllPossibleKnightMoveToLocs(sr, sc);
+		//if (cc.isItemNullOrUndefined(pktlocs)) console.log("pktlocs = null");
     	//else if (pktlocs.length < 1) console.log("pktlocs is empty!");
     	//else
     	//{
@@ -4269,18 +4290,14 @@ class ChessPiece {
 	    //		//	this.convertRowColToStringLoc(pktlocs[x]));
 	    //	}
     	//}
-    	//console.log("STARTING LOCATION: " + this.getLocString(sr, sc) + ": " + this.convertRowColToStringLoc(sr, sc));
+    	//console.log("STARTING LOCATION: " + this.getLocString(sr, sc) + ": " +
+		//	this.convertRowColToStringLoc(sr, sc));
     	
-    	if (pktlocs == null || pktlocs.length < 1)
-    	{
-    		int[][] rlist = new int[1][2];
-    		rlist[0][0] = sr;
-    		rlist[0][1] = sc;
-    		return rlist;
-    	}
+    	if (cc.isStringEmptyNullOrUndefined(pktlocs)) return [[sr, sc]];
 		else
 		{
-			let isvloc = new let[pktlocs.length];
+			let isvloc = [];//new boolean[pktlocs.length];
+			for (let x = 0; x < pktlocs.length; x++) isvloc.push(false);
 			let numv = 0;
 			for (let x = 0; x < pktlocs.length; x++)
 	    	{
@@ -4289,7 +4306,8 @@ class ChessPiece {
 	    		{
 	    			//the loc is valid, but now see if moving there moves our king to check or
 	    			//see if we can even move there in the first place
-	    			if (this.canAddThisMoveToLoc(sr, sc, pktlocs[x][0], pktlocs[x][1], myclr, "KNIGHT", ignorelist, addpcs, gid))
+	    			if (this.canAddThisMoveToLoc(sr, sc, pktlocs[x][0], pktlocs[x][1], myclr,
+						"KNIGHT", ignorelist, addpcs, gid))
 					{
 						isvloc[x] = true;
 					}
@@ -4298,29 +4316,33 @@ class ChessPiece {
 		    	//else;//do nothing
 	    		if (isvloc[x]) numv++;
 	    	}
-	    	int[][] vpktlocs = new int[numv + 1][2];
-	    	vpktlocs[0][0] = sr;
-	    	vpktlocs[0][1] = sc;
+	    	let vpktlocs = [];//new int[numv + 1][2];
+	    	vpktlocs.push([sr, sc]);
 	    	let vpki = 1;
 	    	for (let x = 0; x < pktlocs.length; x++)
 	    	{
 	    		if (isvloc[x])
 	    		{
-	    			vpktlocs[vpki][0] = pktlocs[x][0];
-	    			vpktlocs[vpki][1] = pktlocs[x][1];
-	    			//console.log("VALID LOC " + this.getLocString(vpktlocs[vpki][0], vpktlocs[vpki][1]) + ": " +
-	    			//	this.convertRowColToStringLoc(vpktlocs[vpki]));
+	    			vpktlocs.push([pktlocs[x][0], pktlocs[x][1]]);
+	    			//console.log("VALID LOC " + this.getLocString(vpktlocs[vpki][0],
+					//	vpktlocs[vpki][1]) + ": " +
+					//	this.convertRowColToStringLoc(vpktlocs[vpki]));
 	    			vpki++;
 	    		}
 	    		//else;//do nothing
 	    	}
-	    	return vpktlocs;
+	    	if (vpktlocs.length === numv + 1 && vpktlocs[0].length === 2) return vpktlocs;
+			else throw new Error("illegal resultant array size for the list of locs!");
 		}
 	}
 	//NOTE: this does not take into account castling
-	static [] getKingCanMoveToLocs(let sr, let sc, String myclr,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static getKingCanMoveToLocs(sr, sc, myclr, ignorelist=null, addpcs=null, gid)
 	{
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeAnInteger(sr, "sr");
+		cc.letMustBeAnInteger(sc, "sc");
+		cc.letMustBeDefinedAndNotNull(myclr, "myclr");
+		
 		if (this.isvalidrorc(sr) && this.isvalidrorc(sc));
 		else throw new Error("SR AND SC MUST BE VALID!");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
@@ -4330,28 +4352,24 @@ class ChessPiece {
 		//exception is castling
 		
 		//rdiff and cdiff must be at most 1 at minimum 0 zero
-		int[][] keeplist = new int[9][2];
+		let keeplist = [];//new int[9][2];
 		let kli = 0;
-		for (let x = 0; x < keeplist.length; x++)
-		{
-			keeplist[x][0] = -1;
-			keeplist[x][1] = -1;
-		}
+		for (let x = 0; x < 9; x++) keeplist.push([-1, -1]);
 		//console.log("sr = " + sr);
 		//console.log("sc = " + sc);
 		let sri = -1;
 		if (0 < sr) sri = sr - 1;
-		else if (0 == sr) sri = 0;
+		else if (0 === sr) sri = 0;
 		else throw new Error("negative values not allowed for sr!");
 		let sci = -1;
 		if (0 < sc) sci = sc - 1;
-		else if (0 == sc) sci = 0;
+		else if (0 === sc) sci = 0;
 		else throw new Error("negative values not allowed for sc!");
 		//console.log("sri = " + sri);
 		//console.log("sci = " + sci);
-		for (let r = sri; ((0 < r || r == 0) && r < 8) && r < sr + 2; r++)
+		for (let r = sri; ((0 < r || r === 0) && r < 8) && r < sr + 2; r++)
 		{
-			for (let c = sci; ((0 < c || c == 0) && c < 8) && c < sc + 2; c++)
+			for (let c = sci; ((0 < c || c === 0) && c < 8) && c < sc + 2; c++)
 			{
 				//console.log("r = " + r);
 				//console.log("c = " + c);
@@ -4367,27 +4385,32 @@ class ChessPiece {
 					//}
 				}
 				//else;//do nothing
-				//different than the others because all locations are one away from the spot so just loop through them
+				//different than the others because all locations are one away from the spot
+				//so just loop through them
 			}
 		}
 		//copy keeplist to rlist
-		int[][] rlist = new int[kli][2];
-		for (let x = 0; x < kli; x++)
-		{
-			rlist[x][0] = keeplist[x][0];
-			rlist[x][1] = keeplist[x][1];
-		}
-		return rlist;
+		let rlist = [];//new int[kli][2];
+		for (let x = 0; x < kli; x++) rlist.push([keeplist[x][0], keeplist[x][1]]);
+		if (rlist.length === kli && rlist[0].length === 2) return rlist;
+		else throw new Error("illegal resultant array size for the list of locs!");
 	}
 	
-	//THIS TAKES INTO ACCOUNT PAWNING TOO; IF NOT CALLED ON A PAWN WITH THE SAME COLOR JUST RETURNS ABOVE
-	static [] getAllPawnCanMoveToLocs(let sr, let sc, String myclr,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid, let bpassimnxtmv)
+	//THIS TAKES INTO ACCOUNT PAWNING TOO; IF NOT CALLED ON A PAWN WITH THE SAME COLOR
+	//JUST RETURNS ABOVE
+	static getAllPawnCanMoveToLocs(sr, sc, myclr, ignorelist=null, addpcs=null, gid,
+		bpassimnxtmv=false)
 	{
-		ArrayList<ChessPiece> allpcs = this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
-		ChessPiece cp = this.getPieceAt(sr, sc, allpcs);
-		int[][] pcmlocs = this.getPawnCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid);
-		if (cp == null) return pcmlocs;
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeAnInteger(sr, "sr");
+		cc.letMustBeAnInteger(sc, "sc");
+		cc.letMustBeBoolean(bpassimnxtmv, "bpassimnxtmv");
+		cc.letMustBeDefinedAndNotNull(myclr, "myclr");
+		
+		let allpcs = this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+		let cp = this.getPieceAt(sr, sc, allpcs);
+		let pcmlocs = this.getPawnCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid);
+		if (cc.isItemNullOrUndefined(cp)) return pcmlocs;
 		else
 		{
 			if (cp.getColor() === myclr);
@@ -4396,20 +4419,26 @@ class ChessPiece {
 			if (cp.getType() === "PAWN")
 			{
 				//now can handle the pawning stuff
-				int[] pleftloc = null;
-				int[] prightloc = null;
-				if (cp.canPawnLeft(allpcs, bpassimnxtmv)) pleftloc = cp.getPawnLeftLocation(allpcs, bpassimnxtmv);
-				if (cp.canPawnRight(allpcs, bpassimnxtmv)) prightloc = cp.getPawnRightLocation(allpcs, bpassimnxtmv);
+				let pleftloc = null;
+				let prightloc = null;
+				if (cp.canPawnLeft(allpcs, bpassimnxtmv))
+				{
+					pleftloc = cp.getPawnLeftLocation(allpcs, bpassimnxtmv);
+				}
+				if (cp.canPawnRight(allpcs, bpassimnxtmv))
+				{
+					prightloc = cp.getPawnRightLocation(allpcs, bpassimnxtmv);
+				}
 				let numaddlocs = 0;
 				let addpleft = false;
-				if (pleftloc == null);
+				if (cc.isStringEmptyNullOrUndefined(pleftloc));
 				else
 				{
 					numaddlocs++;
 					addpleft = true;
 				}
 				let addpright = false;
-				if (prightloc == null);
+				if (cc.isStringEmptyNullOrUndefined(prightloc));
 				else
 				{
 					numaddlocs++;
@@ -4417,32 +4446,26 @@ class ChessPiece {
 				}
 				//console.log("addpleft = " + addpleft);
 				//console.log("addpright = " + addpright);
-				int[][] locs = null;
-				if (pcmlocs == null) locs = null;
+				let locs = null;
+				if (cc.isStringEmptyNullOrUndefined(pcmlocs)) locs = null;
 				else
 				{
-					locs = new int[numaddlocs + pcmlocs.length][2];
-					for (let x = 0; x < pcmlocs.length; x++)
-					{
-						locs[x][0] = pcmlocs[x][0];
-						locs[x][1] = pcmlocs[x][1];
-					}
+					//locs = new int[numaddlocs + pcmlocs.length][2];
+					locs = pcmlocs.map((mitem) => [mitem[0], mitem[1]]);
 					let lci = pcmlocs.length;
 					if (addpleft)
 					{
-						locs[lci][0] = pleftloc[0];
-						locs[lci][1] = pleftloc[1];
+						locs.push([pleftloc[0], pleftloc[1]]);
 						lci++;
 					}
 					//else;//do nothing
 					if (addpright)
 					{
-						locs[lci][0] = prightloc[0];
-						locs[lci][1] = prightloc[1];
+						locs.push([prightloc[0], prightloc[1]]);
 						lci++;
 					}
 					//else;//do nothing
-					if (lci == locs.length);
+					if (lci === locs.length && locs.length === numaddlocs + pcmlocs.length);
 					else throw new Error("locs does not have the correct size!");
 				}
 				return locs;
@@ -4451,14 +4474,19 @@ class ChessPiece {
 		}
 	}
 	
-	//THIS TAKES INTO ACCOUNT CASTLEING FOR KING ONLY; IF NOT CALLED ON A KING WITH THE SAME COLOR JUST RETURNS ABOVE
-	static [] getAllKingCanMoveToLocs(let sr, let sc, String myclr,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	//THIS TAKES INTO ACCOUNT CASTLEING FOR KING ONLY; IF NOT CALLED ON A KING WITH THE
+	//SAME COLOR JUST RETURNS ABOVE
+	static getAllKingCanMoveToLocs(sr, sc, myclr, ignorelist=null, addpcs=null, gid)
 	{
-		int[][] kcmvlocs = this.getKingCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid);
-		ArrayList<ChessPiece> allpcs = this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
-		ChessPiece cp = this.getPieceAt(sr, sc, allpcs);
-		if (cp == null) return kcmvlocs;
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeAnInteger(sr, "sr");
+		cc.letMustBeAnInteger(sc, "sc");
+		cc.letMustBeDefinedAndNotNull(myclr, "myclr");
+		
+		let kcmvlocs = this.getKingCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid);
+		let allpcs = this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+		let cp = this.getPieceAt(sr, sc, allpcs);
+		if (cc.isItemNullOrUndefined(cp)) return kcmvlocs;
 		else
 		{
 			if (cp.getColor() === myclr);
@@ -4472,8 +4500,8 @@ class ChessPiece {
 				let ccright = this.canSideCastleRight(myclr, ignorelist, addpcs, gid);
 				//console.log("ccleft = " + ccleft);
 				//console.log("ccright = " + ccright);
-				int[] clftloc = null;
-				int[] crgtloc = null;
+				let clftloc = null;
+				let crgtloc = null;
 				let numadd = 0;
 				if (ccleft)
 				{
@@ -4493,31 +4521,29 @@ class ChessPiece {
 				if (numadd < 1) return kcmvlocs;
 				else if (2 < numadd) throw new Error("numadd is an invalid value!");
 				//else;//do nothing
-				if (kcmvlocs == null) return null;
+				if (cc.isStringEmptyNullOrUndefined(kcmvlocs)) return null;
 				else
 				{
-					int[][] locs = new int[kcmvlocs.length + numadd][2];
+					//int[][] locs = new int[kcmvlocs.length + numadd][2];
+					let locs = kcmvlocs.map((mitem) => [mitem[0], mitem[1]]);
 					let lci = kcmvlocs.length;
-					for (let x = 0; x < kcmvlocs.length; x++)
-					{
-						locs[x][0] = kcmvlocs[x][0];
-						locs[x][1] = kcmvlocs[x][1];
-					}
 					if (ccleft)
 					{
-						locs[lci][0] = clftloc[0];
-						locs[lci][1] = clftloc[1];
+						locs.push([clftloc[0], clftloc[1]]);
 						lci++;
 					}
 					//else;//do nothing
 					if (ccright)
 					{
-						locs[lci][0] = crgtloc[0];
-						locs[lci][1] = crgtloc[1];
+						locs.push([crgtloc[0], crgtloc[1]]);
 						lci++;
 					}
 					//else;//do nothing
-					return locs;
+					if (lci === locs.length && locs.length === numaddlocs + pcmlocs.length)
+					{
+						return locs;
+					}
+					else throw new Error("locs does not have the correct size!");
 				}
 			}
 			else return kcmvlocs;
@@ -4525,66 +4551,90 @@ class ChessPiece {
 	}
 	
 	//calls the above methods
-	static [] getPieceCanMoveToLocs(let sr, let sc, String myclr, String mytpval,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid, let nocsling, let bpassimnxtmv)
+	static getPieceCanMoveToLocs(sr, sc, myclr, mytpval, ignorelist=null, addpcs=null, gid,
+		nocsling=false, bpassimnxtmv=false)
 	{
-		if (mytpval == null) throw new Error("mytpval must not be null!");
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeAnInteger(sr, "sr");
+		cc.letMustBeAnInteger(sc, "sc");
+		cc.letMustBeBoolean(nocsling, "nocsling");
+		cc.letMustBeBoolean(bpassimnxtmv, "bpassimnxtmv");
+		cc.letMustBeDefinedAndNotNull(myclr, "myclr");
+
+		if (cc.isStringEmptyNullOrUndefined(mytpval))
+		{
+			throw new Error("mytpval must not be null!");
+		}
 		else
 		{
-			if (mytpval === "BISHOP") return this.getBishopCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid);
+			if (mytpval === "BISHOP")
+			{
+				return this.getBishopCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid);
+			}
 			else if (mytpval === "CASTLE" || mytpval === "ROOK")
 			{
 				return getCastleCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid);
 			}
-			else if (mytpval === "QUEEN") return this.getQueenCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid);
+			else if (mytpval === "QUEEN")
+			{
+				return this.getQueenCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid);
+			}
 			else if (mytpval === "PAWN")
 			{
-				return this.getAllPawnCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid, bpassimnxtmv);
+				return this.getAllPawnCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid,
+					bpassimnxtmv);
 			}
 			else if (mytpval === "KING")
 			{
-				if (nocsling) return this.getKingCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid);
-				else return this.getAllKingCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid);
+				if (nocsling)
+				{
+					return this.getKingCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid);
+				}
+				else
+				{
+					return this.getAllKingCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid);
+				}
 			}
-			else if (mytpval === "KNIGHT") return this.getKnightCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid);
-			else throw new Error("illegal value found and used here for mytpval (" + mytpval + ")!");
+			else if (mytpval === "KNIGHT")
+			{
+				return this.getKnightCanMoveToLocs(sr, sc, myclr, ignorelist, addpcs, gid);
+			}
+			else
+			{
+				throw new Error("illegal value found and used here for mytpval (" + mytpval +
+					")!");
+			}
 		}
 	}
-	static [] getPieceCanMoveToLocs(let sr, let sc, String myclr, String mytpval,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	getPieceCanMoveToLocs(ignorelist=null, addpcs=null, nocsling=false, bpassimnxtmv=false)
 	{
-		return this.getPieceCanMoveToLocs(sr, sc, myclr, mytpval, ignorelist, addpcs, gid, false, false);
-	}
-	int[][] getPieceCanMoveToLocs(int[][] ignorelist, ArrayList<ChessPiece> addpcs,
-		let nocsling, let bpassimnxtmv)
-	{
-		return this.getPieceCanMoveToLocs(getRow(), getCol(), getColor(), getType(), ignorelist, addpcs, getGameID(),
-			nocsling, bpassimnxtmv);
-	}
-	int[][] getPieceCanMoveToLocs(int[][] ignorelist, ArrayList<ChessPiece> addpcs)
-	{
-		return this.getPieceCanMoveToLocs(ignorelist, addpcs, false, false);
-	}
-	int[][] getPieceCanMoveToLocs()
-	{
-		return this.getPieceCanMoveToLocs(null, null);
+		return this.getPieceCanMoveToLocs(this.getRow(), this.getCol(), this.getColor(),
+			this.getType(), ignorelist, addpcs, this.getGameID(), nocsling, bpassimnxtmv);
 	}
 	
 	
 	//GET PIECE STARTING LOCATION FROM GIVEN DESIRED ENDING LOCATION FOR A DESIRED BOARD
 	
 	//this is given an end location and determines the starting location of the piece
-	//if more than one piece can move there the starting location is ambigious and will throw an error
+	//if more than one piece can move there the starting location is ambigious and
+	//will throw an error
 	//if no piece can move there it returns null
-	//it is done differently depending on the type of piece, how a king does it is different than how a knight does it
-	static  getStartLocForBishopThatCanMoveTo(let er, let ec, String myclr,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid, let useqn)
+	//it is done differently depending on the type of piece, how a king does it is
+	//different than how a knight does it
+	static getStartLocForBishopThatCanMoveTo(er, ec, myclr, ignorelist=null, addpcs=null,
+		gid, useqn=false)
 	{
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeAnInteger(er, "er");
+		cc.letMustBeAnInteger(ec, "ec");
+		cc.letMustBeBoolean(useqn, "useqn");
+		cc.letMustBeDefinedAndNotNull(myclr, "myclr");
+		
 		//moves on a diagnal must be free
-		int[] tlloc = null;
-		int[] trloc = null;
-		int[] blloc = null;
-		int[] brloc = null;
+		let tlloc = null;
+		let trloc = null;
+		let blloc = null;
+		let brloc = null;
 		for (let x = 0; x < 4; x++)
 		{
 			//console.log("x = " + x);
@@ -4596,48 +4646,47 @@ class ChessPiece {
 				//console.log("r = " + r);
 				//console.log("c = " + c);
 				
-				ChessPiece cp = this.getPieceAt(r, c, this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid));
+				let cp = this.getPieceAt(r, c, this.combineBoardAddAndIgnoreLists(ignorelist,
+					addpcs, gid));
 				//console.log("cp = " + cp);
 				
-				if (cp == null);
+				if (cc.isItemNullOrUndefined(cp));
 				else
 				{
 					//console.log("useqn = " + useqn);
 					
-					if (((!useqn && cp.getType() === "BISHOP") || (useqn && cp.getType() === "QUEEN")) &&
-						cp.getColor() === myclr)
+					if (((!useqn && cp.getType() === "BISHOP") ||
+						(useqn && cp.getType() === "QUEEN")) && cp.getColor() === myclr)
 					{
 						//found one
 						//console.log("KEEP IT!");
-						if (x == 0)
+						if (x === 0) brloc = [r, c];//new int[2];
+						else if (x === 1)
 						{
-							brloc = new int[2];
-							brloc[0] = r;
-							brloc[1] = c;
-						}
-						else if (x == 1)
-						{
-							if (brloc == null);
+							if (cc.isStringEmptyNullOrUndefined(brloc));
 							else throw new Error("FOUND MORE THAN ONE BISHOP OR QUEEN!");
-							tlloc = new int[2];
-							tlloc[0] = r;
-							tlloc[1] = c;
+							tlloc = [r, c];//new int[2];
 						}
-						else if (x == 2)
+						else if (x === 2)
 						{
-							if (brloc == null && tlloc == null);
+							if (cc.isStringEmptyNullOrUndefined(brloc) &&
+								cc.isStringEmptyNullOrUndefined(tlloc))
+							{
+								//do nothing valid
+							}
 							else throw new Error("FOUND MORE THAN ONE BISHOP OR QUEEN!");
-							trloc = new int[2];
-							trloc[0] = r;
-							trloc[1] = c;
+							trloc = [r, c];//new int[2];
 						}
-						else if (x == 3)
+						else if (x === 3)
 						{
-							if (brloc == null && tlloc == null && trloc == null);
+							if (cc.isStringEmptyNullOrUndefined(brloc) &&
+								cc.isStringEmptyNullOrUndefined(tlloc) &&
+								cc.isStringEmptyNullOrUndefined(trloc))
+							{
+								//do nothing valid
+							}
 							else throw new Error("FOUND MORE THAN ONE BISHOP OR QUEEN!");
-							blloc = new int[2];
-							blloc[0] = r;
-							blloc[1] = c;
+							blloc = [r, c];//new int[2];
 						}
 						else throw new Error("ILLEGAL VALUE FOUND AND USED HERE FOR INDEX X!");
 					}
@@ -4647,28 +4696,28 @@ class ChessPiece {
 				
 				//increment the variables
 				//console.log("x = " + x);
-				if (x == 0)
+				if (x === 0)
 				{
 					//go towards bottom right
 					//console.log("TOWARDS BOTTOM RIGHT!");
 					r++;
 					c++;
 				}
-				else if (x == 1)
+				else if (x === 1)
 				{
 					//go towards top left
 					//console.log("TOWARDS TOP LEFT!");
 					r--;
 					c--;
 				}
-				else if (x == 2)
+				else if (x === 2)
 				{
 					//go towards top right
 					//console.log("TOWARDS TOP RIGHT!");
 					r--;
 					c++;
 				}
-				else if (x == 3)
+				else if (x === 3)
 				{
 					//go towards bottom left
 					//console.log("TOWARDS BOTTOM LEFT!");
@@ -4678,30 +4727,36 @@ class ChessPiece {
 				else throw new Error("ILLEGAL VALUE FOUND AND USED HERE FOR INDEX X!");
 			}//end of while loop
 		}//end of x for loop
-		if (brloc == null);
+		if (cc.isStringEmptyNullOrUndefined(brloc));
 		else return brloc;
-		if (tlloc == null);
+		if (cc.isStringEmptyNullOrUndefined(tlloc));
 		else return tlloc;
-		if (trloc == null);
+		if (cc.isStringEmptyNullOrUndefined(trloc));
 		else return trloc;
-		if (blloc == null);
+		if (cc.isStringEmptyNullOrUndefined(blloc));
 		else return blloc;
 		return null;
 	}
-	static  getStartLocForCastleThatCanMoveTo(let er, let ec, String myclr,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid, let useqn)
+	static getStartLocForCastleThatCanMoveTo(er, ec, myclr, ignorelist=null, addpcs=null,
+		gid, useqn=false)
 	{
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeAnInteger(er, "er");
+		cc.letMustBeAnInteger(ec, "ec");
+		cc.letMustBeBoolean(useqn, "useqn");
+		cc.letMustBeDefinedAndNotNull(myclr, "myclr");
+
 		//the castle or rook or queen must be unobstructed
 		//move on the same row changing the colums OR move on the colum changing the row
-		int[] rincloc = null;
-		int[] rdecloc = null;
-		int[] cincloc = null;
-		int[] cdecloc = null;
-		ArrayList<ChessPiece> allpcs = this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+		let rincloc = null;
+		let rdecloc = null;
+		let cincloc = null;
+		let cdecloc = null;
+		let allpcs = this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
 		for (let r = er; r < 8; r++)
 		{
-			ChessPiece cp = this.getPieceAt(r, ec, allpcs);
-			if (cp == null);
+			let cp = this.getPieceAt(r, ec, allpcs);
+			if (cc.isItemNullOrUndefined(cp));
 			else
 			{
 				if (((useqn && cp.getType() === "QUEEN") ||
@@ -4712,9 +4767,7 @@ class ChessPiece {
 					console.log("locr = " + r);
 					console.log("locc = " + ec);
 					//not sure how to prevent ambiguity error
-					rincloc = new int[2];
-					rincloc[0] = r;
-					rincloc[1] = ec;
+					rincloc = [r, ec];//new int[2];
 				}
 				//else;//do nothing
 				break;
@@ -4722,8 +4775,8 @@ class ChessPiece {
 		}
 		for (let r = er; -1 < r && r < 8; r--)
 		{
-			ChessPiece cp = this.getPieceAt(r, ec, allpcs);
-			if (cp == null);
+			let cp = this.getPieceAt(r, ec, allpcs);
+			if (cc.isItemNullOrUndefined(cp));
 			else
 			{
 				if (((useqn && cp.getType() === "QUEEN") ||
@@ -4734,10 +4787,8 @@ class ChessPiece {
 					console.log("locr = " + r);
 					console.log("locc = " + ec);
 					//not sure how to prevent ambiguity error
-					rdecloc = new int[2];
-					rdecloc[0] = r;
-					rdecloc[1] = ec;
-					if (rincloc == null);
+					rdecloc = [r, ec];//new int[2];
+					if (cc.isStringEmptyNullOrUndefined(rincloc));
 					else throw new Error("FOUND MORE THAN ONE CASTLE OR QUEEN!");
 				}
 				//else;//do nothing
@@ -4746,8 +4797,8 @@ class ChessPiece {
 		}
 		for (let c = ec; c < 8; c++)
 		{
-			ChessPiece cp = this.getPieceAt(er, c, allpcs);
-			if (cp == null);
+			let cp = this.getPieceAt(er, c, allpcs);
+			if (cc.isItemNullOrUndefined(cp));
 			else
 			{
 				if (((useqn && cp.getType() === "QUEEN") ||
@@ -4758,10 +4809,12 @@ class ChessPiece {
 					console.log("locr = " + er);
 					console.log("locc = " + c);
 					//not sure how to prevent ambiguity error
-					cincloc = new int[2];
-					cincloc[0] = er;
-					cincloc[1] = c;
-					if (rincloc == null && rdecloc == null);
+					cincloc = [er, c];//new int[2];
+					if (cc.isStringEmptyNullOrUndefined(rincloc) &&
+						cc.isStringEmptyNullOrUndefined(rdecloc))
+					{
+						//do nothing valid
+					}
 					else throw new Error("FOUND MORE THAN ONE CASTLE OR QUEEN!");
 				}
 				//else;//do nothing
@@ -4770,8 +4823,8 @@ class ChessPiece {
 		}
 		for (let c = ec; -1 < c && c < 8; c--)
 		{
-			ChessPiece cp = this.getPieceAt(er, c, allpcs);
-			if (cp == null);
+			let cp = this.getPieceAt(er, c, allpcs);
+			if (cc.isItemNullOrUndefined(cp));
 			else
 			{
 				if (((useqn && cp.getType() === "QUEEN") ||
@@ -4782,46 +4835,63 @@ class ChessPiece {
 					console.log("locr = " + er);
 					console.log("locc = " + c);
 					//not sure how to prevent ambiguity error
-					cdecloc = new int[2];
-					cdecloc[0] = er;
-					cdecloc[1] = c;
-					if (rincloc == null && rdecloc == null && cincloc == null);
+					cdecloc = [er, c];//new int[2];
+					if (cc.isStringEmptyNullOrUndefined(rincloc) &&
+						cc.isStringEmptyNullOrUndefined(rdecloc) &&
+						cc.isStringEmptyNullOrUndefined(cincloc))
+					{
+						//do nothing valid
+					}
 					else throw new Error("FOUND MORE THAN ONE CASTLE OR QUEEN!");
 				}
 				//else;//do nothing
 				break;
 			}
 		}
-		if (rincloc == null);
+		if (cc.isStringEmptyNullOrUndefined(rincloc));
 		else return rincloc;
-		if (rdecloc == null);
+		if (cc.isStringEmptyNullOrUndefined(rdecloc));
 		else return rdecloc;
-		if (cincloc == null);
+		if (cc.isStringEmptyNullOrUndefined(cincloc));
 		else return cincloc;
-		if (cdecloc == null);
+		if (cc.isStringEmptyNullOrUndefined(cdecloc));
 		else return cdecloc;
 		return null;
 	}
-	static  getStartLocForQueenThatCanMoveTo(let er, let ec, String myclr,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static getStartLocForQueenThatCanMoveTo(er, ec, myclr, ignorelist=null, addpcs=null, gid)
 	{
-		int[] bsloc = this.getStartLocForBishopThatCanMoveTo(er, ec, myclr, ignorelist, addpcs, gid, true);
-		int[] csloc = this.getStartLocForCastleThatCanMoveTo(er, ec, myclr, ignorelist, addpcs, gid, true);
-		if (bsloc == null || !(isvalidrorc(bsloc[0]) && isvalidrorc(bsloc[1]))) return csloc;
+		let bsloc = this.getStartLocForBishopThatCanMoveTo(er, ec, myclr, ignorelist, addpcs,
+			gid, true);
+		let csloc = this.getStartLocForCastleThatCanMoveTo(er, ec, myclr, ignorelist, addpcs,
+			gid, true);
+		if (cc.isStringEmptyNullOrUndefined(bsloc) ||
+			!(this.isvalidrorc(bsloc[0]) && this.isvalidrorc(bsloc[1])))
+		{
+			return csloc;
+		}
 		else
 		{
-			if (csloc == null || !(this.isvalidrorc(csloc[0]) && this.isvalidrorc(csloc[1]))) return bsloc;
+			if (cc.isStringEmptyNullOrUndefined(csloc) ||
+				!(this.isvalidrorc(csloc[0]) && this.isvalidrorc(csloc[1])))
+			{
+				return bsloc;
+			}
 			else throw new Error("FOUND MORE THAN ONE QUEEN!");
 		}
 	}
-	static  getStartLocForKnightThatCanMoveTo(let er, let ec, String myclr,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static getStartLocForKnightThatCanMoveTo(er, ec, myclr, ignorelist=null, addpcs=null, gid)
 	{
-		//we can use the all possible knight locs and provied the ending location to get the starting location
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeAnInteger(er, "er");
+		cc.letMustBeAnInteger(ec, "ec");
+		cc.letMustBeDefinedAndNotNull(myclr, "myclr");
+
+		//we can use the all possible knight locs and provied the ending location to get
+		//the starting location
 		//if it is ambiguous, throw an error that it was ambiguous!
 		
-		int[][] pktlocs = this.getAllPossibleKnightMoveToLocs(er, ec);
-		//if (pktlocs == null) console.log("pktlocs = null");
+		let pktlocs = this.getAllPossibleKnightMoveToLocs(er, ec);
+		//if (cc.isItemNullOrUndefined(pktlocs)) console.log("pktlocs = null");
     	//else if (pktlocs.length < 1) console.log("pktlocs is empty!");
     	//else
     	//{
@@ -4833,22 +4903,20 @@ class ChessPiece {
 	    //		//	this.convertRowColToStringLoc(pktlocs[x]));
 	    //	}
     	//}
-    	//console.log("STARTING LOCATION: " + this.getLocString(sr, sc) + ": " + this.convertRowColToStringLoc(sr, sc));
+    	//console.log("STARTING LOCATION: " + this.getLocString(sr, sc) + ": " +
+		//	this.convertRowColToStringLoc(sr, sc));
     	
-    	if (pktlocs == null || pktlocs.length < 1)
+    	if (cc.isStringEmptyNullOrUndefined(pktlocs))
     	{
     		//check our location if not there return null
     		//ChessPiece cp = this.getPieceAt(er, ec, ArrayList<ChessPiece> mpclist);
-			//if (cp == null) return null;
+			//if (cc.isItemNullOrUndefined(cp)) return null;
 			//else
 			//{
 			//	if (cp.getType() === "KNIGHT" && cp.getColor() === myclr)
 			//	{
 			//		//there is already a knight at our end loc
-			//		int[] res = new int[2];
-			//		res[0] = er;
-			//		res[1] = ec;
-			//		return res;
+			//		return [er, ec];//new int[2];
 			//	}
 			//	else return null;
 			//}
@@ -4858,16 +4926,17 @@ class ChessPiece {
     	{
     		//check all of the given locations for a knight that is our color
     		//if there is more than 1 error ambiguous!
-    		let keepit = new let[pktlocs.length];
-    		for (let x = 0; x < pktlocs.length; x++) keepit[x] = false;
-    		ArrayList<ChessPiece> allpcs = this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+    		let keepit = [];//new boolean[pktlocs.length];
+    		for (let x = 0; x < pktlocs.length; x++) keepit[x].push(false);
+    		let allpcs = this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
     		for (let x = 0; x < pktlocs.length; x++)
     		{
     			//check our location for the current piece type and color
     			console.log("pktlocs[" + x + "][0] = " + pktlocs[x][0]);
     			console.log("pktlocs[" + x + "][1] = " + pktlocs[x][1]);
-    			ChessPiece cp = this.getPieceAt(pktlocs[x][0], pktlocs[x][1], allpcs);
-    			if (cp == null);
+    			
+				let cp = this.getPieceAt(pktlocs[x][0], pktlocs[x][1], allpcs);
+    			if (cc.isItemNullOrUndefined(cp));
     			else
     			{
     				if (cp.getType() === "KNIGHT" && cp.getColor() === myclr)
@@ -4892,53 +4961,67 @@ class ChessPiece {
     	}
     	return null;
 	}
-	static  getStartLocForKingThatCanMoveTo(let er, let ec, String myclr,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid, let nocsling)
+	static getStartLocForKingThatCanMoveTo(er, ec, myclr, ignorelist=null, addpcs=null,
+		gid, nocsling=false)
 	{
-		ChessPiece mkg = this.getCurrentSideKing(myclr, combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid));
-		if (mkg == null) throw new Error("OUR SIDE KING MUST NOT BE NULL!");
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeAnInteger(er, "er");
+		cc.letMustBeAnInteger(ec, "ec");
+		cc.letMustBeBoolean(nocsling, "nocsling");
+		cc.letMustBeDefinedAndNotNull(myclr, "myclr");
+
+		let mkg = this.getCurrentSideKing(myclr, this.combineBoardAddAndIgnoreLists(ignorelist,
+			addpcs, gid));
+		if (cc.isItemNullOrUndefined(mkg)) throw new Error("OUR SIDE KING MUST NOT BE NULL!");
 		//else;//do nothing
 		
-		int[][] mkgmvlocs = this.getPieceCanMoveToLocs(mkg.getRow(), mkg.getCol(), myclr, "KING",
+		let mkgmvlocs = this.getPieceCanMoveToLocs(mkg.getRow(), mkg.getCol(), myclr, "KING",
 			ignorelist, addpcs, gid, nocsling, false);
-		if (mkgmvlocs == null || mkgmvlocs.length < 1) return null;//king cannot move there
+		if (cc.isStringEmptyNullOrUndefined(mkgmvlocs)) return null;//king cannot move there
 		else
 		{
 			for (let x = 0; x < mkgmvlocs.length; x++)
 			{
-				if (mkgmvlocs[x][0] == er && mkgmvlocs[x][1] == ec)
+				if (mkgmvlocs[x][0] === er && mkgmvlocs[x][1] === ec)
 				{
 					console.log("KEEP IT");
 					console.log("locr = " + mkg.getRow());
 					console.log("locc = " + mkg.getCol());
-					int[] res = new int[2];
-					res[0] = mkg.getRow();
-					res[1] = mkg.getCol();
-					return res;
+
+					return [mkg.getRow(), mkg.getCol()];
 				}
 				//else;//do nothing
 			}
 		}
 		return null;
 	}
-	static  getStartLocForPawnThatCanMoveTo(let er, let ec, String myclr,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid, let bpassimnxtmv)
+	static getStartLocForPawnThatCanMoveTo(er, ec, myclr, ignorelist=null, addpcs=null,
+		gid, bpassimnxtmv=false)
 	{
-		//it seems the best way is to get all the pawns for the color and then see where they can move to
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeAnInteger(er, "er");
+		cc.letMustBeAnInteger(ec, "ec");
+		cc.letMustBeBoolean(bpassimnxtmv, "bpassimnxtmv");
+		cc.letMustBeDefinedAndNotNull(myclr, "myclr");
+
+		//it seems the best way is to get all the pawns for the color and then see where
+		//they can move to
 		//if there is only one that can move to our ending location great, else error or none.
 		
-		ArrayList<ChessPiece> mypwns = this.getAllPawnsOfColor(myclr, this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid));
+		let mypwns = this.getAllPawnsOfColor(myclr, this.combineBoardAddAndIgnoreLists(ignorelist,
+			addpcs, gid));
 		//console.log("mypwns = " + mypwns);
 		let numpwns = this.getNumItemsInList(mypwns);
 		if (numpwns < 1) return null;
 		else
 		{
 			let fndit = false;
-			int[] ploc = null;
+			let ploc = null;
 			for (let p = 0; p < numpwns; p++)
 			{
-				int[][] pwnmvlocs = mypwns[p].getPieceCanMoveToLocs(ignorelist, addpcs, true, bpassimnxtmv);
-				if (pwnmvlocs == null || pwnmvlocs.length < 1);
+				let pwnmvlocs = mypwns[p].getPieceCanMoveToLocs(ignorelist, addpcs, true,
+					bpassimnxtmv);
+				if (cc.isStringEmptyNullOrUndefined(pwnmvlocs));
 				else
 				{
 					//console.log("THIS HAS MOVE LOCS: mypwns[" + p + ") = " + mypwns[p));
@@ -4946,7 +5029,7 @@ class ChessPiece {
 					{
 						//console.log("pwnmvlocs[" + x + "][0] = " + pwnmvlocs[x][0]);
 						//console.log("pwnmvlocs[" + x + "][1] = " + pwnmvlocs[x][1]);
-						if (pwnmvlocs[x][0] == er && pwnmvlocs[x][1] == ec)
+						if (pwnmvlocs[x][0] === er && pwnmvlocs[x][1] === ec)
 						{
 							console.log("KEEP IT!");
 							console.log("locr = " + mypwns[p].getRow());
@@ -4955,9 +5038,7 @@ class ChessPiece {
 							else
 							{
 								fndit = true;
-								ploc = new int[2];
-								ploc[0] = mypwns[p].getRow();
-								ploc[1] = mypwns[p].getCol();
+								ploc = [mypwns[p].getRow(), mypwns[p].getCol()];//new int[2];
 							}
 							break;
 						}
@@ -4969,20 +5050,29 @@ class ChessPiece {
 		}
 	}
 	//calls the above methods
-	static  getStartLocForPieceThatCanMoveTo(let er, let ec, String myclr, String mytpval,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid, let nocsling, let bpassimnxtmv)
+	static getStartLocForPieceThatCanMoveTo(er, ec, myclr, mytpval,
+		ignorelist=null, addpcs=null, gid, nocsling=false, bpassimnxtmv=false)
 	{
-		if (mytpval == null || mytpval.length < 1)
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeAnInteger(er, "er");
+		cc.letMustBeAnInteger(ec, "ec");
+		cc.letMustBeBoolean(nocsling, "nocsling");
+		cc.letMustBeBoolean(bpassimnxtmv, "bpassimnxtmv");
+		cc.letMustBeDefinedAndNotNull(myclr, "myclr");
+		
+		if (cc.isStringEmptyNullOrUndefined(mytpval))
 		{
 			throw new Error("INVALID TYPE (NULL OR EMPTY) FOUND AND USED HERE!");
 		}
 		else if (mytpval === "CASTLE" || mytpval === "ROOK")
 		{
-			return this.getStartLocForCastleThatCanMoveTo(er, ec, myclr, ignorelist, addpcs, gid, false);
+			return this.getStartLocForCastleThatCanMoveTo(er, ec, myclr, ignorelist,
+				addpcs, gid, false);
 		}
 		else if (mytpval === "KING")
 		{
-			return this.getStartLocForKingThatCanMoveTo(er, ec, myclr, ignorelist, addpcs, gid, nocsling);
+			return this.getStartLocForKingThatCanMoveTo(er, ec, myclr, ignorelist,
+				addpcs, gid, nocsling);
 		}
 		else if (mytpval === "KNIGHT")
 		{
@@ -4990,7 +5080,8 @@ class ChessPiece {
 		}
 		else if (mytpval === "PAWN")
 		{
-			return this.getStartLocForPawnThatCanMoveTo(er, ec, myclr, ignorelist, addpcs, gid, bpassimnxtmv);
+			return this.getStartLocForPawnThatCanMoveTo(er, ec, myclr, ignorelist,
+				addpcs, gid, bpassimnxtmv);
 		}
 		else if (mytpval === "QUEEN")
 		{
@@ -4998,7 +5089,8 @@ class ChessPiece {
 		}
 		else if (mytpval === "BISHOP")
 		{
-			return this.getStartLocForBishopThatCanMoveTo(er, ec, myclr, ignorelist, addpcs, gid, false);
+			return this.getStartLocForBishopThatCanMoveTo(er, ec, myclr, ignorelist,
+				addpcs, gid, false);
 		}
 		else throw new Error("INVALID TYPE (" + mytpval + ") FOUND AND USED HERE!");
 	}
@@ -5008,20 +5100,26 @@ class ChessPiece {
 	
 	//asks can piece at loc move around to another location other than the current location
 	//if no piece is at the loc returns false
-	static isPieceAtLocFreeToMoveAround(let sr, let sc, int[][] ignorelist,
-		ArrayList<ChessPiece> addpcs, let gid, let nocsling, let bpassimnxtmv)
+	static isPieceAtLocFreeToMoveAround(sr, sc, ignorelist=null, addpcs=null, gid,
+		nocsling=false, bpassimnxtmv=false)
 	{
-		ArrayList<ChessPiece> allpcs = this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
-		ChessPiece cp = this.getPieceAt(sr, sc, allpcs);
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeAnInteger(sr, "sr");
+		cc.letMustBeAnInteger(sc, "sc");
+		cc.letMustBeBoolean(nocsling, "nocsling");
+		cc.letMustBeBoolean(bpassimnxtmv, "bpassimnxtmv");
+		
+		let allpcs = this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+		let cp = this.getPieceAt(sr, sc, allpcs);
 		//console.log("sr = " + sr);
 		//console.log("sc = " + sc);
 		//console.log("cp = " + cp);
-		if (cp == null) return false;
+		if (cc.isItemNullOrUndefined(cp)) return false;
 		else
 		{
-			int[][] mvlocs = this.getPieceCanMoveToLocs(sr, sc, cp.getColor(), cp.getType(), ignorelist, addpcs, gid,
-				nocsling, bpassimnxtmv);
-			if (mvlocs == null || mvlocs.length < 1)
+			let mvlocs = this.getPieceCanMoveToLocs(sr, sc, cp.getColor(), cp.getType(),
+				ignorelist, addpcs, gid, nocsling, bpassimnxtmv);
+			if (cc.isStringEmptyNullOrUndefined(mvlocs))
 			{
 				//console.log("MOVELOCS IS EMPTY!");
 				return false;
@@ -5029,11 +5127,11 @@ class ChessPiece {
 			else
 			{
 				//console.log("mvlocs.length = " + mvlocs.length);
-				if (mvlocs.length == 1)
+				if (mvlocs.length === 1)
 				{
 					//console.log("mvlocs[0][0] = " + mvlocs[0][0]);
 					//console.log("mvlocs[0][1] = " + mvlocs[0][1]);
-					if (mvlocs[0][0] == sr && mvlocs[0][1] == sc) return false;
+					if (mvlocs[0][0] === sr && mvlocs[0][1] === sc) return false;
 					//else;//do nothing
 				}
 				//else
@@ -5048,29 +5146,32 @@ class ChessPiece {
 			}
 		}
 	}
-	static isPieceAtLocFreeToMoveAround(let sr, let sc, int[][] ignorelist,
-		ArrayList<ChessPiece> addpcs, let gid)
+	static isPieceAtLocFreeToMoveAround(sr, sc, ignorelist=null, addpcs=null, gid)
 	{
 		return this.isPieceAtLocFreeToMoveAround(sr, sc, ignorelist, addpcs, gid, false, false);
 	}
 	
-	static getPiecesThatAreFreeToMove(int[][] ignorelist,
-		ArrayList<ChessPiece> addpcs, let gid, let nocsling, let bpassimnxtmv)
+	static getPiecesThatAreFreeToMove(ignorelist=null, addpcs=null, gid,
+		nocsling=false, bpassimnxtmv=false)
 	{
+		cc.letMustBeAnInteger(gid, "gid");
+		cc.letMustBeBoolean(nocsling, "nocsling");
+		cc.letMustBeBoolean(bpassimnxtmv, "bpassimnxtmv");
+		
 		//they can move to a location other than the current location it is on
-		ArrayList<ChessPiece> allpcs = this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+		let allpcs = this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
 		if (this.getNumItemsInList(allpcs) < 1) return null;
 		else
 		{
-			ArrayList<ChessPiece> fpcs = null;
+			let fpcs = null;
 			for (let x = 0; x < allpcs.length; x++)
 			{
-				if (this.isPieceAtLocFreeToMoveAround(allpcs[x).getRow(), allpcs[x).getCol(),
+				if (this.isPieceAtLocFreeToMoveAround(allpcs[x].getRow(), allpcs[x].getCol(),
 					ignorelist, addpcs, gid, nocsling, bpassimnxtmv))
 				{
 					//add to list
 					
-					if (fpcs == null) fpcs = [];
+					if (cc.isItemNullOrUndefined(fpcs)) fpcs = [];
 					//else;//do nothing
 					
 					fpcs.push(allpcs[x]);
@@ -5080,8 +5181,7 @@ class ChessPiece {
 			return fpcs;
 		}
 	}
-	static getPiecesThatAreFreeToMove(int[][] ignorelist,
-		ArrayList<ChessPiece> addpcs, let gid)
+	static getPiecesThatAreFreeToMove(ignorelist=null, addpcs=null, gid)
 	{
 		return this.getPiecesThatAreFreeToMove(ignorelist, addpcs, gid, false, false);
 	}
@@ -5089,8 +5189,8 @@ class ChessPiece {
 	
 	//WHERE ALL CAN A SIDE REACH METHODS
 	
-	static [] getPieceMoveToLocsForLocs(int[][] smvlocs, String mytpval, String myclr,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static getPieceMoveToLocsForLocs(int[][] smvlocs, String mytpval, String myclr,
+		int[][] ignorelist=null, ArrayList<ChessPiece> addpcs=null, let gid)
 	{
 		if (smvlocs == null || smvlocs.length < 1) return null;
 		
@@ -5153,8 +5253,8 @@ class ChessPiece {
 		return rlistmvlocs;
 	}
 	
-	static [] getAllLocsThatCanBeReachedByPiece(let sr, let sc, String mytpval, String myclr,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid, int[][] vlocs)
+	static getAllLocsThatCanBeReachedByPiece(let sr, let sc, String mytpval, String myclr,
+		int[][] ignorelist=null, ArrayList<ChessPiece> addpcs=null, let gid, int[][] vlocs=null)
 	{
 		//what if our location is already on the vlocs list? need to stop the recursion
 		
@@ -5207,8 +5307,8 @@ class ChessPiece {
 					let fndit = false;
 					for (let c = 0; c < vlocs.length; c++)
 					{
-						if (vlocs[c][0] == mvlocs[x][0] &&
-							vlocs[c][1] == mvlocs[x][1])
+						if (vlocs[c][0] === mvlocs[x][0] &&
+							vlocs[c][1] === mvlocs[x][1])
 						{
 							fndit = true;
 							break;
@@ -5230,7 +5330,8 @@ class ChessPiece {
 		//now determine the unique move to locs that this offers...
 		//keep getting it as long as size keeps increasing
 		let prevsz = 0;
-		int[][] mymvlocs = this.getPieceMoveToLocsForLocs(mvlocs, mytpval, myclr, ignorelist, addpcs, gid);
+		int[][] mymvlocs = this.getPieceMoveToLocsForLocs(mvlocs, mytpval, myclr,
+			ignorelist, addpcs, gid);
 		//console.log("INIT prevsz = " + prevsz);
 		//printLocsArray(mymvlocs, "lvtwomvlocs");
 		
@@ -5242,7 +5343,8 @@ class ChessPiece {
 				prevsz = mymvlocs.length;
 				//console.log("NEW prevsz = " + prevsz);
 				
-				mymvlocs = this.getPieceMoveToLocsForLocs(mymvlocs, mytpval, myclr, ignorelist, addpcs, gid);
+				mymvlocs = this.getPieceMoveToLocsForLocs(mymvlocs, mytpval, myclr,
+					ignorelist, addpcs, gid);
 				//this.printLocsArray(mymvlocs, "mymvlocs");
 			}//end of while loop
 		}
@@ -5251,18 +5353,20 @@ class ChessPiece {
 		//this.printLocsArray(mymvlocs, "FINAL mymvlocs");
 		return mymvlocs;
 	}
-	static [] getAllLocsThatCanBeReachedByPiece(let sr, let sc, String mytpval, String myclr,
-		int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static getAllLocsThatCanBeReachedByPiece(let sr, let sc, String mytpval, String myclr,
+		int[][] ignorelist=null, ArrayList<ChessPiece> addpcs=null, let gid)
 	{
-		return this.getAllLocsThatCanBeReachedByPiece(sr, sc, mytpval, myclr, ignorelist, addpcs, gid, null);
+		return this.getAllLocsThatCanBeReachedByPiece(sr, sc, mytpval, myclr,
+			ignorelist, addpcs, gid, null);
 	}
-	int[][] getAllLocsThatCanBeReachedByPiece(int[][] ignorelist, ArrayList<ChessPiece> addpcs)
+	int[][] getAllLocsThatCanBeReachedByPiece(int[][] ignorelist=null, ArrayList<ChessPiece> addpcs=null)
 	{
-		return this.getAllLocsThatCanBeReachedByPiece(getRow(), getCol(), getType(), getColor(), ignorelist, addpcs, getGameID());
+		return this.getAllLocsThatCanBeReachedByPiece(this.getRow(), this.getCol(),
+			this.getType(), this.getColor(), ignorelist, addpcs, this.getGameID());
 	}
 	
-	static [] getAllLocsThatCanBeReachedBySide(String clrval, int[][] ignorelist,
-		ArrayList<ChessPiece> addpcs, let gid)
+	static getAllLocsThatCanBeReachedBySide(String clrval, int[][] ignorelist=null,
+		ArrayList<ChessPiece> addpcs=null, let gid)
 	{
 		//gets all the pieces for a side...
 		//get all of their move to locations for each piece
@@ -5312,7 +5416,7 @@ class ChessPiece {
 	
 	//DOES NOT TAKE INTO ACCOUNT PAWN PROMOTION AS BEING SPECIAL
 	//IF CALLED ON A CASTLE, DOES NOT CONSIDDER CASTLING
-	let isMoveToASpecialMove(let nrval, let ncval, int[][] ignorelist, ArrayList<ChessPiece> addpcs,
+	let isMoveToASpecialMove(let nrval, let ncval, int[][] ignorelist=null, ArrayList<ChessPiece> addpcs,
 		let bpassimnxtmv)
 	{
 		let tpsnospcmvs = ["QUEEN", "BISHOP", "KNIGHT", "CASTLE", "ROOK"];
@@ -5341,7 +5445,7 @@ class ChessPiece {
 			{
 				for (let x = 0; x < normalpclocs.length; x++)
 				{
-					if (normalpclocs[x][0] == nrval && normalpclocs[x][1] == ncval)
+					if (normalpclocs[x][0] === nrval && normalpclocs[x][1] === ncval)
 					{
 						onnrml = true;
 						break;
@@ -5354,7 +5458,7 @@ class ChessPiece {
 			{
 				for (let x = 0; x < allpclocs.length; x++)
 				{
-					if (allpclocs[x][0] == nrval && allpclocs[x][1] == ncval)
+					if (allpclocs[x][0] === nrval && allpclocs[x][1] === ncval)
 					{
 						onall = true;
 						break;
@@ -5370,10 +5474,11 @@ class ChessPiece {
 	}
 	
 	
-	//NOTE: TAKES INTO ACCOUNT PAWNING WHEN CALLED ON PAWN ONLY, TAKES INTO ACCOUNT CASTLING WHEN CALLED ON KING ONLY,
+	//NOTE: TAKES INTO ACCOUNT PAWNING WHEN CALLED ON PAWN ONLY, TAKES INTO ACCOUNT CASTLING WHEN
+	//CALLED ON KING ONLY,
 	//DOES NOT TAKE INTO ACCOUNT WHOSE TURN IT IS
 	//TAKES INTO ACCOUNT WHAT THE NEW BOARD LOOKS LIKE, BUT REALLY SHOULD NOT
-	let canMoveTo(let rval, let cval, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let bpassimnxtmv)
+	let canMoveTo(let rval, let cval, int[][] ignorelist=null, ArrayList<ChessPiece> addpcs=null, let bpassimnxtmv)
 	{
 		if (this.isvalidrorc(rval) && this.isvalidrorc(cval));
 		else return false;
@@ -5384,19 +5489,23 @@ class ChessPiece {
 		if (this.getType() === "BISHOP")
 		{
 			//on diagnals only
-			locs = this.getBishopCanMoveToLocs(this.getRow(), this.getCol(), this.getColor(), ignorelist, addpcs, this.getGameID());
+			locs = this.getBishopCanMoveToLocs(this.getRow(), this.getCol(), this.getColor(),
+				ignorelist, addpcs, this.getGameID());
 		}
 		else if (this.getType() === "CASTLE" || this.getType() === "ROOK")
 		{
 			//on same row or col only
-			//can castle if the other pieces between the castle and the king are not there and if not in check
+			//can castle if the other pieces between the castle and the king are not there and
+			//if not in check
 			//and if neither castle nor king have moved
-			locs = this.getCastleCanMoveToLocs(this.getRow(), this.getCol(), this.getColor(), ignorelist, addpcs, this.getGameID());
+			locs = this.getCastleCanMoveToLocs(this.getRow(), this.getCol(), this.getColor(),
+				ignorelist, addpcs, this.getGameID());
 		}
 		else if (this.getType() === "QUEEN")
 		{
 			//diagnals and on same row or same col
-			locs = this.getQueenCanMoveToLocs(this.getRow(), this.getCol(), this.getColor(), ignorelist, addpcs, this.getGameID());
+			locs = this.getQueenCanMoveToLocs(this.getRow(), this.getCol(), this.getColor(),
+				ignorelist, addpcs, this.getGameID());
 		}
 		else if (this.getType() === "KNIGHT")
 		{
@@ -5408,7 +5517,8 @@ class ChessPiece {
 			//---x---
 			//-*---*-
 			//--*-*--
-			locs = this.getKnightCanMoveToLocs(this.getRow(), this.getCol(), this.getColor(), ignorelist, addpcs, this.getGameID());
+			locs = this.getKnightCanMoveToLocs(this.getRow(), this.getCol(), this.getColor(),
+				ignorelist, addpcs, this.getGameID());
 		}
 		else if (this.getType() === "PAWN")
 		{
@@ -5416,7 +5526,8 @@ class ChessPiece {
 			//if it is the first move, can move forward two spaces
 			//in passing or EN PASSANT is a form of attack
 			//you can only pawn a pawn that has made its first move
-			locs = this.getAllPawnCanMoveToLocs(this.getRow(), this.getCol(), this.getColor(), ignorelist, addpcs, this.getGameID(), bpassimnxtmv);
+			locs = this.getAllPawnCanMoveToLocs(this.getRow(), this.getCol(), this.getColor(),
+				ignorelist, addpcs, this.getGameID(), bpassimnxtmv);
 		}
 		else if (this.getType() === "KING")
 		{
@@ -5424,7 +5535,8 @@ class ChessPiece {
 			//if in check and king cannot move without being put into check, see if another piece can block it
 			//if the king cannot get out of check -> checkmate other side wins.
 			//if the king cannot move, but must move -> stalemate tie.
-			locs = this.getAllKingCanMoveToLocs(this.getRow(), this.getCol(), this.getColor(), ignorelist, addpcs, this.getGameID());
+			locs = this.getAllKingCanMoveToLocs(this.getRow(), this.getCol(), this.getColor(),
+				ignorelist, addpcs, this.getGameID());
 		}
 		else throw new Error("ILLEGAL TYPE FOUND AND USED HERE!");
 		if (locs == null || locs.length < 1)
@@ -5443,7 +5555,7 @@ class ChessPiece {
 		//console.log("LOC " + this.getLocString(rval, cval) + " NOT FOUND ON THE LIST!");
 		return false;
 	}
-	let canMoveToLoc(let rval, let cval, int[][] ignorelist)
+	let canMoveToLoc(let rval, let cval, int[][] ignorelist=null)
 	{
 		return this.canMoveTo(rval, cval, ignorelist, null, false);
 	}
@@ -5464,7 +5576,7 @@ class ChessPiece {
 	//CHECKMATE METHODS
 	
 	//is color side in checkmate
-	static inCheckmate(String clrval, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static inCheckmate(String clrval, int[][] ignorelist=null, ArrayList<ChessPiece> addpcs=null, let gid)
 	{
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
@@ -5479,16 +5591,21 @@ class ChessPiece {
 		//else;//do nothing
 		
 		//can I be directly attacked by the opposing side?
-		ArrayList<ChessPiece> epcs = this.getEnemyPiecesGuardingLocation(mkg.getRow(), mkg.getCol(), gid, clrval,
-			ignorelist, addpcs);
+		ArrayList<ChessPiece> epcs = this.getEnemyPiecesGuardingLocation(mkg.getRow(), mkg.getCol(),
+			gid, clrval, ignorelist, addpcs);
 		//console.log("epcs = " + epcs);
 		//is in check
 		if (this.getNumItemsInList(epcs) < 1) return false;//not in check so not in checkmate
 		//else;//do nothing my king is in check now need to determine if it is checkmate
 		console.log("" + clrval + " KING IS IN CHECK!");
 		
-		//need to know if this king is free to move or rather can move somewhere other than the current location
-		if (this.isPieceAtLocFreeToMoveAround(mkg.getRow(), mkg.getCol(), ignorelist, addpcs, gid, true, false)) return false;
+		//need to know if this king is free to move or rather can move somewhere other
+		//than the current location
+		if (this.isPieceAtLocFreeToMoveAround(mkg.getRow(), mkg.getCol(),
+			ignorelist, addpcs, gid, true, false))
+		{
+			return false;
+		}
 		//can move out of check
 		//else;//do nothing still in check
 		console.log("" + clrval + " KING CANNOT MOVE OUT OF CHECK!");
@@ -5497,7 +5614,8 @@ class ChessPiece {
 		//does side have no legal moves
 		//if there is a legal move other than staying where we are, then it blocks check somehow
 		
-		ArrayList<ChessPiece> fpcs = this.getPiecesThatAreFreeToMove(ignorelist, addpcs, gid, true, false);
+		ArrayList<ChessPiece> fpcs = this.getPiecesThatAreFreeToMove(ignorelist, addpcs,
+			gid, true, false);
 		//console.log("fpcs = " + fpcs);
 		
 		ArrayList<ChessPiece> myclrfpcs = this.filterListByColor(fpcs, clrval);
@@ -5505,8 +5623,8 @@ class ChessPiece {
 		
 		if (this.getNumItemsInList(myclrfpcs) < 1)
 		{
-			console.log("" + clrval + " HAS NO FREE PIECES! IT CANNOT BLOCK CHECK! IT IS CHECKMATE! " +
-				this.getOppositeColor(clrval) + " WINS!");
+			console.log("" + clrval + " HAS NO FREE PIECES! IT CANNOT BLOCK CHECK! " +
+				"IT IS CHECKMATE! " + this.getOppositeColor(clrval) + " WINS!");
 			return true;
 		}
 		//else;//do nothing might be able to block check
@@ -5515,12 +5633,13 @@ class ChessPiece {
 		{
 			//console.log("myclrfpcs[" + x + ") = " + myclrfpcs[x));
 			
-			int[][] pcmvlocs = this.getPieceCanMoveToLocs(myclrfpcs[x].getRow(), myclrfpcs[x].getCol(), clrval,
-				myclrfpcs[x].getType(), ignorelist, addpcs, gid, true, false);
+			int[][] pcmvlocs = this.getPieceCanMoveToLocs(myclrfpcs[x].getRow(),
+				myclrfpcs[x].getCol(), clrval, myclrfpcs[x].getType(), ignorelist,
+				addpcs, gid, true, false);
 			//printLocsArray(pcmvlocs, "pcmvlocs");
 			
 			//determine where the piece can move to block check... if it indeed does block check
-			if (myclrfpcs[x].getType() === "KING"))
+			if (myclrfpcs[x].getType() === "KING")
 			{
 				throw new Error("the king cannot move out of check, now it says it can!");
 			}
@@ -5540,12 +5659,12 @@ class ChessPiece {
 		return true;
 	}
 	//is white in checkmate
-	static inCheckmateWhite(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static inCheckmateWhite(ignorelist=null, addpcs=null, gid)
 	{
 		return this.inCheckmate("WHITE", ignorelist, addpcs, gid);
 	}
 	//is black in checkmate
-	static inCheckmateBlack(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static inCheckmateBlack(ignorelist=null, addpcs=null, gid)
 	{
 		return this.inCheckmate("BLACK", ignorelist, addpcs, gid);
 	}
@@ -5570,19 +5689,20 @@ class ChessPiece {
 		}
 	}
 	
-	static areAllBishopsOnSameColorSquare(ArrayList<ChessPiece> allpcs)
+	static areAllBishopsOnSameColorSquare(allpcs)
 	{
 		return this.areAllOfTypeOnSameColorSquare("BISHOP", allpcs);
 	}
-	static areAllBishopsOnSameColorSquare(int[][] ignorelist, ArrayList<ChessPiece> addpcs, let gid)
+	static areAllBishopsOnSameColorSquare(ignorelist=null, addpcs=null, gid)
 	{
-		return this.areAllBishopsOnSameColorSquare(this.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid));
+		return this.areAllBishopsOnSameColorSquare(this.combineBoardAddAndIgnoreLists(
+			ignorelist, addpcs, gid));
 	}
-	static areAllBishopsOnSameColorSquare(let gid)
+	static areAllBishopsOnSameColorSquare(gid)
 	{
 		return this.areAllBishopsOnSameColorSquare(this.getAllPiecesWithGameID(gid));
 	}
-	let areAllBishopsOnSameColorSquare()
+	areAllBishopsOnSameColorSquare()
 	{
 		return this.areAllBishopsOnSameColorSquare(this.getGameID());
 	}
@@ -6249,7 +6369,7 @@ class ChessPiece {
 	}
 	static String genLongOrShortHandDeleteCommand(ChessPiece cp, String errmsg, let throwerr, let useshort)
 	{
-		if (cp == null)
+		if (cc.isItemNullOrUndefined(cp))
 		{
 			if (throwerr)
 			{
@@ -6303,7 +6423,7 @@ class ChessPiece {
 	static String genLongOrShortHandMoveCommandOnlyString(ChessPiece cp, let nr, let nc, let usedir,
 		let useleft, String errmsg, let throwerr, let useshort)
 	{
-		if (cp == null)
+		if (cc.isItemNullOrUndefined(cp))
 		{
 			if (throwerr)
 			{
@@ -6515,23 +6635,20 @@ class ChessPiece {
 		return this.genHintsCommandForPiece(cp.getColor(), cp.getType(), cp.getRow(), cp.getCol(), cp.getGameID(),
 			ignorelist, addpcs);
 	}
-	let genHintsCommandForPiece(int[][] ignorelist, ArrayList<ChessPiece> addpcs)
+	genHintsCommandForPiece(ignorelist=null, addpcs=null)
 	{
 		return this.genHintsCommandForPiece(this, ignorelist, addpcs);
 	}
-	let genHintsCommandForPiece()
-	{
-		return this.genHintsCommandForPiece(null, null);
-	}
 	
 	//result array will only have one item on it
-	static genHintsCommandForSide(String clr)
+	static genHintsCommandForSide(clr)
 	{
-		String cmd = this.genLongOrShortHandHintsCommandForPieceOrSide(clr, null, -1, -1, true, false);
+		cc.letMustBeDefinedAndNotNull(clr, "clr");
+
+		let cmd = this.genLongOrShortHandHintsCommandForPieceOrSide(clr, null, -1, -1,
+			true, false);
 		console.log("cmd = " + cmd);
-		let htscmd = new String[1];
-		htscmd[0] = "" + cmd;
-		return this.getShortHandMoves(htscmd);
+		return this.getShortHandMoves(["" + cmd]);//new String[1];
 	}
 	static genHintsCommandForWhite()
 	{
@@ -6541,65 +6658,69 @@ class ChessPiece {
 	{
 		return this.genHintsCommandForSide("BLACK");
 	}
-	let genHintsCommandForSide()
+	genHintsCommandForSide()
 	{
 		return this.genHintsCommandForSide(this.getColor());
 	}
 	
 	//result array will only have one item on it
-	static getFullResignationCommand(String clr)
+	static getFullResignationCommand(clr)
 	{
-		String cmd = this.genLongOrShortHandResignCommand(clr, false);
+		cc.letMustBeDefinedAndNotNull(clr, "clr");
+
+		let cmd = this.genLongOrShortHandResignCommand(clr, false);
 		console.log("cmd = " + cmd);
-		let htscmd = new String[1];
-		htscmd[0] = "" + cmd;
-		return this.getShortHandMoves(htscmd);
+		return this.getShortHandMoves(["" + cmd]);//new String[1];
 	}
 	
 	//result array will only have one item on it
-	static getFullTieCommand(String clr, let val, let useshort)
+	static getFullTieCommand(clr, val, useshort)
 	{
-		String cmd = this.genLongOrShortHandTieDesireCommand(clr, val, useshort);
+		cc.letMustBeDefinedAndNotNull(clr, "clr");
+		cc.letMustBeBoolean(val, "tieval");
+		cc.letMustBeBoolean(useshort, "useshort");
+
+		let cmd = this.genLongOrShortHandTieDesireCommand(clr, val, useshort);
 		console.log("cmd = " + cmd);
-		let htscmd = new String[1];
-		htscmd[0] = "" + cmd;
-		return this.getShortHandMoves(htscmd);
+		return this.getShortHandMoves(["" + cmd]);//new String[1];
 	}
 	
 	
 	//COMMAND TYPE METHODS
 	
-	static String getTypeOfMoveCommand(String usrcmd)
+	static getTypeOfMoveCommand(usrcmd)
 	{
-		if (usrcmd == null || usrcmd.length < 2)
+		if (cc.isStringEmptyNullOrUndefined(usrcmd) || usrcmd.length < 2)
 		{
 			throw new Error("ILLEGAL TYPE FOUND FOR COMMAND (" + usrcmd + ")!");
 		}
 		//else;//do nothing
-		if (usrcmd.charAt(0) == '+') return "CREATE";
-		else if (usrcmd.charAt(0) == '-') return "DELETE";
-		else if (usrcmd.charAt(0) == 'S') return "TIEDESIRE";
+		if (usrcmd.charAt(0) === '+') return "CREATE";
+		else if (usrcmd.charAt(0) === '-') return "DELETE";
+		else if (usrcmd.charAt(0) === 'S') return "TIEDESIRE";
 		else if (0 < usrcmd.indexOf("RESIGNS") && usrcmd.indexOf("RESIGNS") < usrcmd.length &&
-			(usrcmd.length == 8 || usrcmd.length == 13))
+			(usrcmd.length === 8 || usrcmd.length === 13))
 		{
 			return "RESIGN";
 		}
-		else if (usrcmd.charAt(1) == 'L' || usrcmd.charAt(1) == 'R')
+		else if (usrcmd.charAt(1) === 'L' || usrcmd.charAt(1) === 'R')
 		{
-			if (usrcmd.charAt(2) == 'P') return "PAWNING";
+			if (usrcmd.charAt(2) === 'P') return "PAWNING";
 			else return "CASTLEING";
 		}
-		else if (usrcmd.charAt(0) == 'T') return "PROMOTION";
-		else if (usrcmd.indexOf("TO") == 5 || usrcmd.indexOf("TO") == 3) return "MOVE";
-		else if (usrcmd.indexOf("HINTS") == 5 || usrcmd.indexOf("HINTS") == 1) return "HINTS";
+		else if (usrcmd.charAt(0) === 'T') return "PROMOTION";
+		else if (usrcmd.indexOf("TO") === 5 || usrcmd.indexOf("TO") === 3) return "MOVE";
+		else if (usrcmd.indexOf("HINTS") === 5 || usrcmd.indexOf("HINTS") === 1) return "HINTS";
 		else throw new Error("ILLEGAL TYPE FOUND FOR COMMAND (" + usrcmd + ")!");
 	}
 	
-	static String getOverallTypeOfCommand(let mycmd)
+	static getOverallTypeOfCommand(mycmd)
 	{
-		let tps = new String[mycmd.length];
-		for (let x = 0; x < mycmd.length; x++) tps[x] = this.getTypeOfMoveCommand(mycmd[x]);
-		let mysmtps = ["CASTLEING", "PAWNING", "PROMOTION", "HINTS", "RESIGN", "TIEDESIRE"];
+		cc.letMustBeDefinedAndNotNull(mycmd, "mycmd");
+
+		let tps = [];//new String[mycmd.length];
+		for (let x = 0; x < mycmd.length; x++) tps.push(this.getTypeOfMoveCommand(mycmd[x]));
+		const mysmtps = ["CASTLEING", "PAWNING", "PROMOTION", "HINTS", "RESIGN", "TIEDESIRE"];
 		for (let x = 0; x < mycmd.length; x++)
 		{
 			if (this.itemIsOnGivenList(tps[x], mysmtps)) return "" + tps[x];
@@ -6610,16 +6731,15 @@ class ChessPiece {
 			if (tps[x] === "MOVE") return "" + tps[x];
 			//else;//do nothing
 		}
-		if (tps.length == 1) return "" + tps[0];
+		if (tps.length === 1) return "" + tps[0];
 		else throw new Error("ILLEGAL COMMAND TYPE FOUND AND USED HERE!");
 	}
 	
 	static getMoveCommandTypes()
 	{
-		let mvtps = ["MOVE", "CASTLEING", "PAWNING", "PROMOTION"];
-		return mvtps;
+		return ["MOVE", "CASTLEING", "PAWNING", "PROMOTION"];
 	}
-	static isCommandTypeAMoveCommand(String cmdtp)
+	static isCommandTypeAMoveCommand(cmdtp)
 	{
 		return this.itemIsOnGivenList(cmdtp, this.getMoveCommandTypes());
 	}
@@ -6739,11 +6859,11 @@ class ChessPiece {
 			else return mytps;
 		}
 	}
-	static getSideColorsForMoves(let[] mymvs)
+	static getSideColorsForMoves(mymvs)
 	{
 		return this.getSideColorOrTypesForMoves(mymvs, true);
 	}
-	static getSideTypesForMoves(let[] mymvs)
+	static getSideTypesForMoves(mymvs)
 	{
 		return this.getSideColorOrTypesForMoves(mymvs, false);
 	}
@@ -6958,7 +7078,7 @@ class ChessPiece {
 	static genMoveToCommand(ChessPiece cp, let nrval, let ncval,
 		let gid, int[][] ignorelist, ArrayList<ChessPiece> addpcs, let usecslingasmv, String ptpval)
 	{
-		if (cp == null)
+		if (cc.isItemNullOrUndefined(cp))
 		{
 			throw new Error("You need to provide the current chess piece location and the new location!");
 		}
@@ -6993,7 +7113,7 @@ class ChessPiece {
 		}
 		//else;//do nothing
 		
-		if (cp == null)
+		if (cc.isItemNullOrUndefined(cp))
 		{
 			throw new Error("You need to provide the current chess piece location and the new location!");
 		}
@@ -7584,7 +7704,7 @@ class ChessPiece {
 			console.log("sloc[1] = " + sloc[1]);
 			
 			ChessPiece cp = this.getPieceAt(sloc[0], sloc[1], allpcs);
-			if (cp == null) throw new Error("the current pawn must not be null!");
+			if (cc.isItemNullOrUndefined(cp)) throw new Error("the current pawn must not be null!");
 			else
 			{
 				if (cp.getType() === "PAWN" && cp.getColor() === fullclr);
@@ -7730,7 +7850,7 @@ class ChessPiece {
 			//console.log("gid = " + gid);
 			
 			ChessPiece cp = this.getPieceAt(sloc[0], sloc[1], allpcs);
-			if (cp == null) throw new Error("the current piece must not be null!");
+			if (cc.isItemNullOrUndefined(cp)) throw new Error("the current piece must not be null!");
 			else
 			{
 				if (cp.getType() === getLongHandType(mytp) && cp.getColor() === fullclr);
@@ -7843,7 +7963,7 @@ class ChessPiece {
 	}
 	
 	
-	static [] getNewIgnoreListFromCommand(let mvcmds, let iswhitedown)
+	static getNewIgnoreListFromCommand(let mvcmds, let iswhitedown)
 	{
 		if (mvcmds == null || mvcmds.length < 1) return null;
 		else
@@ -8869,7 +8989,7 @@ class ChessPiece {
 					mvcmd[x].substring(3, 5), iswhitedown), mpclist);
 				console.log("cp = " + cp);
 				
-				if (cp == null) throw new Error("THE PIECE MUST NOT BE NULL!");
+				if (cc.isItemNullOrUndefined(cp)) throw new Error("THE PIECE MUST NOT BE NULL!");
 				//else;//do nothing
 				if (cp.getType() === this.getLongHandType(mvcmd[x].substring(1, 3)) &&
 					cp.getColor() === this.getLongHandColor("" + mvcmd[x].charAt(0)))
@@ -8914,7 +9034,7 @@ class ChessPiece {
 				{
 					ChessPiece cp = this.getPieceAt(this.convertStringLocToRowCol(
 						mvcmd[x].substring(3, 5), iswhitedown), mpclist);
-					if (cp == null) throw new Error("THE PIECE MUST NOT BE NULL!");
+					if (cc.isItemNullOrUndefined(cp)) throw new Error("THE PIECE MUST NOT BE NULL!");
 					//else;//do nothing
 					if (cp.getType() === this.getLongHandType(mvcmd[x].substring(1, 3)) &&
 						cp.getColor() === this.getLongHandColor("" + mvcmd[x].charAt(0)))
