@@ -3,10 +3,10 @@ import CommonClass from "./commonclass";
 class ChessGame {
 	static all = [];
 	cc = new CommonClass();
-	constructor(gid, offmvs, isdone, mclrval)
+	constructor(gid, offmvs, isdone=false, mclrval="BOTH")
 	{
 		cc.letMustBeBoolean(isdone, "isdone");
-		cc.letMustBeAnleteger(gid, "gid");
+		cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
 		let numitems = ChessPiece.getNumItemsInList(all);
@@ -15,7 +15,7 @@ class ChessGame {
 		{
 			for (let x = 0; x < numitems; x++)
 			{
-				if (all.get(x).getGameID() == gid)
+				if (all.get(x).getGameID() === gid)
 				{
 					throw new Error("there must be only one game with that ID!");
 				}
@@ -742,3 +742,5 @@ class ChessGame {
 		this.setColorWantsADraw("WHITE", nwval);
 	}
 }
+
+export default ChessGame;

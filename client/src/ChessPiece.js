@@ -1,3 +1,4 @@
+import ChessGame from "./ChessGame";
 import CommonClass from "./commonclass";
 class ChessPiece {
 	static validTypes = ["PAWN", "CASTLE", "KNIGHT", "BISHOP", "QUEEN", "KING", "ROOK"];
@@ -9914,3 +9915,5 @@ class ChessPiece {
 				this.getMoveCount() + " on Game ID: " + this.getGameID() + ">";
 	}
 }
+
+export default ChessPiece;
