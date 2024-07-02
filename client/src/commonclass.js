@@ -71,6 +71,34 @@ class CommonClass{
         return this.isNumberOrInteger(val, false);//, vnm
     }
 
+    isDigit(wd)
+	{
+		if (this.isStringEmptyNullOrUndefined(wd) || wd.length != 1) return false;
+        //else;//do nothing
+		
+		const dgts = "0123456789";
+		for (let di = 0; di < dgts.length; di++)
+		{
+			if (wd.charAt(0) === dgts.charAt(di)) return true;
+			//else;//do nothing
+		}
+		return false;
+	}
+
+    isANumber(wd)
+	{
+		if (this.isStringEmptyNullOrUndefined(wd)) return false;
+		else
+		{
+			for (let i = 0; i < wd.length; i++)
+			{
+				if (this.isDigit("" + wd.charAt(i)));
+				else return false;
+			}
+			return true;
+		}
+	}
+
     letMustBeANumber(val, vnm="numvarnm")
     {
         let varnm = "";
