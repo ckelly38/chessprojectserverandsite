@@ -15,6 +15,7 @@ import Ranks from "./Ranks";
 import NewPiece from "./NewPiece";
 import PieceListForm from "./PieceListForm";
 import CommonClass from "./commonclass";
+import TestDriver from './TestDriver';
 
 function App() {
   const cc = new CommonClass();
@@ -111,6 +112,9 @@ function App() {
   //NOTE: THE SWITCH COMPONENT WILL ONLY RENDER ROUTE COMPONENTS AND ANYTHING THAT EXTENDS IT ONLY
   //simpusrobj={cc.getSimplifiedUserObj(user)}
   console.log("mypieces = ", mypieces);
+
+  TestDriver.main(null);
+
   return (<div>
       <Switch>
         {getRoutesList("/", ["/home"], [

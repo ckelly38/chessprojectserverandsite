@@ -12,15 +12,15 @@ import CommonClass from "./commonclass";
 import ChessGame from "./ChessGame";
 import ChessPiece from "./ChessPiece";
 class TestDriver {
-    cc = new CommonClass();
+    static cc = new CommonClass();
 	static main(args) {
     	
     	// TODO, add your application code
     	console.log("Hello World!");
     	let gid = 1;
-    	let game = new ChessGame(1, "WHITE");
-    	//let og = new ChessGame(1);//error
-    	//let mog = new ChessGame(2, "WHITE");
+    	let game = ChessGame.makeNewChessGameFromColor(1, "WHITE");
+    	//let og = ChessGame.makeNewChessGameFromGID(1);//error
+    	//let mog = ChessGame.makeNewChessGameFromColor(2, "WHITE");
     	//testPawnPromotionViaStepingForwardThroughGame(2);
     	//testMovingPiecesAmbiguityViaStepingForwardThroughGame(2);
     	//testCastlingViaStepingForwardThroughGame(2);
@@ -34,10 +34,10 @@ class TestDriver {
     	console.log("DONE SETTING UP THE BOARD!");
     	//ArrayList<ChessPiece> mycps = ChessPiece.cps;
     	//for (int c = 0; c < mycps.length; c++) console.log(mycps.get(c));
-    	ChessPiece.printBoard(gid);
-    	console.log(ChessPiece.isBoardValid(gid));
-    	let wkg = ChessPiece.getCurrentSideKing("WHITE", gid);
-    	let bkg = ChessPiece.getCurrentSideKing("BLACK", gid);
+    	ChessPiece.printBoardViaGameID(gid);
+    	console.log(ChessPiece.isBoardValidMain(gid));
+    	let wkg = ChessPiece.getCurrentSideKingMain("WHITE", gid);
+    	let bkg = ChessPiece.getCurrentSideKingMain("BLACK", gid);
     	let wqn = ChessPiece.getPieceAt(7, 3, gid);
     	let bqn = ChessPiece.getPieceAt(0, 3, gid);
     	console.log(wkg);
@@ -66,13 +66,13 @@ class TestDriver {
     	
     	//this.testResignation(gid);
     	//this.testPawning(gid, true);
-    	//this.setUpBoardForPawnPromotion(gid, true);
-    	this.setUpBoardForCastlingWhiteRight(gid, true);
-    	//this.setUpBoardWithKnightCheckingKing(gid, true);
+    	//this.setUpBoardForPawnPromotionMain(gid, true);
+    	this.setUpBoardForCastlingWhiteRightMain(gid, true);
+    	//this.setUpBoardWithKnightCheckingKingMain(gid, true);
     	//CHECKMATE TESTS
-    	//this.setUpBoardWithFourMoveCheckMate(gid, true);
-    	//this.setUpBoardWithTwoMoveCheckMateBlack(gid, true);
-    	//this.setUpBoardWithTwoMoveCheckMateWhite(gid, true);
+    	//this.setUpBoardWithFourMoveCheckMateMain(gid, true);
+    	//this.setUpBoardWithTwoMoveCheckMateBlackMain(gid, true);
+    	//this.setUpBoardWithTwoMoveCheckMateWhiteMain(gid, true);
     	//this.setUpBoardCheckmateKingBishopVSameDiffColorSquares(gid);//no moving there
     	//this.setUpBoardWhiteCheckmateAfterManyMoves(gid);//no moving there
     	//STALEMATE TESTS
@@ -81,12 +81,12 @@ class TestDriver {
     	//this.setUpBoardWhiteStalemateAfterManyMoves(gid);//no moving there
     	//this.setUpBoardWhiteStalemateKingAndQueenVsKing(gid);
     	//AUTO STALEMATES (ALL WITHOUT MOVING THERE)
-    	//this.setUpBoardWithKingAndBishopsVKingBishops(gid, 1, 1);
-    	//this.setUpBoardWithKingAndBishopsVKingBishops(gid, 0, 1);
-    	//this.setUpBoardWithKingAndBishopsVKingBishops(gid, 1, 0);
+    	//this.setUpBoardWithKingAndBishopsVKingBishopsMain(gid, 1, 1);
+    	//this.setUpBoardWithKingAndBishopsVKingBishopsMain(gid, 0, 1);
+    	//this.setUpBoardWithKingAndBishopsVKingBishopsMain(gid, 1, 0);
     	//this.setUpBoardWithKingVKingOnlyWithoutMovingThere(gid);
     	//also produces king vs king board
-		//this.setUpBoardWithKingAndBishopsVKingBishops(gid, 0, 0);
+		//this.setUpBoardWithKingAndBishopsVKingBishopsMain(gid, 0, 0);
     	//this.setUpBoardWithKingAndKnightVKing(gid);
     	//
     	//NOT A STALEMATE BECAUSE BISHOPS ARE ON DIFFERENT COLOR SQUARES
@@ -105,41 +105,41 @@ class TestDriver {
     	//ChessPiece.convertAllShortHandMovesToLongVersion(myredmv);
     	//ChessPiece.makeLocalMove(mymv, gid, false);
     	//wpn.setLoc(4, 0);
-    	//ChessPiece.printBoard(gid);
+    	//ChessPiece.printBoardViaGameID(gid);
     	//ChessPiece.makeLocalMove(myunmv, gid, true);
-    	//ChessPiece.printBoard(gid);
+    	//ChessPiece.printBoardViaGameID(gid);
     	//wpn.setLoc(4, 0);
-    	//ChessPiece.printBoard(gid);
+    	//ChessPiece.printBoardViaGameID(gid);
     	//ChessPiece bpn = ChessPiece.getPieceAt(1, 1, gid);
     	//bpn.genMoveToCommand(3, 1);
     	//bpn.setLoc(3, 1);
-    	//ChessPiece.printBoard(gid);
+    	//ChessPiece.printBoardViaGameID(gid);
     	//wpn.genMoveToCommand(3, 1);
     	//console.log("TOTAL PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
     	//ChessPiece.removePieceAt(3, 1, gid);
     	//console.log("TOTAL PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
     	//wpn.setLoc(3, 1);
-    	//ChessPiece.printBoard(gid);
+    	//ChessPiece.printBoardViaGameID(gid);
     	//ChessPiece obpn = ChessPiece.getPieceAt(1, 0, gid);
     	//obpn.genMoveToCommand(3, 0);
     	//obpn.setLoc(3, 0);
     	//obpn.setMoveCount(1);
     	//console.log("OTHER BLACK PAWN MOVE COUNT: " + obpn.getMoveCount());
-    	//ChessPiece.printBoard(gid);
+    	//ChessPiece.printBoardViaGameID(gid);
     	//wpn.genMoveToCommand(2, 0);
     	//console.log("TOTAL PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
     	//ChessPiece.removePieceAt(3, 0, gid);
     	//wpn.setLoc(2, 0);
     	//wpn.pawnLeft();
     	//console.log("TOTAL PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
-    	//ChessPiece.printBoard(gid);
+    	//ChessPiece.printBoardViaGameID(gid);
     }
     
     //TEST SOME BASIC METHODS
     
     static getAndPrintAllPiecesGenders(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
     	
@@ -156,7 +156,7 @@ class TestDriver {
     
     static getAndPrintWhereAllThePiecesAre(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
 		
@@ -208,7 +208,7 @@ class TestDriver {
     
     static testGetPiecesGuardingLocation(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
     	
@@ -267,7 +267,7 @@ class TestDriver {
     	}
     	//else;//do nothing
     	
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	//not true for all test cases, but must be true for this case
     	if (nrmlcps.length + 1 === nrmlwithaddpcs.length);
     	else throw new Error("ADDING A QUEEN TEST FAILED!");
@@ -277,12 +277,12 @@ class TestDriver {
     		else throw new Error("IGNORING A PAWN TEST FAILED!");
     	}
     	//else;//do nothing
-    	console.log(ChessPiece.isBoardValid(gid));
+    	console.log(ChessPiece.isBoardValidMain(gid));
     }
     
     static setUpBoardTestIsEmptyMoveToLocsWithoutMovingThere(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
     	
@@ -297,8 +297,8 @@ class TestDriver {
     	ChessPiece.printBoard(nwpcslist);
     	//test stale mate and check detection here and methods determinging where a piece
 		//can move to
-    	let wkg = ChessPiece.getCurrentSideKing("WHITE", gid);
-    	let bkg = ChessPiece.getCurrentSideKing("BLACK", gid);
+    	let wkg = ChessPiece.getCurrentSideKingMain("WHITE", gid);
+    	let bkg = ChessPiece.getCurrentSideKingMain("BLACK", gid);
     	console.log("WHITE KING IS IN CHECK: " + wkg.inCheck(ignorelist, null));
     	console.log("BLACK KING IS IN CHECK: " + bkg.inCheck(ignorelist, null));
     	console.log("ALL BISHOPS ON SAME COLOR SQUARES: " +
@@ -316,10 +316,10 @@ class TestDriver {
 			ignorelist, null));
     	console.log("IS (row: 6, col: 7) EMPTY: " + ChessPiece.isLocationEmpty(6, 7, nwpcslist));
     	
-    	testKingCanMoveToLocs(gid, 7, 4, "WHITE", ignorelist, null);
-    	testKingCanMoveToLocs(gid, 0, 4, "BLACK", ignorelist, null);
-    	testCastleCanMoveToLocs(gid, 7, 7, "WHITE", ignorelist, null);
-    	testCastleCanMoveToLocs(gid, 0, 7, "BLACK", ignorelist, null);
+    	this.testKingCanMoveToLocs(gid, 7, 4, "WHITE", ignorelist, null);
+    	this.testKingCanMoveToLocs(gid, 0, 4, "BLACK", ignorelist, null);
+    	this.testCastleCanMoveToLocs(gid, 7, 7, "WHITE", ignorelist, null);
+    	this.testCastleCanMoveToLocs(gid, 0, 7, "BLACK", ignorelist, null);
     }
     
     
@@ -327,22 +327,25 @@ class TestDriver {
     
     static testStepForwardAndBackwardThroughAGame(tstmvs, gid, isdone)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
-		cc.letMustBeBoolean(isdone, "isdone");
+    	this.cc.letMustBeAnInteger(gid, "gid");
+		this.cc.letMustBeBoolean(isdone, "isdone");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
 		
 		console.log();
     	console.log("INSIDE OF TEST STEP FORWARD AND BACKWARD THROUGH A GAME():");
     	console.log();
-    	if (cc.isItemNullOrUndefined(tstmvs)) console.log("tstmvs = null!");
+    	if (this.cc.isItemNullOrUndefined(tstmvs)) console.log("tstmvs = null!");
     	else if (tstmvs.length < 1) console.log("tstmvs is empty!");
     	else
     	{
     		console.log("tstmvs.length = " + tstmvs.length);
     		for (let x = 0; x < tstmvs.length; x++)
     		{
-    			if (tstmvs[x] == null) console.log("tstmvs[" + x + "] = null!");
+    			if (this.cc.isStringEmptyNullOrUndefined(tstmvs[x]))
+				{
+					console.log("tstmvs[" + x + "] = null!");
+				}
     			else if (tstmvs[x].length < 1) console.log("tstmvs[" + x + "] is empty!");
     			else
     			{
@@ -361,9 +364,9 @@ class TestDriver {
     	if (isdone)
     	{
     		og.stepForward();
-    		//ChessPiece.printBoard(gid);
+    		//ChessPiece.printBoardViaGameID(gid);
     		og.stepBackward();
-    		ChessPiece.printBoard(gid);
+    		ChessPiece.printBoardViaGameID(gid);
     	}
     	//else;//do nothing will error out
     	//og.stepForward();
@@ -376,29 +379,29 @@ class TestDriver {
     	og.makeAllGivenOfficialMoves();
     	console.log();
     	console.log("BOARD FOR GAME WITH ID " + gid + ":");
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	console.log(og.getSideTurn(tstmvs, false) + "'S TURN NOW!");
     	console.log();
     }
     
     static testFourMoveCheckMateBlackViaStepingForwardThroughGame(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
 		
 		ChessPiece.setUpBoard(gid);
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	const iswhitedown = true;
     	const bpassimnxtmv = true;
-    	testStepForwardAndBackwardThroughAGame(
+    	this.testStepForwardAndBackwardThroughAGame(
     		ChessPiece.convertAllLocationsForFullMoveCommands(
 				this.getFourMoveCheckMateBlackMoves(), iswhitedown), gid, true);
     }
     
     static testColorsForMovesAlternateViaStepingForwardThroughGame(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
 		
@@ -420,7 +423,7 @@ class TestDriver {
     	let numwmvs = 7;
     	let numbmvs = mymvs.length - numwmvs;
     	let mxmvs = -1;
-    	if (onlymvwhite == onlymvblack)
+    	if (onlymvwhite === onlymvblack)
     	{
     		if (onlymvwhite)
 			{
@@ -460,14 +463,14 @@ class TestDriver {
     	}
     	let promotps = ["CASTLE", "BISHOP"];//new String[2];
     	ChessPiece.setUpBoard(gid);
-    	testStepForwardAndBackwardThroughAGame(
+    	this.testStepForwardAndBackwardThroughAGame(
     		ChessPiece.genFullMoveCommands(myunoffmvs, gid, promotps, iswhitedown, true), gid,
 			false);
     }
     
     static testOtherColorsAlternateViaStepingForwardThroughGame(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
 		
@@ -483,14 +486,14 @@ class TestDriver {
     	myunoffmvs.push("BPNH5TOH6");//errors out because white did not move
     	let promotps = ["CASTLE", "BISHOP"];//new String[2];
     	ChessPiece.setUpBoard(gid);
-    	testStepForwardAndBackwardThroughAGame(
+    	this.testStepForwardAndBackwardThroughAGame(
     		ChessPiece.genFullMoveCommands(myunoffmvs, gid, promotps, iswhitedown, true),
 			gid, false);
     }
     
     static testPawnPromotionViaStepingForwardThroughGame(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
 		
@@ -507,14 +510,14 @@ class TestDriver {
     	myunoffmvs.push("WPNB2TOA1");
     	let promotps = ["CASTLE", "BISHOP"];//new String[2];
     	ChessPiece.setUpBoard(gid);
-    	testStepForwardAndBackwardThroughAGame(
+    	this.testStepForwardAndBackwardThroughAGame(
     		ChessPiece.genFullMoveCommands(myunoffmvs, gid, promotps, iswhitedown, true),
 			gid, false);
     }
     
     static testMovingPiecesAmbiguityViaStepingForwardThroughGame(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
 		
@@ -532,14 +535,14 @@ class TestDriver {
     	if (addambigcmd) myunoffmvs.push("BCETOH3");//command should be ambiguous
     	//else;//do nothing
     	ChessPiece.setUpBoard(gid);
-    	ChessPiece.printBoard(gid);
-    	testStepForwardAndBackwardThroughAGame(
+    	ChessPiece.printBoardViaGameID(gid);
+    	this.testStepForwardAndBackwardThroughAGame(
     		ChessPiece.genFullMoveCommands(myunoffmvs, gid, null, iswhitedown, true), gid, false);
     }
     
     static testCastlingViaStepingForwardThroughGame(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
 		
@@ -553,14 +556,14 @@ class TestDriver {
     	myunoffmvs.push("BCETOA3");
     	myunoffmvs.push("WKGTOG8");
     	ChessPiece.setUpBoard(gid);
-    	ChessPiece.printBoard(gid);
-    	testStepForwardAndBackwardThroughAGame(
+    	ChessPiece.printBoardViaGameID(gid);
+    	this.testStepForwardAndBackwardThroughAGame(
     		ChessPiece.genFullMoveCommands(myunoffmvs, gid, null, iswhitedown, true), gid, false);
     }
     
     static testPawningViaStepingForwardThroughGame(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
 		
@@ -573,14 +576,14 @@ class TestDriver {
     	myunoffmvs.push("WPNTOA5");
     	myunoffmvs.push("BPNTOA6");
     	ChessPiece.setUpBoard(gid);
-    	ChessPiece.printBoard(gid);
-    	testStepForwardAndBackwardThroughAGame(
+    	ChessPiece.printBoardViaGameID(gid);
+    	this.testStepForwardAndBackwardThroughAGame(
     		ChessPiece.genFullMoveCommands(myunoffmvs, gid, null, iswhitedown, true), gid, false);
     }
     
     static testResignationViaStepingForwardThroughGame(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
 		
@@ -593,8 +596,8 @@ class TestDriver {
     	myunoffmvs.push("WPNTOA5");//error
     	//myunoffmvs.push("BPNTOA3");
     	ChessPiece.setUpBoard(gid);
-    	ChessPiece.printBoard(gid);
-    	testStepForwardAndBackwardThroughAGame(
+    	ChessPiece.printBoardViaGameID(gid);
+    	this.testStepForwardAndBackwardThroughAGame(
     		ChessPiece.genFullMoveCommands(myunoffmvs, gid, null, iswhitedown, true), gid, false);
     }
     
@@ -604,11 +607,11 @@ class TestDriver {
     static testPieceCanMoveToLocs(gid, rval, cval, clrval, tpval, locsarrnm,
     	ignorelist=null, addpcs=null)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
-		cc.letMustBeAnInteger(rval, "rval");
-		cc.letMustBeAnInteger(cval, "cval");
-		cc.letMustBeDefinedAndNotNull(clrval, "clrval");
-		cc.letMustBeDefinedAndNotNull(tpval, "tpval");
+    	this.cc.letMustBeAnInteger(gid, "gid");
+		this.cc.letMustBeAnInteger(rval, "rval");
+		this.cc.letMustBeAnInteger(cval, "cval");
+		this.cc.letMustBeDefinedAndNotNull(clrval, "clrval");
+		this.cc.letMustBeDefinedAndNotNull(tpval, "tpval");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
     	
@@ -625,59 +628,60 @@ class TestDriver {
     }
     static testKingCanMoveToLocs(gid, kgr, kgc, kgclr, ignorelist=null, addpcs=null)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
-		cc.letMustBeAnInteger(kgr, "kgr");
-		cc.letMustBeAnInteger(kgc, "kgc");
-		cc.letMustBeDefinedAndNotNull(kgclr, "kgclr");
+    	this.cc.letMustBeAnInteger(gid, "gid");
+		this.cc.letMustBeAnInteger(kgr, "kgr");
+		this.cc.letMustBeAnInteger(kgc, "kgc");
+		this.cc.letMustBeDefinedAndNotNull(kgclr, "kgclr");
 
 		this.testPieceCanMoveToLocs(gid, kgr, kgc, kgclr, "KING", "initkgcanmvlocs",
 			ignorelist, addpcs);
     }
     static testKnightCanMoveToLocs(gid, ktr, ktc, ktclr, ignorelist=null, addpcs=null)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
-		cc.letMustBeAnInteger(ktr, "ktr");
-		cc.letMustBeAnInteger(ktc, "ktc");
-		cc.letMustBeDefinedAndNotNull(ktclr, "ktclr");
+    	this.cc.letMustBeAnInteger(gid, "gid");
+		this.cc.letMustBeAnInteger(ktr, "ktr");
+		this.cc.letMustBeAnInteger(ktc, "ktc");
+		this.cc.letMustBeDefinedAndNotNull(ktclr, "ktclr");
 
 		this.testPieceCanMoveToLocs(gid, ktr, ktc, ktclr, "KNIGHT", "initktcanmvlocs",
 			ignorelist, addpcs);
     }
     static testQueenCanMoveToLocs(gid, qr, qc, qclr, ignorelist=null, addpcs=null)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
-		cc.letMustBeAnInteger(qr, "qr");
-		cc.letMustBeAnInteger(qc, "qc");
-		cc.letMustBeDefinedAndNotNull(qclr, "qclr");
+    	this.cc.letMustBeAnInteger(gid, "gid");
+		this.cc.letMustBeAnInteger(qr, "qr");
+		this.cc.letMustBeAnInteger(qc, "qc");
+		this.cc.letMustBeDefinedAndNotNull(qclr, "qclr");
 
 		this.testPieceCanMoveToLocs(gid, qr, qc, qclr, "QUEEN", "initqncanmvlocs",
 			ignorelist, addpcs);
     }
     static testBishopCanMoveToLocs(gid, br, bc, bclr, ignorelist=null, addpcs=null)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
-		cc.letMustBeAnInteger(br, "br");
-		cc.letMustBeAnInteger(bc, "bc");
-		cc.letMustBeDefinedAndNotNull(bclr, "bclr");
+    	this.cc.letMustBeAnInteger(gid, "gid");
+		this.cc.letMustBeAnInteger(br, "br");
+		this.cc.letMustBeAnInteger(bc, "bc");
+		this.cc.letMustBeDefinedAndNotNull(bclr, "bclr");
 
-		this.testPieceCanMoveToLocs(gid, br, bc, bclr, "BISHOP", "initbpcanmvlocs", ignorelist, addpcs);
+		this.testPieceCanMoveToLocs(gid, br, bc, bclr, "BISHOP", "initbpcanmvlocs",
+			ignorelist, addpcs);
     }
     static testCastleCanMoveToLocs(gid, cr, mcc, cclr, ignorelist=null, addpcs=null)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
-		cc.letMustBeAnInteger(cr, "cr");
-		cc.letMustBeAnInteger(mcc, "mcc");
-		cc.letMustBeDefinedAndNotNull(cclr, "cclr");
+    	this.cc.letMustBeAnInteger(gid, "gid");
+		this.cc.letMustBeAnInteger(cr, "cr");
+		this.cc.letMustBeAnInteger(mcc, "mcc");
+		this.cc.letMustBeDefinedAndNotNull(cclr, "cclr");
 
 		this.testPieceCanMoveToLocs(gid, cr, mcc, cclr, "CASTLE", "initclcanmvlocs",
 			ignorelist, addpcs);
     }
     static testPawnCanMoveToLocs(gid, pr, pc, pclr, ignorelist=null, addpcs=null)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
-		cc.letMustBeAnInteger(pr, "pr");
-		cc.letMustBeAnInteger(pc, "pc");
-		cc.letMustBeDefinedAndNotNull(pclr, "pclr");
+    	this.cc.letMustBeAnInteger(gid, "gid");
+		this.cc.letMustBeAnInteger(pr, "pr");
+		this.cc.letMustBeAnInteger(pc, "pc");
+		this.cc.letMustBeDefinedAndNotNull(pclr, "pclr");
 
 		this.testPieceCanMoveToLocs(gid, pr, pc, pclr, "PAWN", "initpwncanmvlocs",
 			ignorelist, addpcs);
@@ -688,7 +692,7 @@ class TestDriver {
     	cr, cc, cclr, br, bc, bclr, pr, pc, pclr, qr, qc, qclr,
     	ignorelist=null, addpcs=null)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 
 		this.testKingCanMoveToLocs(gid, kgr, kgc, kgclr, ignorelist, addpcs);
     	this.testQueenCanMoveToLocs(gid, qr, qc, qclr, ignorelist, addpcs);
@@ -698,31 +702,32 @@ class TestDriver {
     	this.testPawnCanMoveToLocs(gid, pr, pc, pclr, ignorelist, addpcs);
     }
     //loc lists in the order of: king, knight, castle (rook), bishop, pawn, queen
-    static testCanMoveToLocs(gid, kgloc, kgclr, ktloc, ktclr,
+    static testCanMoveToLocsFromLocsAndColors(gid, kgloc, kgclr, ktloc, ktclr,
     	cloc, cclr, bloc, bclr, ploc, pclr, qloc, qclr, ignorelist=null, addpcs=null)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 
 		this.testCanMoveToLocs(gid, kgloc[0], kgloc[1], kgclr, ktloc[0], ktloc[1],
 			ktclr, cloc[0], cloc[1], cclr, bloc[0], bloc[1], bclr, ploc[0], ploc[1], pclr,
 			qloc[0], qloc[1], qclr, ignorelist, addpcs);
     }
     //pcslocs in the order of: king, knight, castle (rook), bishop, pawn, queen
-    static testCanMoveToLocs(gid, pcslocs, psclrs, ignorelist=null, addpcs=null)
+    static testCanMoveToLocsFromLocAndColorLists(gid, pcslocs, psclrs,
+		ignorelist=null, addpcs=null)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
-		cc.letMustBeDefinedAndNotNull(pcslocs, "pcslocs");
-		cc.letMustBeDefinedAndNotNull(psclrs, "psclrs");
+    	this.cc.letMustBeAnInteger(gid, "gid");
+		this.cc.letMustBeDefinedAndNotNull(pcslocs, "pcslocs");
+		this.cc.letMustBeDefinedAndNotNull(psclrs, "psclrs");
 
 		this.testCanMoveToLocs(gid, pcslocs[0][0], pcslocs[0][1], psclrs[0], pcslocs[1][0],
 			pcslocs[1][1], psclrs[1], pcslocs[2][0], pcslocs[2][1], psclrs[2], pcslocs[3][0],
 			pcslocs[3][1], psclrs[3], pcslocs[4][0], pcslocs[4][1], psclrs[4], pcslocs[5][0],
 			pcslocs[5][1], psclrs[5], ignorelist, addpcs);
     }
-    static testCanMoveToLocs(gid, ignorelist=null, addpcs=null)
+    static testCanMoveToLocsWithDefaults(gid, ignorelist=null, addpcs=null)
     {
     	//pcslocs in the order of: king, knight, castle (rook), bishop, pawn, queen
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		this.testCanMoveToLocs(gid, 7, 4, "WHITE", 7, 6, "WHITE", 7, 7, "WHITE", 7, 5,
 			"WHITE", 6, 4, "WHITE", 7, 3, "WHITE", ignorelist, addpcs);
     }
@@ -732,53 +737,40 @@ class TestDriver {
     
     static driverMakeMove(cp, elocstr, iswhitedown, isuser, ptpval="QUEEN")
     {
-    	cc.letMustBeBoolean(iswhitedown, "iswhitedown");
-		cc.letMustBeBoolean(isuser, "isuser");
-		cc.letMustBeDefinedAndNotNull(cp, "cp");
-		cc.letMustBeDefinedAndNotNull(elocstr, "elocstr");
-		cc.letMustBeDefinedAndNotNull(ptpval, "ptpval");
+    	this.cc.letMustBeBoolean(iswhitedown, "iswhitedown");
+		this.cc.letMustBeBoolean(isuser, "isuser");
+		this.cc.letMustBeDefinedAndNotNull(cp, "cp");
+		this.cc.letMustBeDefinedAndNotNull(elocstr, "elocstr");
+		this.cc.letMustBeDefinedAndNotNull(ptpval, "ptpval");
 
 		ChessPiece.makeLocalShortHandMove(
     		cp.genMoveToCommand(ChessPiece.convertStringLocToRowCol(elocstr, iswhitedown),
 				ptpval), cp.getGameID(), false, ChessPiece.WHITE_MOVES_DOWN_RANKS, isuser);
     	cp.getGame().makeUnofficialMoveOfficial();
     }
-    static driverMakeMove(cp, elocstr, iswhitedown, isuser)
-    {
-    	this.driverMakeMove(cp, elocstr, iswhitedown, isuser, "QUEEN");
-    }
-    static driverMakeMove(cp, elocstr, iswhitedown, ptpval="QUEEN")
+    static driverMakeMoveNoUser(cp, elocstr, iswhitedown, ptpval="QUEEN")
     {
     	this.driverMakeMove(cp, elocstr, iswhitedown,
 			cp.getGame().doesColorMatchMyColor(cp.getColor()), ptpval);
     }
-    static driverMakeMove(cp, elocstr, iswhitedown)
+    static driverMakeMoveNoPiece(gid, slocstr, elocstr, iswhitedown, isuser, ptpval="QUEEN")
     {
-    	this.driverMakeMove(cp, elocstr, iswhitedown, "QUEEN");
-    }
-    static driverMakeMove(gid, slocstr, elocstr, iswhitedown, isuser, ptpval="QUEEN")
-    {
-    	cc.letMustBeAnInteger(gid, "gid");
-		cc.letMustBeBoolean(iswhitedown, "iswhitedown");
-		cc.letMustBeBoolean(isuser, "isuser");
-		cc.letMustBeDefinedAndNotNull(cp, "cp");
-		cc.letMustBeDefinedAndNotNull(slocstr, "slocstr");
-		cc.letMustBeDefinedAndNotNull(elocstr, "elocstr");
-		cc.letMustBeDefinedAndNotNull(ptpval, "ptpval");
+    	this.cc.letMustBeAnInteger(gid, "gid");
+		this.cc.letMustBeBoolean(iswhitedown, "iswhitedown");
+		this.cc.letMustBeBoolean(isuser, "isuser");
+		this.cc.letMustBeDefinedAndNotNull(slocstr, "slocstr");
+		this.cc.letMustBeDefinedAndNotNull(elocstr, "elocstr");
+		this.cc.letMustBeDefinedAndNotNull(ptpval, "ptpval");
 
 		let cp = ChessPiece.getPieceAt(ChessPiece.convertStringLocToRowCol(slocstr, iswhitedown),
 			gid);
     	this.driverMakeMove(cp, elocstr, iswhitedown, isuser, ptpval);
     }
-    static driverMakeMove(gid, slocstr, elocstr, iswhitedown, ptpval="QUEEN")
+    static driverMakeMoveNoUserPiece(gid, slocstr, elocstr, iswhitedown, ptpval="QUEEN")
     {
     	let cp = ChessPiece.getPieceAt(ChessPiece.convertStringLocToRowCol(slocstr,
 			iswhitedown), gid);
-    	this.driverMakeMove(cp, elocstr, iswhitedown, ptpval);
-    }
-    static driverMakeMove(gid, slocstr, elocstr, iswhitedown, isuser)
-    {
-    	this.driverMakeMove(gid, slocstr, elocstr, iswhitedown, isuser, "QUEEN");
+    	this.driverMakeMoveNoUser(cp, elocstr, iswhitedown, ptpval);
     }
     
     
@@ -786,7 +778,7 @@ class TestDriver {
     
     static testResignation(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
 		
@@ -806,7 +798,7 @@ class TestDriver {
     	let wqn = ChessPiece.getPieceAt(ChessPiece.convertStringLocToRowCol("D8", iswhitedown),
 			gid);
     	this.driverMakeMove(wqn, "H4", iswhitedown, isuser);
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	
     	let rsgmv = ChessPiece.getFullResignationCommand("BLACK");
     	ChessPiece.makeLocalShortHandMove(rsgmv, gid, false,
@@ -827,9 +819,9 @@ class TestDriver {
     	{
     		ChessPiece.getGame(gid).stepBackward();
     		ChessPiece.getGame(gid).stepBackward();
-    		ChessPiece.printBoard(gid);
+    		ChessPiece.printBoardViaGameID(gid);
     		ChessPiece.getGame(gid).stepForward();
-    		ChessPiece.printBoard(gid);
+    		ChessPiece.printBoardViaGameID(gid);
     	}
     }
     
@@ -837,7 +829,7 @@ class TestDriver {
     
     static setUpBoardForPawnPromotion(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
     	
@@ -850,19 +842,19 @@ class TestDriver {
 			gid);
     	this.driverMakeMove(wpn, "A5", iswhitedown, isuser);
     	//wpn.genMoveToCommand(ChessPiece.convertStringLocToRowCol("A5", iswhitedown));
-    	//wpn.setLoc(ChessPiece.convertStringLocToRowCol("A5", iswhitedown));
+    	//wpn.setLocMain(ChessPiece.convertStringLocToRowCol("A5", iswhitedown));
     	//wpn.setMoveCount(wpn.getMoveCount() + 1);
     	let bpn = ChessPiece.getPieceAt(ChessPiece.convertStringLocToRowCol("B2", iswhitedown),
 			gid);
     	this.driverMakeMove(bpn, "B4", iswhitedown, isuser);
     	
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	console.log("TOTAL NUMBER OF PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
     	this.driverMakeMove(wpn, "B4", iswhitedown, isuser);
     	console.log("TOTAL NUMBER OF PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
     	
-    	ChessPiece.printBoard(gid);
-    	console.log(ChessPiece.isBoardValid(gid));
+    	ChessPiece.printBoardViaGameID(gid);
+    	console.log(ChessPiece.isBoardValidMain(gid));
     	
     	let obpn = ChessPiece.getPieceAt(ChessPiece.convertStringLocToRowCol("H2", iswhitedown),
 			gid);
@@ -878,13 +870,13 @@ class TestDriver {
     	{
     		mymvploc = "B1";
     		console.log("TOTAL NUMBER OF PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
-    		ChessPiece.removePieceAt(ChessPiece.convertStringLocToRowCol(mymvploc, iswhitedown),
-				gid);
+    		ChessPiece.removePieceAtMain(ChessPiece.convertStringLocToRowCol(mymvploc,
+				iswhitedown), gid);
     		console.log("TOTAL NUMBER OF PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
     	}
     	else mymvploc = "A1";
     	
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	let mymv = wpn.genMoveToCommand(ChessPiece.convertStringLocToRowCol(mymvploc,
 			iswhitedown), "QUEEN");
     	
@@ -926,7 +918,7 @@ class TestDriver {
     		ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
     		
     		console.log("TOTAL NUMBER OF PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
-    		ChessPiece.printBoard(gid);
+    		ChessPiece.printBoardViaGameID(gid);
     	}
     	//else;//do nothing
     	
@@ -936,9 +928,9 @@ class TestDriver {
     	if (tstlclmv)
     	{
     		console.log("WHITE CAN PROMOTE A PAWN: " +
-				ChessPiece.canPawnForSideBePromoted("WHITE", gid));
+				ChessPiece.canPawnForSideBePromotedMain("WHITE", gid));
 	    	console.log("BLACK CAN PROMOTE A PAWN: " +
-				ChessPiece.canPawnForSideBePromoted("BLACK", gid));
+				ChessPiece.canPawnForSideBePromotedMain("BLACK", gid));
 	    	
 	    	console.log("TOTAL NUMBER OF PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
     		
@@ -946,7 +938,7 @@ class TestDriver {
     		ChessPiece.makeLocalMove(myunmv, gid, true, ChessPiece.WHITE_MOVES_DOWN_RANKS, isuser);
     		
     		console.log("TOTAL NUMBER OF PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
-    		ChessPiece.printBoard(gid);
+    		ChessPiece.printBoardViaGameID(gid);
     		
     		console.log("TOTAL NUMBER OF PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
     		
@@ -954,28 +946,29 @@ class TestDriver {
     		ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
     		
     		console.log("TOTAL NUMBER OF PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
-    		ChessPiece.printBoard(gid);
+    		ChessPiece.printBoardViaGameID(gid);
     	}
     	else
     	{
     		console.log("TOTAL NUMBER OF PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
 	    	
-	    	ChessPiece.removePieceAt(ChessPiece.convertStringLocToRowCol("A1", iswhitedown), gid);
+	    	ChessPiece.removePieceAtMain(ChessPiece.convertStringLocToRowCol("A1", iswhitedown),
+				gid);
 	    	
 	    	console.log("TOTAL NUMBER OF PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
 	    	
-	    	wpn.setLoc(ChessPiece.convertStringLocToRowCol("A1", iswhitedown));
+	    	wpn.setLocMain(ChessPiece.convertStringLocToRowCol("A1", iswhitedown));
 	    	wpn.setMoveCount(wpn.getMoveCount() + 1);
 	    	
 	    	//test pawn promotion methods here
-	    	ChessPiece.printBoard(gid);
+	    	ChessPiece.printBoardViaGameID(gid);
 	    	console.log("WHITE CAN PROMOTE A PAWN: " +
-				ChessPiece.canPawnForSideBePromoted("WHITE", gid));
+				ChessPiece.canPawnForSideBePromotedMain("WHITE", gid));
 	    	console.log("BLACK CAN PROMOTE A PAWN: " +
-				ChessPiece.canPawnForSideBePromoted("BLACK", gid));
+				ChessPiece.canPawnForSideBePromotedMain("BLACK", gid));
 	    	wpn.promotePawnTo("QUEEN");
 	    	console.log(wpn);
-	    	ChessPiece.printBoard(gid);
+	    	ChessPiece.printBoardViaGameID(gid);
     	}
     	
     	console.log("TOTAL NUMBER OF PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
@@ -985,7 +978,7 @@ class TestDriver {
     	console.log("TOTAL NUMBER OF PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
     	
     	this.driverMakeMove(wpn, "B1", iswhitedown, isuser);
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	
     	console.log("TOTAL NUMBER OF PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
     	
@@ -994,18 +987,18 @@ class TestDriver {
     	console.log("TOTAL NUMBER OF PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
     	
     	//test pawn promotion methods here
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	console.log("WHITE CAN PROMOTE A PAWN: " +
-			ChessPiece.canPawnForSideBePromoted("WHITE", gid));
+			ChessPiece.canPawnForSideBePromotedMain("WHITE", gid));
     	console.log("BLACK CAN PROMOTE A PAWN: " +
-			ChessPiece.canPawnForSideBePromoted("BLACK", gid));
+			ChessPiece.canPawnForSideBePromotedMain("BLACK", gid));
     	//obpn.promotePawnTo("QUEEN");
     	console.log(obpn);
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     }
     static setUpBoardForPawnPromotionWithoutMovingThere(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
 		
@@ -1062,13 +1055,15 @@ class TestDriver {
     	console.log(bpn);
     	ChessPiece.printBoard(myonwpcslist);
     	//pcslocs in the order of: king, knight, castle (rook), bishop, pawn, queen
-    	testCanMoveToLocs(gid, 7, 4, "WHITE", 7, 6, "WHITE", 7, 0, "WHITE", 0, 2, "BLACK", 1, 2, "BLACK", 7, 7, "BLACK",
-    		ChessPiece.combineIgnoreLists(nwiglist, ignorelist), ChessPiece.combineTwoPieceLists(nwaddpcs, addpcs));
+    	this.testCanMoveToLocs(gid, 7, 4, "WHITE", 7, 6, "WHITE", 7, 0, "WHITE", 0, 2,
+			"BLACK", 1, 2, "BLACK", 7, 7, "BLACK",
+    		ChessPiece.combineIgnoreLists(nwiglist, ignorelist),
+			ChessPiece.combineTwoPieceLists(nwaddpcs, addpcs));
     }
-    static setUpBoardForPawnPromotion(gid, movethere)
+    static setUpBoardForPawnPromotionMain(gid, movethere)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
-		cc.letMustBeBoolean(movethere, "movethere");
+    	this.cc.letMustBeAnInteger(gid, "gid");
+		this.cc.letMustBeBoolean(movethere, "movethere");
 		if (movethere) this.setUpBoardForPawnPromotion(gid);
     	else this.setUpBoardForPawnPromotionWithoutMovingThere(gid);
     }
@@ -1077,7 +1072,7 @@ class TestDriver {
     
     static setUpBoardForPawning(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
     	
@@ -1102,7 +1097,7 @@ class TestDriver {
 			gid);
     	this.driverMakeMove(wpn, "A5", iswhitedown, isuser);
     	
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	//now test pawning methods here
     	console.log("WHITE CAN PAWN: " + ChessPiece.canSidePawn("WHITE", gid));
     	console.log("BLACK CAN PAWN: " + ChessPiece.canSidePawn("BLACK", gid));
@@ -1123,20 +1118,20 @@ class TestDriver {
     	//ChessPiece.makeLocalMove(mymv, gid, false);
     	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
     	//bpn.pawnLeft();
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	ChessPiece.getGame(gid).makeLastOfficialMoveUnofficial();
     	ChessPiece.makeLocalMove(myunmv, gid, true, ChessPiece.WHITE_MOVES_DOWN_RANKS, isuser);
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	
     	ChessPiece.getGame(gid).setUnofficialMove(mymv);
     	bpn.pawnLeft();
     	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
     	
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     }
     static testPawningWithoutMovingThere(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
 		
@@ -1170,25 +1165,31 @@ class TestDriver {
     	console.log("BLACK CAN PAWN RIGHT: " + bpn.canPawnRight(nwpcslist));
     	let bplftloc = bpn.getPawnLeftLocation(nwpcslist);
     	let bprgtloc = bpn.getPawnRightLocation(nwpcslist);
-    	if (bplftloc == null) console.log("BLACK PAWNING MOVE TO LEFT LOCATION: null");
+    	if (this.cc.isStringEmptyNullOrUndefined(bplftloc))
+		{
+			console.log("BLACK PAWNING MOVE TO LEFT LOCATION: null");
+		}
     	else
     	{
     		console.log("BLACK PAWNING MOVE TO LEFT LOCATION: " +
-				ChessPiece.getLocString(bplftloc) + " IS: " +
+				ChessPiece.getLocStringMain(bplftloc) + " IS: " +
     			ChessPiece.convertRowColToStringLoc(bplftloc, ChessPiece.WHITE_MOVES_DOWN_RANKS));
     	}
-    	if (bprgtloc == null) console.log("BLACK PAWNING MOVE TO RIGHT LOCATION: null");
+    	if (this.cc.isStringEmptyNullOrUndefined(bprgtloc))
+		{
+			console.log("BLACK PAWNING MOVE TO RIGHT LOCATION: null");
+		}
     	else
     	{
     		console.log("BLACK PAWNING MOVE TO RIGHT LOCATION: " +
-				ChessPiece.getLocString(bprgtloc) + " IS: " +
+				ChessPiece.getLocStringMain(bprgtloc) + " IS: " +
     			ChessPiece.convertRowColToStringLoc(bprgtloc, ChessPiece.WHITE_MOVES_DOWN_RANKS));
     	}
     	console.log("BLACK ENEMY PAWN FOR LEFT PAWNING: " +
 			bpn.getEnemyPawnForLeftPawning(nwpcslist));
     	console.log("BLACK ENEMY PAWN FOR RIGHT PAWNING: " +
 			bpn.getEnemyPawnForRightPawning(nwpcslist));
-    	if (bplftloc == null)
+    	if (this.cc.isStringEmptyNullOrUndefined(bplftloc))
 		{
 			console.log("BLACK PAWN CAN MOVE TO THE LEFT PAWNING LOCATION: false");
 		}
@@ -1197,7 +1198,7 @@ class TestDriver {
     		console.log("BLACK PAWN CAN MOVE TO THE LEFT PAWNING LOCATION: " +
     			bpn.canMoveTo(bplftloc[0], bplftloc[1], ignorelist, addpcs, false));
     	}
-    	if (bprgtloc == null)
+    	if (this.cc.isStringEmptyNullOrUndefined(bprgtloc))
 		{
 			console.log("BLACK PAWN CAN MOVE TO THE RIGHT PAWNING LOCATION: false");
 		}
@@ -1212,8 +1213,8 @@ class TestDriver {
     }
     static testPawning(gid, movethere)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
-		cc.letMustBeBoolean(movethere, "movethere");
+    	this.cc.letMustBeAnInteger(gid, "gid");
+		this.cc.letMustBeBoolean(movethere, "movethere");
 		if (movethere) this.setUpBoardForPawning(gid);
     	else this.testPawningWithoutMovingThere(gid);
     }
@@ -1222,7 +1223,7 @@ class TestDriver {
     
     static setUpBoardForCastlingWhiteRight(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
 		
@@ -1233,7 +1234,7 @@ class TestDriver {
 			gid);
     	this.driverMakeMove(wkt, "H6", iswhitedown, isuser);
     	//wkt.genMoveToCommand(ChessPiece.convertStringLocToRowCol("H6", iswhitedown));
-    	//wkt.setLoc(ChessPiece.convertStringLocToRowCol("H6", iswhitedown));
+    	//wkt.setLocMain(ChessPiece.convertStringLocToRowCol("H6", iswhitedown));
     	//wkt.setMoveCount(wkt.getMoveCount() + 1);
     	
     	let bpn = ChessPiece.getPieceAt(ChessPiece.convertStringLocToRowCol("A2",
@@ -1258,7 +1259,7 @@ class TestDriver {
     	console.log("BLACK CAN CASTLE: " + ChessPiece.canSideCastle("BLACK", gid));
     	console.log("WHITE IS IN CHECKMATE: " + ChessPiece.inCheckmateWhite(gid, null, null));
     	console.log("BLACK IS IN CHECKMATE: " + ChessPiece.inCheckmateBlack(gid, null, null));
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	let mymv = ChessPiece.genCastlingMoveToCommand("WHITE", false, gid, null, null);
     	let myunmv = ChessPiece.genUndoMoveToShortHandCommand(mymv);
     	let myredmv = ChessPiece.genRedoMoveToShortHandCommand(myunmv);
@@ -1277,21 +1278,21 @@ class TestDriver {
     	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
     	//ChessPiece.whiteCastleRight(gid, null, null);
 		//move count will be automatically incremented in this method
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	
     	ChessPiece.getGame(gid).makeLastOfficialMoveUnofficial();
     	ChessPiece.makeLocalMove(myunmv, gid, true, ChessPiece.WHITE_MOVES_DOWN_RANKS, isuser);
     	
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	ChessPiece.getGame(gid).setUnofficialMove(mymv);
     	ChessPiece.whiteCastleRight(gid, null, null);
 		//move count will be automatically incremented in this method
     	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     }
     static setUpBoardForCastlingWhiteRightWithoutMovingThere(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
 		
@@ -1332,10 +1333,10 @@ class TestDriver {
     	this.testCanMoveToLocs(gid, 7, 4, "WHITE", 5, 7, "WHITE", 7, 7, "WHITE", 4, 2,
 			"WHITE", 6, 1, "WHITE", 7, 3, "WHITE", ignorelist, addpcs);
     }
-    static setUpBoardForCastlingWhiteRight(gid, movethere)
+    static setUpBoardForCastlingWhiteRightMain(gid, movethere)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
-		cc.letMustBeBoolean(movethere, "movethere")
+    	this.cc.letMustBeAnInteger(gid, "gid");
+		this.cc.letMustBeBoolean(movethere, "movethere")
 		if (movethere) this.setUpBoardForCastlingWhiteRight(gid);
     	else this.setUpBoardForCastlingWhiteRightWithoutMovingThere(gid);
     }
@@ -1344,7 +1345,7 @@ class TestDriver {
     
     static setUpBoardWithKnightCheckingKing(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
 		
@@ -1355,7 +1356,7 @@ class TestDriver {
 			gid);
     	let mymv = wkt.genMoveToCommand(ChessPiece.convertStringLocToRowCol("C6", iswhitedown));
     	let myunmv = ChessPiece.genUndoMoveToShortHandCommand(mymv);
-    	//wkt.setLoc(ChessPiece.convertStringLocToRowCol("C6", iswhitedown));
+    	//wkt.setLocMain(ChessPiece.convertStringLocToRowCol("C6", iswhitedown));
     	//wkt.setMoveCount(wkt.getMoveCount() + 1);
     	ChessPiece.makeLocalMove(mymv, gid, false, ChessPiece.WHITE_MOVES_DOWN_RANKS, isuser);
     	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
@@ -1366,10 +1367,10 @@ class TestDriver {
     	this.driverMakeMove(wkt, "E5", iswhitedown, isuser);
     	this.driverMakeMove(bpn, "A5", iswhitedown, isuser);
     	this.driverMakeMove(wkt, "F3", iswhitedown, isuser);
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	//now test check and figure out how to get out of it
-    	let wkg = ChessPiece.getCurrentSideKing("WHITE", gid);
-    	let bkg = ChessPiece.getCurrentSideKing("BLACK", gid);
+    	let wkg = ChessPiece.getCurrentSideKingMain("WHITE", gid);
+    	let bkg = ChessPiece.getCurrentSideKingMain("BLACK", gid);
     	console.log("WHITE KING IS IN CHECK: " + wkg.inCheck());
     	console.log("BLACK KING IS IN CHECK: " + bkg.inCheck());
     	console.log("WHITE IS IN CHECKMATE: " + ChessPiece.inCheckmateWhite(gid, null, null));
@@ -1377,7 +1378,7 @@ class TestDriver {
     }
     static setUpBoardWithKnightCheckingKingWithoutMovingThere(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
 		
@@ -1410,10 +1411,10 @@ class TestDriver {
     	this.testCanMoveToLocs(gid, 0, 4, "BLACK", 0, 6, "BLACK", 0, 0, "BLACK", 7, 2,
 			"WHITE", 1, 6, "BLACK", 0, 3, "BLACK", ignorelist, addpcs);
     }
-    static setUpBoardWithKnightCheckingKing(gid, movethere)
+    static setUpBoardWithKnightCheckingKingMain(gid, movethere)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
-		cc.letMustBeBoolean(movethere, "movethere");
+    	this.cc.letMustBeAnInteger(gid, "gid");
+		this.cc.letMustBeBoolean(movethere, "movethere");
 		if (movethere) this.setUpBoardWithKnightCheckingKing(gid);
     	else this.setUpBoardWithKnightCheckingKingWithoutMovingThere(gid);
     }
@@ -1421,14 +1422,14 @@ class TestDriver {
     //black queen checks white king
     static setUpFutureCheck(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
     	
     	//now set up future check scenario
     	const iswhitedown = true;
-    	let wkg = ChessPiece.getCurrentSideKing("WHITE", gid);
-    	let bkg = ChessPiece.getCurrentSideKing("BLACK", gid);
+    	let wkg = ChessPiece.getCurrentSideKingMain("WHITE", gid);
+    	let bkg = ChessPiece.getCurrentSideKingMain("BLACK", gid);
     	let wqn = ChessPiece.getPieceAt(7, 3, gid);
     	let bqn = ChessPiece.getPieceAt(0, 3, gid);
     	let addpcs = [];//new ArrayList<ChessPiece>();
@@ -1464,7 +1465,7 @@ class TestDriver {
     	//console.log(ChessPiece.getCountsForEachPieceTypeForASide(tstpctps));
     	//console.log(ChessPiece.isBoardValid(nwpcslist));
     	
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	console.log();
     	
     	console.log("ACCORDING TO THE ACTUAL BOARD:");
@@ -1481,7 +1482,7 @@ class TestDriver {
     
     static setUpBoardWithFourMoveCheckMate(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
 		
@@ -1498,7 +1499,7 @@ class TestDriver {
     	ChessPiece.makeLocalShortHandMove(bpn.genMoveToCommand(3, 0), gid, false, iswhitedown,
 			isuser);//A4
     	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	let wqn = ChessPiece.getPieceAt(7, 3, gid);//D8
     	ChessPiece.makeLocalShortHandMove(wqn.genMoveToCommand(5, 5), gid, false, iswhitedown,
 			isuser);//F6
@@ -1516,11 +1517,11 @@ class TestDriver {
     	ChessPiece.makeLocalShortHandMove(wqn.genMoveToCommand(1, 5), gid, false, iswhitedown,
 			isuser);//F2
     	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	//test check mate and check detection here and methods determinging where a
 		//piece can move to
-    	let wkg = ChessPiece.getCurrentSideKing("WHITE", gid);
-    	let bkg = ChessPiece.getCurrentSideKing("BLACK", gid);
+    	let wkg = ChessPiece.getCurrentSideKingMain("WHITE", gid);
+    	let bkg = ChessPiece.getCurrentSideKingMain("BLACK", gid);
     	console.log("WHITE KING IS IN CHECK: " + wkg.inCheck());
     	console.log("BLACK KING IS IN CHECK: " + bkg.inCheck());
     	console.log("WHITE IS IN CHECKMATE: " + ChessPiece.inCheckmateWhite(gid, null, null));
@@ -1528,7 +1529,7 @@ class TestDriver {
     }
     static setUpBoardWithFourMoveCheckMateWithoutMovingThere(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
 		
@@ -1557,8 +1558,8 @@ class TestDriver {
     	ChessPiece.printBoard(nwpcslist);
     	//test check mate and check detection here and methods determinging where a
 		//piece can move to
-    	let wkg = ChessPiece.getCurrentSideKing("WHITE", gid);
-    	let bkg = ChessPiece.getCurrentSideKing("BLACK", gid);
+    	let wkg = ChessPiece.getCurrentSideKingMain("WHITE", gid);
+    	let bkg = ChessPiece.getCurrentSideKingMain("BLACK", gid);
     	console.log("WHITE KING IS IN CHECK: " + wkg.inCheck(ignorelist, addpcs));
     	console.log("BLACK KING IS IN CHECK: " + bkg.inCheck(ignorelist, addpcs));
     	console.log("WHITE IS IN CHECKMATE: " +
@@ -1566,13 +1567,13 @@ class TestDriver {
     	console.log("BLACK IS IN CHECKMATE: " +
 			ChessPiece.inCheckmateBlack(gid, ignorelist, addpcs));
     	//pcslocs in the order of: king, knight, castle (rook), bishop, pawn, queen
-    	this.testCanMoveToLocs(gid, 0, 4, "BLACK", 0, 6, "BLACK", 0, 7, "BLACK", 0, 5, "BLACK", 1, 4, "BLACK", 1, 5, "WHITE",
-    		ignorelist, addpcs);
+    	this.testCanMoveToLocs(gid, 0, 4, "BLACK", 0, 6, "BLACK", 0, 7, "BLACK", 0, 5,
+			"BLACK", 1, 4, "BLACK", 1, 5, "WHITE", ignorelist, addpcs);
     }
-    static setUpBoardWithFourMoveCheckMate(gid, movethere)
+    static setUpBoardWithFourMoveCheckMateMain(gid, movethere)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
-		cc.letMustBeBoolean(movethere, "movethere");
+    	this.cc.letMustBeAnInteger(gid, "gid");
+		this.cc.letMustBeBoolean(movethere, "movethere");
 		if (movethere) this.setUpBoardWithFourMoveCheckMate(gid);
     	else this.setUpBoardWithFourMoveCheckMateWithoutMovingThere(gid);
     }
@@ -1600,7 +1601,7 @@ class TestDriver {
     
     static setUpBoardWithTwoMoveCheckMateBlack(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
 		
@@ -1622,16 +1623,16 @@ class TestDriver {
     	ChessPiece.makeLocalShortHandMove(obpn.genMoveToCommand(3, 6), gid, false, iswhitedown,
 			isuser);//G4
     	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
-    	//ChessPiece.printBoard(gid);
+    	//ChessPiece.printBoardViaGameID(gid);
     	let wqn = ChessPiece.getPieceAt(7, 3, gid);//D8
     	ChessPiece.makeLocalShortHandMove(wqn.genMoveToCommand(3, 7), gid, false, iswhitedown,
 			isuser);//H4
     	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	//test check mate and check detection here and methods determinging where a
 		//piece can move to
-    	let wkg = ChessPiece.getCurrentSideKing("WHITE", gid);
-    	let bkg = ChessPiece.getCurrentSideKing("BLACK", gid);
+    	let wkg = ChessPiece.getCurrentSideKingMain("WHITE", gid);
+    	let bkg = ChessPiece.getCurrentSideKingMain("BLACK", gid);
     	console.log("WHITE KING IS IN CHECK: " + wkg.inCheck());
     	console.log("BLACK KING IS IN CHECK: " + bkg.inCheck());
     	console.log("WHITE IN STALEMATE: " + ChessPiece.isStalemateWhite(gid, null, null));
@@ -1641,7 +1642,7 @@ class TestDriver {
     }
     static setUpBoardWithTwoMoveCheckMateBlackWithoutMovingThere(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
 		
@@ -1672,8 +1673,8 @@ class TestDriver {
     	ChessPiece.printBoard(nwpcslist);
     	//test check mate and check detection here and methods determinging where a
 		//piece can move to
-    	let wkg = ChessPiece.getCurrentSideKing("WHITE", gid);
-    	let bkg = ChessPiece.getCurrentSideKing("BLACK", gid);
+    	let wkg = ChessPiece.getCurrentSideKingMain("WHITE", gid);
+    	let bkg = ChessPiece.getCurrentSideKingMain("BLACK", gid);
     	console.log("WHITE KING IS IN CHECK: " + wkg.inCheck(ignorelist, addpcs));
     	console.log("BLACK KING IS IN CHECK: " + bkg.inCheck(ignorelist, addpcs));
     	console.log("WHITE IN STALEMATE: " + ChessPiece.isStalemateWhite(gid, ignorelist, addpcs));
@@ -1689,7 +1690,7 @@ class TestDriver {
     
     static setUpBoardWithTwoMoveCheckMateWhite(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
 		
@@ -1714,11 +1715,11 @@ class TestDriver {
     	ChessPiece.makeLocalShortHandMove(bqn.genMoveToCommand(4, 7), gid, false, iswhitedown,
 			isuser);//H5
     	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	//test check mate and check detection here and methods determinging where a
 		//piece can move to
-    	let wkg = ChessPiece.getCurrentSideKing("WHITE", gid);
-    	let bkg = ChessPiece.getCurrentSideKing("BLACK", gid);
+    	let wkg = ChessPiece.getCurrentSideKingMain("WHITE", gid);
+    	let bkg = ChessPiece.getCurrentSideKingMain("BLACK", gid);
     	console.log("WHITE KING IS IN CHECK: " + wkg.inCheck());
     	console.log("BLACK KING IS IN CHECK: " + bkg.inCheck());
     	console.log("WHITE IN STALEMATE: " + ChessPiece.isStalemateWhite(gid, null, null));
@@ -1728,7 +1729,7 @@ class TestDriver {
     }
     static setUpBoardWithTwoMoveCheckMateWhiteWithoutMovingThere(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
     	
@@ -1756,8 +1757,8 @@ class TestDriver {
     	ChessPiece.printBoard(nwpcslist);
     	//test check mate and check detection here and methods determinging where a
 		//piece can move to
-    	let wkg = ChessPiece.getCurrentSideKing("WHITE", gid);
-    	let bkg = ChessPiece.getCurrentSideKing("BLACK", gid);
+    	let wkg = ChessPiece.getCurrentSideKingMain("WHITE", gid);
+    	let bkg = ChessPiece.getCurrentSideKingMain("BLACK", gid);
     	console.log("WHITE KING IS IN CHECK: " + wkg.inCheck(ignorelist, addpcs));
     	console.log("BLACK KING IS IN CHECK: " + bkg.inCheck(ignorelist, addpcs));
     	console.log("WHITE IN STALEMATE: " + ChessPiece.isStalemateWhite(gid, ignorelist, addpcs));
@@ -1771,7 +1772,7 @@ class TestDriver {
 			"WHITE", 7, 4, "WHITE", 4, 7, "BLACK", ignorelist, addpcs);
     }
     //calls the above two move checkmate methods
-    static setUpBoardWithTwoMoveCheckMate(gid, usewhite, movethere)
+    static setUpBoardWithTwoMoveCheckMateMain(gid, usewhite, movethere)
     {
     	if (usewhite)
     	{
@@ -1784,18 +1785,18 @@ class TestDriver {
     		else this.setUpBoardWithTwoMoveCheckMateBlackWithoutMovingThere(gid);
     	}
     }
-    static setUpBoardWithTwoMoveCheckMateWhite(gid, movethere)
+    static setUpBoardWithTwoMoveCheckMateWhiteMain(gid, movethere)
     {
-    	this.setUpBoardWithTwoMoveCheckMate(gid, true, movethere);
+    	this.setUpBoardWithTwoMoveCheckMateMain(gid, true, movethere);
     }
-    static setUpBoardWithTwoMoveCheckMateBlack(gid, movethere)
+    static setUpBoardWithTwoMoveCheckMateBlackMain(gid, movethere)
     {
-    	this.setUpBoardWithTwoMoveCheckMate(gid, false, movethere);
+    	this.setUpBoardWithTwoMoveCheckMateMain(gid, false, movethere);
     }
     
     static setUpBoardCheckmateKingBishopVSameDiffColorSquares(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
     	
@@ -1848,7 +1849,7 @@ class TestDriver {
     
     static setUpBoardWhiteCheckmateAfterManyMoves(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
     	
@@ -1869,7 +1870,7 @@ class TestDriver {
     				ili++;
     			}
     		}
-    		if (r == 1) r = 5;
+    		if (r === 1) r = 5;
     	}
     	let addpcs = [];//new ArrayList<ChessPiece>();
     	let bkg = new ChessPiece("KING", "BLACK", 0, 6, gid, 3, false);
@@ -1907,8 +1908,8 @@ class TestDriver {
     
     static setUpBoardWithKingVKingBlockedPawnsWithoutMoving(gid, addstuckpawns)
     {
-    	cc.letMustBeBoolean(addstuckpawns, "addstuckpawns");
-		cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeBoolean(addstuckpawns, "addstuckpawns");
+		this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
     	
@@ -1977,8 +1978,8 @@ class TestDriver {
     	ChessPiece.printBoard(nwpcslist);
     	//test stale mate and check detection here and methods determinging where a
 		//piece can move to
-    	let wkg = ChessPiece.getCurrentSideKing("WHITE", gid);
-    	let bkg = ChessPiece.getCurrentSideKing("BLACK", gid);
+    	let wkg = ChessPiece.getCurrentSideKingMain("WHITE", gid);
+    	let bkg = ChessPiece.getCurrentSideKingMain("BLACK", gid);
     	console.log("WHITE KING IS IN CHECK: " + wkg.inCheck(ignorelist, addpcs));
     	console.log("BLACK KING IS IN CHECK: " + bkg.inCheck(ignorelist, addpcs));
     	//console.log("IS AUTO-STALEMATE: " + ChessPiece.isAutoStalemate(nwpcslist));
@@ -2001,12 +2002,12 @@ class TestDriver {
     	if (addstuckpawns)
     	{
     		let ccl = -1;
-    		if (csi == 0)
+    		if (csi === 0)
     		{
     			if (incbyval === 2 || incbyval === 1) ccl = 4;
     			else ccl = 3;
     		}
-    		else if (csi == 1)
+    		else if (csi === 1)
     		{
     			if (incbyval === 1) ccl = 4;
     			else if (incbyval === 3) ccl = 4;
@@ -2029,10 +2030,10 @@ class TestDriver {
     
     static setUpBoardWithKingAndBishopsVKingBishops(gid, numbkbps, numwtbps, usesmt)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
-		cc.letMustBeAnInteger(numbkbps, "numbkbps");
-		cc.letMustBeAnInteger(numwtbps, "numwtbps");
-		cc.letMustBeBoolean(usesmt, "usesmt");
+    	this.cc.letMustBeAnInteger(gid, "gid");
+		this.cc.letMustBeAnInteger(numbkbps, "numbkbps");
+		this.cc.letMustBeAnInteger(numwtbps, "numwtbps");
+		this.cc.letMustBeBoolean(usesmt, "usesmt");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	else if ((0 < numbkbps || numbkbps === 0) && (numbkbps < 8 || numbkbps === 8));
 		else throw new Error("illegal number of black bishops found and used here!");
@@ -2089,8 +2090,8 @@ class TestDriver {
     	ChessPiece.printBoard(nwpcslist);
     	//test stale mate and check detection here and methods determinging where a
 		//piece can move to
-    	let wkg = ChessPiece.getCurrentSideKing("WHITE", gid);
-    	let bkg = ChessPiece.getCurrentSideKing("BLACK", gid);
+    	let wkg = ChessPiece.getCurrentSideKingMain("WHITE", gid);
+    	let bkg = ChessPiece.getCurrentSideKingMain("BLACK", gid);
     	console.log("WHITE KING IS IN CHECK: " + wkg.inCheck(ignorelist, addpcs));
     	console.log("BLACK KING IS IN CHECK: " + bkg.inCheck(ignorelist, addpcs));
     	console.log("ALL BISHOPS ON SAME COLOR SQUARES: " +
@@ -2113,14 +2114,14 @@ class TestDriver {
     	this.testKingCanMoveToLocs(gid, 0, 4, "BLACK", ignorelist, addpcs);
     	//this.testBishopCanMoveToLocs(gid, int br, int bc, String bclr, ignorelist, addpcs);
     }
-    static setUpBoardWithKingAndBishopsVKingBishops(gid, numbkbps, numwtbps)
+    static setUpBoardWithKingAndBishopsVKingBishopsMain(gid, numbkbps, numwtbps)
     {
     	this.setUpBoardWithKingAndBishopsVKingBishops(gid, numbkbps, numwtbps, true);
     }
     
     static setUpBoardWithBlockedPawnsAndBishops(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
 		
@@ -2187,7 +2188,7 @@ class TestDriver {
     
     static setUpBoardWithKingAndKnightVKing(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
     	
@@ -2218,8 +2219,8 @@ class TestDriver {
     	ChessPiece.printBoard(nwpcslist);
     	//test stale mate and check detection here and methods determinging where a
 		//piece can move to
-    	let wkg = ChessPiece.getCurrentSideKing("WHITE", gid);
-    	let bkg = ChessPiece.getCurrentSideKing("BLACK", gid);
+    	let wkg = ChessPiece.getCurrentSideKingMain("WHITE", gid);
+    	let bkg = ChessPiece.getCurrentSideKingMain("BLACK", gid);
     	console.log("WHITE KING IS IN CHECK: " + wkg.inCheck(ignorelist, null));
     	console.log("BLACK KING IS IN CHECK: " + bkg.inCheck(ignorelist, null));
     	console.log("ALL BISHOPS ON SAME COLOR SQUARES: " +
@@ -2245,7 +2246,7 @@ class TestDriver {
     
     static setUpBoardWhiteStalemateAfterManyMoves(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
     	
@@ -2305,7 +2306,7 @@ class TestDriver {
     
     static setUpBoardWhiteStalemateKingAndQueenVsKing(gid)
     {
-    	cc.letMustBeAnInteger(gid, "gid");
+    	this.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
     	//else;//do nothing
 
@@ -2316,8 +2317,8 @@ class TestDriver {
     	mypcs.push(new ChessPiece("KING", "BLACK", 7, 0, gid, 10, false));
     	mypcs.push(new ChessPiece("KING", "WHITE", 5, 2, gid, 10, false));
     	mypcs.push(new ChessPiece("QUEEN", "WHITE", 6, 3, gid, 10, false));
-    	ChessPiece.setUpBoard(gid, mypcs);
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.setUpBoardFromList(gid, mypcs);
+    	ChessPiece.printBoardViaGameID(gid);
     	//now program the move(s)
     	let iswhitedown = ChessPiece.WHITE_MOVES_DOWN_RANKS;
     	let isuser = false;
@@ -2336,10 +2337,10 @@ class TestDriver {
     	//ChessPiece.makeLocalShortHandMove(wqn.genMoveToCommand(6, 1), gid, false, iswhitedown);
 		//B7
     	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	//now print the results of stalemate and checkmate
-    	let wkg = ChessPiece.getCurrentSideKing("WHITE", gid);
-    	let bkg = ChessPiece.getCurrentSideKing("BLACK", gid);
+    	let wkg = ChessPiece.getCurrentSideKingMain("WHITE", gid);
+    	let bkg = ChessPiece.getCurrentSideKingMain("BLACK", gid);
     	console.log("WHITE KING IS IN CHECK: " + wkg.inCheck());
     	console.log("BLACK KING IS IN CHECK: " + bkg.inCheck());
     	console.log("WHITE IS IN CHECKMATE: " + ChessPiece.inCheckmateWhite(gid, null, null));
@@ -2357,7 +2358,7 @@ class TestDriver {
     	ChessPiece.makeLocalMove(myunmv, gid, true, iswhitedown, isuser);
     	//ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
     	ChessPiece.getGame(gid).clearUnofficialMove();
-    	ChessPiece.printBoard(gid);
+    	ChessPiece.printBoardViaGameID(gid);
     	console.log(ChessPiece.getGame(gid).getSideTurn() + "'S TURN!");
     	
     	let dodrawtests = true;
@@ -2379,7 +2380,7 @@ class TestDriver {
 				gid, isuser);
 	    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
 	    	ChessPiece.getGame(gid).setLastUndoneMove(null);
-	    	ChessPiece.printBoard(gid);
+	    	ChessPiece.printBoardViaGameID(gid);
 	    	console.log(ChessPiece.getGame(gid).getSideTurn() + "'S TURN!");
 	    	console.log();
 	    	
@@ -2389,7 +2390,7 @@ class TestDriver {
 				gid, true, iswhitedown, isuser);
 	    	//ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
 	    	ChessPiece.getGame(gid).clearUnofficialMove();
-	    	ChessPiece.printBoard(gid);
+	    	ChessPiece.printBoardViaGameID(gid);
 	    	console.log();
     	}
     	//else;//do nothing
@@ -2408,7 +2409,7 @@ class TestDriver {
     		ChessPiece.makeLocalShortHandMove(wqn.genMoveToCommand(6, 1), gid, false,
 				iswhitedown, isuser);//B7
     		ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
-    		ChessPiece.printBoard(gid);
+    		ChessPiece.printBoardViaGameID(gid);
     	}
     	//check the results
     	console.log("WHITE KING IS IN CHECK: " + wkg.inCheck());

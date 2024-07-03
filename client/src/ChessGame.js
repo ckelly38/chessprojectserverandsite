@@ -1,21 +1,21 @@
-
 import CommonClass from "./commonclass";
+import ChessPiece from "./ChessPiece";
 class ChessGame {
 	static all = [];
-	cc = new CommonClass();
-	constructor(gid, offmvs, isdone=false, mclrval="BOTH")
+	static cc = new CommonClass();
+	constructor(gid, offmvs=null, isdone=false, mclrval="BOTH")
 	{
-		cc.letMustBeBoolean(isdone, "isdone");
-		cc.letMustBeAnInteger(gid, "gid");
+		ChessGame.cc.letMustBeBoolean(isdone, "isdone");
+		ChessGame.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		//else;//do nothing
-		let numitems = ChessPiece.getNumItemsInList(all);
+		let numitems = ChessPiece.getNumItemsInList(this.all);
 		if (numitems < 1);
 		else
 		{
 			for (let x = 0; x < numitems; x++)
 			{
-				if (all.get(x).getGameID() === gid)
+				if (this.all.get(x).getGameID() === gid)
 				{
 					throw new Error("there must be only one game with that ID!");
 				}
@@ -44,28 +44,37 @@ class ChessGame {
 
 		this.setOfficialMoves(offmvs);
 		this.setMyColor(mclrval);
-		all.add(this);
+		ChessGame.all.push(this);
 	}
-	constructor(gid, offmvs, isdone)
+	//constructor(gid, offmvs=null, isdone=false)
+	//{
+	//	this(gid, offmvs, isdone, "BOTH");
+	//}
+	//constructor(gid, mclrval="BOTH")
+	//{
+	//	this(gid, null, false, mclrval);
+	//}
+	//constructor(gid)
+	//{
+	//	this(gid, "BOTH");
+	//}
+
+	static makeNewChessGameFromColor(gid, mclrval="BOTH")
 	{
-		this(gid, offmvs, isdone, "BOTH");
+		return new ChessGame(gid, null, false, mclrval);
 	}
-	constructor(gid, mclrval="BOTH")
+	static makeNewChessGameFromMoveList(gid, offmvs=null, isdone=false)
 	{
-		this(gid, null, false, mclrval);
+		return new ChessGame(gid, offmvs, isdone, "BOTH");
 	}
-	constructor(gid)
+	static makeNewChessGameFromGID(gid)
 	{
-		this(gid, "BOTH");
+		return ChessGame.makeNewChessGameFromColor(gid, "BOTH");
 	}
-	
-	
 	
 	static convertStringArrayToMultidim(sarr)
 	{
-		let mymvs = [];
-		mymvs.push(sarr);
-		return mymvs;
+		return [sarr];
 	}
 	
 	getGameID()
@@ -75,16 +84,17 @@ class ChessGame {
 	
 	static getGame(gid)
 	{
+		ChessGame.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		else
 		{
-			let numitems = ChessPiece.getNumItemsInList(all);
+			let numitems = ChessPiece.getNumItemsInList(this.all);
 			if (numitems < 1);
 			else
 			{
 				for (let x = 0; x < numitems; x++)
 				{
-					if (all[x].getGameID() == gid) return all[x];
+					if (this.all[x].getGameID() === gid) return this.all[x];
 				}
 			}
 			//return null;
@@ -98,7 +108,7 @@ class ChessGame {
 	
 	setMyColor(val)
 	{
-		if (cc.isStringEmptyNullOrUndefined(val))
+		if (ChessGame.cc.isStringEmptyNullOrUndefined(val))
 		{
 			throw new Error("my color must be BOTH, WHITE, OR BLACK ONLY!");
 		}
@@ -141,7 +151,7 @@ class ChessGame {
 	
 	setLastSetLocMove(mvstr)
 	{
-		if (cc.isItemNullOrUndefined(mvstr)) this.lastsetlocmv = null;
+		if (this.cc.isItemNullOrUndefined(mvstr)) this.lastsetlocmv = null;
 		else this.lastsetlocmv = "" + mvstr;
 	}
 	getLastSetLocMove()
@@ -157,7 +167,7 @@ class ChessGame {
 		{
 			for (let x = 0; x < numofmvs; x++)
 			{
-				if (cc.isItemNullOrUndefined(this.OFFICIAL_MOVES[x]));
+				if (this.cc.isItemNullOrUndefined(this.OFFICIAL_MOVES[x]));
 				else if (this.OFFICIAL_MOVES[x].length < 1) this.OFFICIAL_MOVES[x] = null;
 				else
 				{
@@ -175,8 +185,8 @@ class ChessGame {
 	{
 		let clrs = ChessPiece.getSideColorsForMoves(myoffmvs);
 		let tps = ChessPiece.getSideTypesForMoves(myoffmvs);
-		cc.letMustBeDefinedAndNotNull(myoffmvs, "myoffmvs")
-		if (cc.isItemNullOrUndefined(clrs) || clrs.length != myoffmvs.length)
+		this.cc.letMustBeDefinedAndNotNull(myoffmvs, "myoffmvs")
+		if (this.cc.isItemNullOrUndefined(clrs) || clrs.length != myoffmvs.length)
 		{
 			throw new Error("myoffmvs must be the same size as the colors!");
 		}
@@ -240,18 +250,18 @@ class ChessGame {
 			}
 		}
 	}
-	colorsForMovesAlternate()
+	colorsForOfficialMovesAlternate()
 	{
 		this.colorsForMovesAlternate(this.OFFICIAL_MOVES);
 	}
 	
 	static noMovesAfterResigning(myoffmvs)
 	{
-		if (cc.isStringEmptyNullOrUndefined(myoffmvs)) return;
+		if (this.cc.isStringEmptyNullOrUndefined(myoffmvs)) return;
 		else
 		{
 			let tps = ChessPiece.getSideTypesForMoves(myoffmvs);
-			if (tps.length == myoffmvs.length);
+			if (tps.length === myoffmvs.length);
 			else throw new Error("myoffmvs must be the same size as the command types!");
 			for (let n = 0; n < myoffmvs.length; n++)
 			{
@@ -276,15 +286,14 @@ class ChessGame {
 	//IF NO OFFICIAL MOVES -> WHITE
 	//IF THERE ARE OFFICIAL MOVES -> NEXT COLOR WHITE -> BLACK; BLACK -> WHITE;
 	//OR ERRORS OUT ON INVALID COLOR
-	static getSideTurn(myoffmvs, val=false)
+	static getSideTurnFromMoves(myoffmvs)
 	{
 		//get last side to make an actual move
 		//if no side -> return white
 		//if a side has return the opposite color side
-		cc.letMustBeBoolean(val, "sideturnnwval");
 		let clrs = ChessPiece.getSideColorsForMoves(myoffmvs);
 		let tps = ChessPiece.getSideTypesForMoves(myoffmvs);
-		if (cc.isStringEmptyNullOrUndefined(clrs) && cc.isStringEmptyNullOrUndefined(tps))
+		if (this.cc.isStringEmptyNullOrUndefined(clrs) && this.cc.isStringEmptyNullOrUndefined(tps))
 		{
 			return "WHITE";
 		}
@@ -294,7 +303,7 @@ class ChessGame {
 		}
 		else
 		{
-			mvtps = ["MOVE", "CASTLEING", "PAWNING", "PROMOTION"];
+			let mvtps = ["MOVE", "CASTLEING", "PAWNING", "PROMOTION"];
 			let mvi = -1;
 			for (let n = 0; n < myoffmvs.length; n++)
 			{
@@ -313,27 +322,27 @@ class ChessGame {
 	
 	getNumOfficialMoves()
 	{
-		if (cc.isStringEmptyNullOrUndefined(this.OFFICIAL_MOVES)) return 0;
+		if (this.cc.isStringEmptyNullOrUndefined(this.OFFICIAL_MOVES)) return 0;
 		else return this.OFFICIAL_MOVES.length;
 	}
 	
 	printAllMoves(mymvs, mvstp)
 	{
-		if (cc.isStringEmptyNullOrUndefined(mymvs))
+		if (this.cc.isStringEmptyNullOrUndefined(mymvs))
 		{
-			if (cc.isStringEmptyNullOrUndefined(mvstp)) console.log("NO MOVES!");
+			if (this.cc.isStringEmptyNullOrUndefined(mvstp)) console.log("NO MOVES!");
 			else console.log("NO " + mvstp + " MOVES!");
 		}
 		else
 		{
-			if (cc.isStringEmptyNullOrUndefined(mvstp))
+			if (this.cc.isStringEmptyNullOrUndefined(mvstp))
 			{
 				console.log("THERE ARE " + mymvs.length + " MOVES AND THEY ARE:");
 			}
 			else console.log("THERE ARE " + mymvs.length + " " + mvstp + " MOVES AND THEY ARE:");
 			for (let x = 0; x < mymvs.length; x++)
 			{
-				if (mymvs[x].length == 1) console.log("" + (x + 1) + ": " + mymvs[x][0]);
+				if (mymvs[x].length === 1) console.log("" + (x + 1) + ": " + mymvs[x][0]);
 				else
 				{
 					console.log("" + (x + 1) + ":");
@@ -365,9 +374,9 @@ class ChessGame {
 	setOfficialMoves(myoffmvs)
 	{
 		let numofmvs = ChessPiece.getNumItemsInList(this.OFFICIAL_MOVES);
-		if (cc.isItemNullOrUndefined(myoffmvs))
+		if (ChessGame.cc.isItemNullOrUndefined(myoffmvs))
 		{
-			if (cc.isItemNullOrUndefined(this.OFFICIAL_MOVES));
+			if (ChessGame.cc.isItemNullOrUndefined(this.OFFICIAL_MOVES));
 			else if (numofmvs < 1) this.OFFICIAL_MOVES = null;
 			else
 			{
@@ -377,40 +386,43 @@ class ChessGame {
 		}
 		else if (myoffmvs.length < 1)
 		{
-			if (cc.isItemNullOrUndefined(this.OFFICIAL_MOVES)) this.OFFICIAL_MOVES = [];
+			if (ChessGame.cc.isItemNullOrUndefined(this.OFFICIAL_MOVES)) this.OFFICIAL_MOVES = [];
 			else if (numofmvs < 1);
 			else this.clearOfficalMoves();
 		}
 		else
 		{
 			//right here validate it
-			this.colorsForMovesAlternate(myoffmvs, false);
+			ChessGame.colorsForMovesAlternate(myoffmvs);
 			//make sure no commands after resigning
 			this.noMovesAfterResigning(myoffmvs, false);
 			
-			if (cc.isItemNullOrUndefined(this.OFFICIAL_MOVES)) this.OFFICIAL_MOVES = [];
+			if (ChessGame.cc.isItemNullOrUndefined(this.OFFICIAL_MOVES)) this.OFFICIAL_MOVES = [];
 			else if (numofmvs < 1);
 			else this.clearOfficalMoves();
 			for (let x = 0; x < myoffmvs.length; x++)
 			{
-				if (cc.isStringEmptyNullOrUndefined(myoffmvs[x])) this.OFFICIAL_MOVES.add(null);
+				if (ChessGame.cc.isStringEmptyNullOrUndefined(myoffmvs[x]))
+				{
+					this.OFFICIAL_MOVES.add(null);
+				}
 				else
 				{
 					let mynwstrarr = myoffmvs[x].map((mitem) => "" + mitem);
 					this.OFFICIAL_MOVES.add(mynwstrarr);
 				}
 			}
-			//this.colorsForMovesAlternate(this.OFFICIAL_MOVES);
+			//this.colorsForOfficialMovesAlternate();
 		}
 		//this.printAllOfficialMoves();
 	}
 	
 	setUnofficialMove(mymvcmd)
 	{
-		if (cc.isStringEmptyNullOrUndefined(mymvcmd)) this.UNOFFICIAL_MOVE = null;
+		if (this.cc.isStringEmptyNullOrUndefined(mymvcmd)) this.UNOFFICIAL_MOVE = null;
 		else
 		{
-			if (cc.isStringEmptyNullOrUndefined(this.UNOFFICIAL_MOVE))
+			if (this.cc.isStringEmptyNullOrUndefined(this.UNOFFICIAL_MOVE))
 			{
 				this.UNOFFICIAL_MOVE = mymvcmd.map((mitem) => "" + mitem);
 			}
@@ -430,7 +442,7 @@ class ChessGame {
 	
 	addOfficialMove(mymvcmd)
 	{
-		if (cc.isStringEmptyNullOrUndefined(mymvcmd))
+		if (this.cc.isStringEmptyNullOrUndefined(mymvcmd))
 		{
 			throw new Error("cannot add an empty or null move to the official move list!");
 		}
@@ -444,11 +456,11 @@ class ChessGame {
 			{
 				let mycp = mymvcmd.map((mitem) => "" + mitem);
 				
-				if (this.OFFICIAL_MOVES == null) this.OFFICIAL_MOVES = [];
+				if (this.cc.isItemNullOrUndefined(this.OFFICIAL_MOVES)) this.OFFICIAL_MOVES = [];
 				//else;//do nothing
 				
 				this.OFFICIAL_MOVES.add(mycp);
-				this.colorsForMovesAlternate();
+				this.colorsForOfficialMovesAlternate();
 				this.noMovesAfterResigning();
 				//this.printAllOfficialMoves();
 			}
@@ -479,15 +491,15 @@ class ChessGame {
 		//it in checkmate instead?
 		//if (isCompleted())
 		
-		if (cc.isStringEmptyNullOrUndefined(this.UNOFFICIAL_MOVE))
+		if (this.cc.isStringEmptyNullOrUndefined(this.UNOFFICIAL_MOVE))
 		{
-			if (cc.isStringEmptyNullOrUndefined(this.OFFICIAL_MOVES))
+			if (this.cc.isStringEmptyNullOrUndefined(this.OFFICIAL_MOVES))
 			{
 				throw new Error("THERE MUST BE AT LEAST ONE OFFICIAL MOVE!");
 			}
 			else if (0 < this.OFFICIAL_MOVES.length)
 			{
-				setUnofficialMove(this.OFFICIAL_MOVES[this.OFFICIAL_MOVES.length - 1]);
+				this.setUnofficialMove(this.OFFICIAL_MOVES[this.OFFICIAL_MOVES.length - 1]);
 				this.OFFICIAL_MOVES[this.OFFICIAL_MOVES.length - 1] = null;
 				this.OFFICIAL_MOVES.filter((mitem, indx) => {
 					if (indx === this.OFFICIAL_MOVES.length - 1) return false;//not this
@@ -501,15 +513,15 @@ class ChessGame {
 	
 	setLastUndoneMove(mymvcmd)
 	{
-		if (cc.isStringEmptyNullOrUndefined(mymvcmd)) this.LAST_UNDONE_MOVE = null;
+		if (this.cc.isStringEmptyNullOrUndefined(mymvcmd)) this.LAST_UNDONE_MOVE = null;
 		else
 		{
-			if (cc.isStringEmptyNullOrUndefined(this.LAST_UNDONE_MOVE))
+			if (this.cc.isStringEmptyNullOrUndefined(this.LAST_UNDONE_MOVE))
 			{
-				this.LAST_UNDONE_MOVE = new String[mymvcmd.length];
+				this.LAST_UNDONE_MOVE = [];//new String[mymvcmd.length];
 				for (let n = 0; n < mymvcmd.length; n++)
 				{
-					this.LAST_UNDONE_MOVE[n] = "" + mymvcmd[n];
+					this.LAST_UNDONE_MOVE.push("" + mymvcmd[n]);
 					console.log("this.LAST_UNDONE_MOVE[" + n + "] = " + this.LAST_UNDONE_MOVE[n]);
 				}
 			}
@@ -536,9 +548,9 @@ class ChessGame {
 		//then get the UNOFFICIAL_MOVE
 		//then generate the undo command
 		let mymv = null;
-		if (cc.isStringEmptyNullOrUndefined(this.UNOFFICIAL_MOVE))
+		if (this.cc.isStringEmptyNullOrUndefined(this.UNOFFICIAL_MOVE))
 		{
-			if (cc.isStringEmptyNullOrUndefined(this.OFFICIAL_MOVES))
+			if (this.cc.isStringEmptyNullOrUndefined(this.OFFICIAL_MOVES))
 			{
 				throw new Error("No move found!");
 			}
@@ -551,10 +563,8 @@ class ChessGame {
 	//returns a copy of the given move
 	static genCopyOfStringArray(myinmv)
 	{
-		let mymv = null;
-		if (cc.isStringEmptyNullOrUndefined(myinmv));
-		else mymv = myinmv.map((mitem) => "" + mitem);
-		return mymv;
+		if (this.cc.isStringEmptyNullOrUndefined(myinmv)) return null;
+		else return myinmv.map((mitem) => "" + mitem);
 	}
 	//returns a copy of the LAST_UNDONE_MOVE
 	genCommandToRedoLastUndoneMove()
@@ -641,7 +651,7 @@ class ChessGame {
 		//console.log("this.moveindex = " + this.moveindex);
 		
 		if (this.moveindex < numofmvs) return false;
-		else if (this.moveindex == numofmvs) return true;
+		else if (this.moveindex === numofmvs) return true;
 		else throw new Error("illegal moveindex or total number of moves found and used here!");
 	}
 	
@@ -671,7 +681,7 @@ class ChessGame {
 	
 	setIsTied(nwval)
 	{
-		cc.letMustBeBoolean(nwval, "istiednwval");
+		this.cc.letMustBeBoolean(nwval, "istiednwval");
 		if (nwval)
 		{
 			this.istied = true;
@@ -686,13 +696,13 @@ class ChessGame {
 	
 	setColorWins(clrval, nwval)
 	{
-		cc.letMustBeBoolean(nwval, "colorwinsnwval");
-		if (cc.isStringEmptyNullOrUndefined(clrval))
+		this.cc.letMustBeBoolean(nwval, "colorwinsnwval");
+		if (this.cc.isStringEmptyNullOrUndefined(clrval))
 		{
 			throw new Error("color cannot be null or empty!");
 		}
-		else if (clrval === "WHITE") whitewins = nwval;
-		else if (clrval === "BLACK") blackwins = nwval;
+		else if (clrval === "WHITE") this.whitewins = nwval;
+		else if (clrval === "BLACK") this.blackwins = nwval;
 		else throw new Error("invalid color (" + clrval + ") found and used here!");
 		if (nwval) this.completeGameAndCommunicateWithTheServer("" + clrval + " WINS!");
 		//else;//do nothing
@@ -700,8 +710,8 @@ class ChessGame {
 	
 	setColorResigns(clrval, nwval)
 	{
-		cc.letMustBeBoolean(nwval, "colorresignsnwval");
-		if (cc.isStringEmptyNullOrUndefined(clrval))
+		this.cc.letMustBeBoolean(nwval, "colorresignsnwval");
+		if (this.cc.isStringEmptyNullOrUndefined(clrval))
 		{
 			throw new Error("color cannot be null or empty!");
 		}
@@ -718,9 +728,9 @@ class ChessGame {
 	
 	setColorWantsADraw(clrval, nwval)
 	{
-		cc.letMustBeBoolean(nwval, "clrdrawval");
+		this.cc.letMustBeBoolean(nwval, "clrdrawval");
 		
-		if (cc.isStringEmptyNullOrUndefined(clrval))
+		if (this.cc.isStringEmptyNullOrUndefined(clrval))
 		{
 			throw new Error("illegal color (" + clrval + ") found and used here!");
 		}
@@ -729,7 +739,7 @@ class ChessGame {
 			if (clrval === "WHITE") this.whitewantsdraw = nwval;
 			else if (clrval === "BLACK") this.blackwantsdraw = nwval;
 			else throw new Error("illegal color (" + clrval + ") found and used here!");
-			if (this.whitewantsdraw && this.blackwantsdraw) setIsTied(true);
+			if (this.whitewantsdraw && this.blackwantsdraw) this.setIsTied(true);
 			//else;//do nothing
 		}
 	}
