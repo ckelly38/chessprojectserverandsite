@@ -180,28 +180,28 @@ class TestDriver {
     	console.log(ChessPiece.convertRowColToStringLoc(4, 4, ChessPiece.WHITE_MOVES_DOWN_RANKS));
     	console.log(ChessPiece.convertRowColToStringLoc(2, 5, ChessPiece.WHITE_MOVES_DOWN_RANKS));
     	console.log(ChessPiece.convertRowColToStringLoc(2, 3, ChessPiece.WHITE_MOVES_DOWN_RANKS));
-    	console.log(ChessPiece.convertRowColToStringLoc(
+    	console.log(ChessPiece.convertRowColToStringLocMain(
 			ChessPiece.convertStringLocToRowCol("H8", iswhitedown),
     		ChessPiece.WHITE_MOVES_DOWN_RANKS));
-    	console.log(ChessPiece.convertRowColToStringLoc(
+    	console.log(ChessPiece.convertRowColToStringLocMain(
 			ChessPiece.convertStringLocToRowCol("B8", iswhitedown),
     		ChessPiece.WHITE_MOVES_DOWN_RANKS));
-    	console.log(ChessPiece.convertRowColToStringLoc(
+    	console.log(ChessPiece.convertRowColToStringLocMain(
 			ChessPiece.convertStringLocToRowCol("C6", iswhitedown),
     		ChessPiece.WHITE_MOVES_DOWN_RANKS));
-    	console.log(ChessPiece.convertRowColToStringLoc(
+    	console.log(ChessPiece.convertRowColToStringLocMain(
 			ChessPiece.convertStringLocToRowCol("E5", iswhitedown),
     		ChessPiece.WHITE_MOVES_DOWN_RANKS));
-    	console.log(ChessPiece.convertRowColToStringLoc(
+    	console.log(ChessPiece.convertRowColToStringLocMain(
 			ChessPiece.convertStringLocToRowCol("F3", iswhitedown),
     		ChessPiece.WHITE_MOVES_DOWN_RANKS));
-    	console.log(ChessPiece.convertRowColToStringLoc(
+    	console.log(ChessPiece.convertRowColToStringLocMain(
 			ChessPiece.convertStringLocToRowCol("D3", iswhitedown),
     		ChessPiece.WHITE_MOVES_DOWN_RANKS));
-    	console.log(ChessPiece.convertRowColToStringLoc(
+    	console.log(ChessPiece.convertRowColToStringLocMain(
 			ChessPiece.convertStringLocToRowCol("X9", iswhitedown),
     		ChessPiece.WHITE_MOVES_DOWN_RANKS));
-    	console.log(ChessPiece.convertRowColToStringLoc(
+    	console.log(ChessPiece.convertRowColToStringLocMain(
 			ChessPiece.convertStringLocToRowCol("A9", iswhitedown),
     		ChessPiece.WHITE_MOVES_DOWN_RANKS));
     }
@@ -1173,7 +1173,8 @@ class TestDriver {
     	{
     		console.log("BLACK PAWNING MOVE TO LEFT LOCATION: " +
 				ChessPiece.getLocStringMain(bplftloc) + " IS: " +
-    			ChessPiece.convertRowColToStringLoc(bplftloc, ChessPiece.WHITE_MOVES_DOWN_RANKS));
+    			ChessPiece.convertRowColToStringLocMain(bplftloc,
+					ChessPiece.WHITE_MOVES_DOWN_RANKS));
     	}
     	if (this.cc.isStringEmptyNullOrUndefined(bprgtloc))
 		{
@@ -1183,7 +1184,8 @@ class TestDriver {
     	{
     		console.log("BLACK PAWNING MOVE TO RIGHT LOCATION: " +
 				ChessPiece.getLocStringMain(bprgtloc) + " IS: " +
-    			ChessPiece.convertRowColToStringLoc(bprgtloc, ChessPiece.WHITE_MOVES_DOWN_RANKS));
+    			ChessPiece.convertRowColToStringLocMain(bprgtloc,
+					ChessPiece.WHITE_MOVES_DOWN_RANKS));
     	}
     	console.log("BLACK ENEMY PAWN FOR LEFT PAWNING: " +
 			bpn.getEnemyPawnForLeftPawning(nwpcslist));
