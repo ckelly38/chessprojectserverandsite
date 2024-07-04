@@ -32,8 +32,8 @@ class TestDriver {
     	
     	ChessPiece.setUpBoard(gid);
     	console.log("DONE SETTING UP THE BOARD!");
-    	//ArrayList<ChessPiece> mycps = ChessPiece.cps;
-    	//for (int c = 0; c < mycps.length; c++) console.log(mycps.get(c));
+    	let mycps = ChessPiece.cps;
+    	for (let c = 0; c < mycps.length; c++) console.log(mycps[c]);
     	ChessPiece.printBoardViaGameID(gid);
     	console.log(ChessPiece.isBoardValidMain(gid));
     	let wkg = ChessPiece.getCurrentSideKingMain("WHITE", gid);
@@ -259,7 +259,7 @@ class TestDriver {
     		//console.log(ChessPiece.filterListByColor(nopwnwithaddpcs, "BLACK"));
     		//if more than zero, piece would be in check under certain setup
     		console.log("addpcs = " + addpcs);
-    		let nwpcslist = ChessPiece.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+    		let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
     		//console.log(nwpcslist);
     		ChessPiece.printBoard(nwpcslist);
     		//console.log(ChessPiece.isBoardValid(nwpcslist));
@@ -292,7 +292,7 @@ class TestDriver {
     	ignorelist.push(ChessPiece.convertStringLocToRowCol("H7", iswhitedown));
     	//add list is null
     	//print the board first
-    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreLists(ignorelist, null, gid);
+    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, null, gid);
     	//console.log(nwpcslist);
     	ChessPiece.printBoard(nwpcslist);
     	//test stale mate and check detection here and methods determinging where a piece
@@ -1020,7 +1020,7 @@ class TestDriver {
     		ChessPiece.convertStringLocToRowCol("H6", iswhitedown), gid, 3, false));
     	addpcs.push(wpn);
     	//print the board first
-    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
     	//console.log(nwpcslist);
     	ChessPiece.printBoard(nwpcslist);
     	//test promotion methods here...
@@ -1152,7 +1152,7 @@ class TestDriver {
     	addpcs.push(new ChessPiece("KNIGHT", "WHITE",
 			ChessPiece.convertStringLocToRowCol("F5", iswhitedown), gid, 2, false));
     	//print the board first
-    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
     	//console.log(nwpcslist);
     	ChessPiece.printBoard(nwpcslist);
     	//call canPawnLeft on Black Pawn
@@ -1319,7 +1319,7 @@ class TestDriver {
     	addpcs.push(new ChessPiece("BISHOP", "WHITE",
 			ChessPiece.convertStringLocToRowCol("C5", iswhitedown), gid, 1, false));
     	//print the board first
-    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
     	//console.log(nwpcslist);
     	ChessPiece.printBoard(nwpcslist);
     	//actually test the castling information here now...
@@ -1397,7 +1397,7 @@ class TestDriver {
     	addpcs.push(new ChessPiece("KNIGHT", "WHITE",
 			ChessPiece.convertStringLocToRowCol("F3", iswhitedown), gid, 3, false));
     	//print the board first
-    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
     	//console.log(nwpcslist);
     	ChessPiece.printBoard(nwpcslist);
     	//now test check and figure out how to get out of it
@@ -1440,7 +1440,7 @@ class TestDriver {
     	let ignorelist = [[6, 5]];//new int[1][2];
     	let gwklocs = ChessPiece.getPiecesGuardingLocation(7, 4, gid, ignorelist, addpcs);
     	console.log("addpcs = " + addpcs);
-    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
     	//console.log(nwpcslist);
     	ChessPiece.printBoard(nwpcslist);
     	console.log();
@@ -1555,7 +1555,7 @@ class TestDriver {
     	addpcs.push(new ChessPiece("PAWN", "BLACK",
 			ChessPiece.convertStringLocToRowCol("A6", iswhitedown), gid, 3, false));
     	//print the board first
-    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
     	//console.log(nwpcslist);
     	ChessPiece.printBoard(nwpcslist);
     	//test check mate and check detection here and methods determinging where a
@@ -1670,7 +1670,7 @@ class TestDriver {
     	addpcs.push(new ChessPiece("PAWN", "BLACK",
 			ChessPiece.convertStringLocToRowCol("G4", iswhitedown), gid, 1, false));
     	//print the board first
-    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
     	//console.log(nwpcslist);
     	ChessPiece.printBoard(nwpcslist);
     	//test check mate and check detection here and methods determinging where a
@@ -1754,7 +1754,7 @@ class TestDriver {
     	addpcs.push(new ChessPiece("PAWN", "BLACK",
 			ChessPiece.convertStringLocToRowCol("E3", iswhitedown), gid, 1, false));
     	//print the board first
-    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
     	//console.log(nwpcslist);
     	ChessPiece.printBoard(nwpcslist);
     	//test check mate and check detection here and methods determinging where a
@@ -1829,7 +1829,7 @@ class TestDriver {
     	let wkg = new ChessPiece("KING", "WHITE", 1, 2, gid, 5, false);
     	addpcs.push(wkg);
     	//print the board first
-    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
     	//console.log(nwpcslist);
     	ChessPiece.printBoard(nwpcslist);
     	//test stale mate and check detection here and methods determinging where a
@@ -1883,7 +1883,7 @@ class TestDriver {
     	addpcs.push(new ChessPiece("CASTLE", "BLACK", 7, 4, gid, 3, false));
     	addpcs.push(new ChessPiece("QUEEN", "BLACK", 5, 0, gid, 2, false));
     	//print the board first
-    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
     	//console.log(nwpcslist);
     	ChessPiece.printBoard(nwpcslist);
     	//test stale mate and check detection here and methods determinging where a
@@ -1975,7 +1975,7 @@ class TestDriver {
     	}
     	//else;//do nothing
     	//print the board first
-    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
     	//console.log(nwpcslist);
     	ChessPiece.printBoard(nwpcslist);
     	//test stale mate and check detection here and methods determinging where a
@@ -2087,7 +2087,7 @@ class TestDriver {
     		else addpcs.push(new ChessPiece("BISHOP", "WHITE", r, c, gid, 5, false));
     	}
     	//print the board first
-    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
     	//console.log(nwpcslist);
     	ChessPiece.printBoard(nwpcslist);
     	//test stale mate and check detection here and methods determinging where a
@@ -2159,7 +2159,7 @@ class TestDriver {
     	addpcs.push(new ChessPiece("PAWN", "WHITE", 2, 6, gid, 5, false));
     	addpcs.push(new ChessPiece("BISHOP", "WHITE", 3, 1, gid, 5, false));
     	//print the board first
-    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
     	//console.log(nwpcslist);
     	ChessPiece.printBoard(nwpcslist);
     	//test stale mate and check detection here and methods determinging where a
@@ -2216,7 +2216,7 @@ class TestDriver {
     	}
     	//do not need to add any pieces
     	//print the board first
-    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreLists(ignorelist, null, gid);
+    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, null, gid);
     	//console.log(nwpcslist);
     	ChessPiece.printBoard(nwpcslist);
     	//test stale mate and check detection here and methods determinging where a
@@ -2279,7 +2279,7 @@ class TestDriver {
     	addpcs.push(new ChessPiece("CASTLE", "BLACK", 0, 1, gid, 1, false));
     	addpcs.push(new ChessPiece("QUEEN", "BLACK", 5, 0, gid, 2, false));
     	//print the board first
-    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreLists(ignorelist, addpcs, gid);
+    	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
     	//console.log(nwpcslist);
     	ChessPiece.printBoard(nwpcslist);
     	//test stale mate and check detection here and methods determinging where a
