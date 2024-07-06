@@ -66,19 +66,21 @@ class ChessPiece {
 	//	this(tp, clr, r, c, gid, initmvcnt, true);
 	//}
 
-	static makeNewChessPieceWithTypeColorLocGIDAndMoveCount(tp="", clr="", loc, gid=-1,
-		initmvcnt=0)
+	static makeNewChessPieceMain(tp="", clr="", loc, gid=-1, addit=true)
+	{
+		return new ChessPiece(tp, clr, loc[0], loc[1], gid, 0, addit);
+	}
+	static makeNewChessPieceNoAddit(tp="", clr="", loc, gid=-1, initmvcnt=0)
 	{
 		return new ChessPiece(tp, clr, loc[0], loc[1], gid, initmvcnt, true);
 	}
 	static makeNewChessPieceWithTypeColorLocGID(tp="", clr="", loc, gid=-1)
 	{
-		return ChessPiece.makeNewChessPieceWithTypeColorLocGIDAndMoveCount(tp, clr, loc, gid, 0);
+		return ChessPiece.makeNewChessPieceNoAddit(tp, clr, loc, gid, 0);
 	}
 	static makeNewChessPieceWithTypeColorRowColGID(tp="", clr="", r=-1, c=-1, gid=-1)
 	{
-		return ChessPiece.makeNewChessPieceWithTypeColorLocGIDAndMoveCount(
-			tp, clr, [r, c], gid, 0);
+		return ChessPiece.makeNewChessPieceNoAddit(tp, clr, [r, c], gid, 0);
 	}
 	
 	getGameID()
@@ -1292,7 +1294,7 @@ class ChessPiece {
 		//console.log("NO ITEMS FOUND AT: " + ChessPiece.getLocString(rval, cval) + "!");
 		return null;
 	}
-	static getPieceAt(mloc, mpclist)
+	static getPieceAtMain(mloc, mpclist)
 	{
 		if (ChessPiece.cc.isStringEmptyNullOrUndefined(mloc) || mloc.length != 2)
 		{
@@ -1300,35 +1302,37 @@ class ChessPiece {
 		}
 		else return ChessPiece.getPieceAt(mloc[0], mloc[1], mpclist);
 	}
-	static getPieceAt(rval, cval, gid)//POSSIBLE RECURSION ERROR
+	static getPieceAtVIAGID(rval, cval, gid, ignorelist=null, addpcs=null)
 	{
 		ChessPiece.cc.letMustBeAnInteger(rval, "rval");
 		ChessPiece.cc.letMustBeAnInteger(cval, "cval");
 		ChessPiece.cc.letMustBeAnInteger(gid, "gid");
-		return ChessPiece.getPieceAt(rval, cval, ChessPiece.getAllPiecesWithGameID(gid));
+		
+		return ChessPiece.getPieceAt(rval, cval,
+			ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid));
 	}
-	static getPieceAt(mloc, gid)
+	static getPieceAtVIAGIDMain(mloc, gid, ignorelist=null, addpcs=null)
 	{
 		ChessPiece.cc.letMustBeAnInteger(gid, "gid");
 		if (ChessPiece.cc.isStringEmptyNullOrUndefined(mloc) || mloc.length != 2)
 		{
 			throw new Error("the loc array must have two integers on it!");
 		}
-		else return ChessPiece.getPieceAt(mloc[0], mloc[1], gid);
+		else return ChessPiece.getPieceAtVIAGID(mloc[0], mloc[1], gid, ignorelist, addpcs);
 	}
-	getPieceAt(rval, cval)//POSSIBLE RECURSION ERROR
+	getPieceAtFromMe(rval, cval)
 	{
 		ChessPiece.cc.letMustBeAnInteger(rval, "rval");
 		ChessPiece.cc.letMustBeAnInteger(cval, "cval");
 		return ChessPiece.getPieceAt(rval, cval, this.getAllPiecesWithGameID());
 	}
-	getPieceAt(mloc)
+	getPieceAtFromMeMain(mloc)
 	{
 		if (ChessPiece.cc.isStringEmptyNullOrUndefined(mloc) || mloc.length != 2)
 		{
 			throw new Error("the loc array must have two integers on it!");
 		}
-		else return this.getPieceAt(mloc[0], mloc[1]);
+		else return this.getPieceAtFromMe(mloc[0], mloc[1]);
 	}
 	
 	static isLocationEmpty(rval, cval, mpclist)
@@ -1338,51 +1342,48 @@ class ChessPiece {
 		let cp = ChessPiece.getPieceAt(rval, cval, mpclist);
 		return (ChessPiece.cc.isItemNullOrUndefined(cp));
 	}
-	static isLocationEmpty(rval, cval, gid)//POSSIBLE RECURSION ERROR
+	static isLocationEmptyMain(mloc, mpclist)
 	{
-		ChessPiece.cc.letMustBeAnInteger(rval, "rval");
-		ChessPiece.cc.letMustBeAnInteger(cval, "cval");
-		ChessPiece.cc.letMustBeAnInteger(gid, "gid");
-		let cp = ChessPiece.getPieceAt(rval, cval, gid);
-		return (ChessPiece.cc.isItemNullOrUndefined(cp));
+		if (ChessPiece.cc.isStringEmptyNullOrUndefined(mloc) || mloc.length != 2)
+		{
+			throw new Error("the loc array must have two integers on it!");
+		}
+		else return ChessPiece.isLocationEmptyVIAGID(mloc[0], mloc[1], mpclist);
 	}
 	//prioritize addpcs list above board list
-	static isLocationEmpty(rval, cval, gid, ignorelist=null, addpcs=null)
+	static isLocationEmptyVIAGID(rval, cval, gid, ignorelist=null, addpcs=null)
 	{
 		ChessPiece.cc.letMustBeAnInteger(rval, "rval");
 		ChessPiece.cc.letMustBeAnInteger(cval, "cval");
 		ChessPiece.cc.letMustBeAnInteger(gid, "gid");
-		if (ChessPiece.isLocationEmpty(rval, cval,
-			ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid)))
-		{
-			return true;
-		}
-		else return false;
+		let cp = ChessPiece.getPieceAtVIAGID(rval, cval, gid, ignorelist, addpcs);
+		return (ChessPiece.cc.isItemNullOrUndefined(cp));
 	}
-	static isLocationEmpty(mloc, gid)//POSSIBLE RECURSION ERROR
+	static isLocationEmptyVIAGIDMain(mloc, gid, ignorelist=null, addpcs=null)
 	{
 		ChessPiece.cc.letMustBeAnInteger(gid, "gid");
 		if (ChessPiece.cc.isStringEmptyNullOrUndefined(mloc) || mloc.length != 2)
 		{
 			throw new Error("the loc array must have two integers on it!");
 		}
-		else return ChessPiece.isLocationEmpty(mloc[0], mloc[1], gid);
+		else return ChessPiece.isLocationEmptyVIAGID(mloc[0], mloc[1], gid, ignorelist, addpcs);
 	}
-	isLocationEmpty(rval, cval)//POSSIBLE RECURSION ERROR
+	isLocationEmptyFromMe(rval, cval)
 	{
 		ChessPiece.cc.letMustBeAnInteger(rval, "rval");
 		ChessPiece.cc.letMustBeAnInteger(cval, "cval");
-		return ChessPiece.isLocationEmpty(rval, cval, this.getGameID());
+		return ChessPiece.isLocationEmptyVIAGID(rval, cval, this.getGameID());
 	}
-	isLocationEmpty(mloc)
+	isLocationEmptyFromMeMain(mloc)
 	{
 		if (ChessPiece.cc.isStringEmptyNullOrUndefined(mloc) || mloc.length != 2)
 		{
 			throw new Error("the loc array must have two integers on it!");
 		}
-		else return ChessPiece.isLocationEmpty(mloc[0], mloc[1], this.getGameID());
+		else return this.isLocationEmptyFromMe(mloc[0], mloc[1]);
 	}
 	
+
 	//FILTER METHODS BY COLOR, TYPE, OR BOTH
 	
 	static filterListByColorOrType(mylist, clrortpval, usetp)
@@ -1972,7 +1973,7 @@ class ChessPiece {
 	//--NEED PROMOTED AND TO PROMOTE THEM (DONE)
 	//IF THE GAME HAS NOT ENDED, THEN WHAT????
 	
-	static advanceTurnIfPossible(sidemoved, gid, undoifincheck=true, isuser, ignorelist=null,
+	static advanceTurnIfPossible(sidemoved, gid, isuser, undoifincheck=true, ignorelist=null,
 		addpcs=null)
 	{
 		ChessPiece.cc.letMustBeDefinedAndNotNull(sidemoved, "sidemoved");
@@ -1996,7 +1997,7 @@ class ChessPiece {
 				
 				//force the undo command on the last made move
 				//undo it
-		    	let myounmv = ChessPiece.genFullMoveCommandFromDisplayedCommand("UNDO", gid);
+		    	let myounmv = ChessPiece.genFullMoveCommandFromDisplayedCommandMain("UNDO", gid);
 		    	//console.log("MY UNDO MOVE:");
 		    	ChessPiece.convertAllShortHandMovesToLongVersion(myounmv);
 		    	
@@ -2070,25 +2071,14 @@ class ChessPiece {
 			}
 		}
 	}
-	static advanceTurnIfPossible(sidemoved, gid, undoifincheck=true, ignorelist=null, addpcs=null)
+	static advanceTurnIfPossibleMain(sidemoved, gid, undoifincheck=true,
+		ignorelist=null, addpcs=null)
 	{
-		ChessPiece.advanceTurnIfPossible(sidemoved, gid, undoifincheck,
-			ChessPiece.getGame(gid).doesColorMatchMyColor(sidemoved), ignorelist, addpcs);
+		ChessPiece.advanceTurnIfPossible(sidemoved, gid,
+			ChessPiece.getGame(gid).doesColorMatchMyColor(sidemoved), undoifincheck, ignorelist,
+			addpcs);
 	}
-	static advanceTurnIfPossible(sidemoved, gid, undoifincheck=true, isuser)
-	{
-		ChessPiece.advanceTurnIfPossible(sidemoved, gid, undoifincheck, isuser, null, null);
-	}
-	static advanceTurnIfPossible(sidemoved, gid, isuser)
-	{
-		ChessPiece.advanceTurnIfPossible(sidemoved, gid, true, isuser);
-	}
-	static advanceTurnIfPossible(sidemoved, gid)//POSSIBLE RECURSION ERROR
-	{
-		ChessPiece.advanceTurnIfPossible(sidemoved, gid, true,
-			ChessPiece.getGame(gid).doesColorMatchMyColor(sidemoved));
-	}
-	static advanceTurnIfPossible(gid, isuser)//POSSIBLE RECURSION ERROR
+	static advanceTurnIfPossibleViaTheUnofficialMove(gid, isuser)
 	{
 		ChessPiece.cc.letMustBeBoolean(isuser, "isuser");
 		ChessPiece.cc.letMustBeAnInteger(gid, "gid");
@@ -2212,12 +2202,14 @@ class ChessPiece {
 		return false;
 	}
 	//combines with the current board list prioritizes: boardlist < ignorelist < addpcs. 
-	static isPieceAtLocationOnAListOfTypes(rval, cval, gid, mtypes, ignorelist=null, addpcs=null)
+	static isPieceAtLocationOnAListOfTypesGenPieceList(rval, cval, gid, mtypes,
+		ignorelist=null, addpcs=null)
 	{
 		return ChessPiece.isPieceAtLocationOnAListOfTypes(rval, cval, mtypes,
 			ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid));
 	}
-	static isPieceAtLocationOnAListOfTypes(loc, gid, mtypes, ignorelist=null, addpcs=null)
+	static isPieceAtLocationOnAListOfTypesGenPieceListMain(loc, gid, mtypes,
+		ignorelist=null, addpcs=null)
 	{
 		if (ChessPiece.cc.isStringEmptyNullOrUndefined(loc) || loc.length != 2)
 		{
@@ -2261,10 +2253,13 @@ class ChessPiece {
 			let c = cval;
 			while (ChessPiece.isvalidrorc(r) && ChessPiece.isvalidrorc(c))
 			{
-				if (ChessPiece.isPieceAtLocationOnAListOfTypes(r, c, gid, myvtps)) return true;
+				if (ChessPiece.isPieceAtLocationOnAListOfTypesGenPieceList(r, c, gid, myvtps))
+				{
+					return true;
+				}
 				else
 				{
-					if (ChessPiece.isLocationEmpty(r, c, gid));
+					if (ChessPiece.isLocationEmptyVIAGID(r, c, gid));
 					else
 					{
 						if (r === rval && c === cval);
@@ -2336,10 +2331,13 @@ class ChessPiece {
 		let myvtps = ["CASTLE", "ROOK", "QUEEN", "KING"];
 		for (let r = rval; r < 8; r++)
 		{
-			if (ChessPiece.isPieceAtLocationOnAListOfTypes(r, cval, gid, myvtps)) return true;
+			if (ChessPiece.isPieceAtLocationOnAListOfTypesGenPieceList(r, cval, gid, myvtps))
+			{
+				return true;
+			}
 			else
 			{
-				if (ChessPiece.isLocationEmpty(r, cval, gid));
+				if (ChessPiece.isLocationEmptyVIAGID(r, cval, gid));
 				else
 				{
 					if (r === rval);
@@ -2349,10 +2347,13 @@ class ChessPiece {
 		}
 		for (let r = rval; ((r === 0 || 0 < r) && r < 8); r--)
 		{
-			if (ChessPiece.isPieceAtLocationOnAListOfTypes(r, cval, gid, myvtps)) return true;
+			if (ChessPiece.isPieceAtLocationOnAListOfTypesGenPieceList(r, cval, gid, myvtps))
+			{
+				return true;
+			}
 			else
 			{
-				if (ChessPiece.isLocationEmpty(r, cval, gid));
+				if (ChessPiece.isLocationEmptyVIAGID(r, cval, gid));
 				else
 				{
 					if (r === rval);
@@ -2362,10 +2363,13 @@ class ChessPiece {
 		}
 		for (let c = cval; c < 8; c++)
 		{
-			if (ChessPiece.isPieceAtLocationOnAListOfTypes(rval, c, gid, myvtps)) return true;
+			if (ChessPiece.isPieceAtLocationOnAListOfTypesGenPieceList(rval, c, gid, myvtps))
+			{
+				return true;
+			}
 			else
 			{
-				if (ChessPiece.isLocationEmpty(rval, c, gid));
+				if (ChessPiece.isLocationEmptyVIAGID(rval, c, gid));
 				else
 				{
 					if (c === cval);
@@ -2375,10 +2379,13 @@ class ChessPiece {
 		}
 		for (let c = cval; ((c === 0 || 0 < c) && c < 8); c--)
 		{
-			if (ChessPiece.isPieceAtLocationOnAListOfTypes(rval, c, gid, myvtps)) return true;
+			if (ChessPiece.isPieceAtLocationOnAListOfTypesGenPieceList(rval, c, gid, myvtps))
+			{
+				return true;
+			}
 			else
 			{
-				if (ChessPiece.isLocationEmpty(rval, c, gid));
+				if (ChessPiece.isLocationEmptyVIAGID(rval, c, gid));
 				else
 				{
 					if (c === cval);
@@ -2415,8 +2422,8 @@ class ChessPiece {
 		{
 			if (ChessPiece.isvalidrorc(pklocs[x][0]) && ChessPiece.isvalidrorc(pklocs[x][1]))
 			{
-				if (ChessPiece.isPieceAtLocationOnAListOfTypes(pklocs[x][0], pklocs[x][1],
-					gid, mvtps))
+				if (ChessPiece.isPieceAtLocationOnAListOfTypesGenPieceList(pklocs[x][0],
+					pklocs[x][1], gid, mvtps))
 				{
 					return true;
 				}
@@ -2518,8 +2525,7 @@ class ChessPiece {
 		{
 			//is there a piece on the add list that matches the loc?
 			loconiglist = true;
-			let cp = ChessPiece.getPieceAt(rval, cval,
-				ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid));
+			let cp = ChessPiece.getPieceAtVIAGID(rval, cval, gid, ignorelist, addpcs);
 			if (ChessPiece.cc.isItemNullOrUndefined(cp));
 			else
 			{
@@ -2574,8 +2580,8 @@ class ChessPiece {
 			else
 			{
 				if ((loconiglist && pcatloconiglist && isvpctpeoniglist) || (!loconiglist &&
-						ChessPiece.isPieceAtLocationOnAListOfTypes(rval, cval, gid, mvtps,
-							ignorelist, addpcs)))
+						ChessPiece.isPieceAtLocationOnAListOfTypesGenPieceList(rval, cval, gid,
+							mvtps, ignorelist, addpcs)))
 				{
 					if (ChessPiece.cc.isItemNullOrUndefined(gpcs)) gpcs = [];
 					//else;//do nothing
@@ -2614,8 +2620,8 @@ class ChessPiece {
 				//else;//do nothing
 				
 				if ((loconiglist && pcatloconiglist && isvpctpeoniglist) || (!loconiglist &&
-					ChessPiece.isPieceAtLocationOnAListOfTypes(pklocs[x][0], pklocs[x][1], gid,
-						mvtps, ignorelist, addpcs)))
+					ChessPiece.isPieceAtLocationOnAListOfTypesGenPieceList(pklocs[x][0],
+						pklocs[x][1], gid, mvtps, ignorelist, addpcs)))
 				{
 					if (ChessPiece.cc.isItemNullOrUndefined(gpcs)) gpcs = [];
 					//else;//do nothing
@@ -2749,7 +2755,7 @@ class ChessPiece {
 		if (gid < 1) throw new Error("GAME ID must be at least 1!");
 		else
 		{
-			return ChessPiece.getCanAddPieceToGList(ChessPiece.getPieceAt(rval, cval, gid),
+			return ChessPiece.getCanAddPieceToGList(ChessPiece.getPieceAtVIAGID(rval, cval, gid),
 				myvtps, srval, scval, initaddit, usecdiff);
 		}
 	}
@@ -2880,7 +2886,7 @@ class ChessPiece {
 				{
 					let locntempty = true;
 					if ((loconiglist && pcatloconiglist && isvpctpeoniglist) || (!loconiglist &&
-						ChessPiece.isPieceAtLocationOnAListOfTypes(r, c, gid, myvtps,
+						ChessPiece.isPieceAtLocationOnAListOfTypesGenPieceList(r, c, gid, myvtps,
 							ignorelist, addpcs)))
 					{
 						let addit = true;
@@ -2921,7 +2927,7 @@ class ChessPiece {
 						if (loconiglist);//the location is not empty
 						else
 						{
-							if (ChessPiece.isLocationEmpty(r, c, gid, ignorelist, addpcs))
+							if (ChessPiece.isLocationEmptyVIAGID(r, c, gid, ignorelist, addpcs))
 							{
 								locntempty = false;
 							}
@@ -3055,8 +3061,8 @@ class ChessPiece {
 			
 			let locntempty = true;
 			if ((loconiglist && pcatloconiglist && isvpctpeoniglist) ||
-				(!loconiglist && ChessPiece.isPieceAtLocationOnAListOfTypes(r, cval, gid,
-					myvtps, ignorelist, addpcs)))
+				(!loconiglist && ChessPiece.isPieceAtLocationOnAListOfTypesGenPieceList(r, cval,
+					gid, myvtps, ignorelist, addpcs)))
 			{
 				//console.log("INSIDE IF STATEMENT!");
 				
@@ -3088,7 +3094,7 @@ class ChessPiece {
 				if (loconiglist);//the location is not empty
 				else
 				{
-					if (ChessPiece.isLocationEmpty(r, cval, gid, ignorelist, addpcs))
+					if (ChessPiece.isLocationEmptyVIAGID(r, cval, gid, ignorelist, addpcs))
 					{
 						locntempty = false;
 					}
@@ -3130,8 +3136,8 @@ class ChessPiece {
 			
 			let locntempty = true;
 			if ((loconiglist && pcatloconiglist && isvpctpeoniglist) ||
-				(!loconiglist && ChessPiece.isPieceAtLocationOnAListOfTypes(r, cval, gid,
-					myvtps, ignorelist, addpcs)))
+				(!loconiglist && ChessPiece.isPieceAtLocationOnAListOfTypesGenPieceList(r, cval,
+					gid, myvtps, ignorelist, addpcs)))
 			{
 				//console.log("INSIDE IF STATEMENT!");
 				if (r === rval);
@@ -3168,7 +3174,7 @@ class ChessPiece {
 				if (loconiglist);//the location is not empty
 				else
 				{
-					if (ChessPiece.isLocationEmpty(r, cval, gid, ignorelist, addpcs))
+					if (ChessPiece.isLocationEmptyVIAGID(r, cval, gid, ignorelist, addpcs))
 					{
 						locntempty = false;
 					}
@@ -3210,8 +3216,8 @@ class ChessPiece {
 			
 			let locntempty = true;
 			if ((loconiglist && pcatloconiglist && isvpctpeoniglist) || (!loconiglist &&
-				ChessPiece.isPieceAtLocationOnAListOfTypes(rval, c, gid, myvtps, ignorelist,
-					addpcs)))
+				ChessPiece.isPieceAtLocationOnAListOfTypesGenPieceList(rval, c, gid, myvtps,
+					ignorelist, addpcs)))
 			{
 				//console.log("INSIDE IF STATEMENT!");
 				if (c === cval);
@@ -3248,7 +3254,7 @@ class ChessPiece {
 				if (loconiglist);//the location is not empty
 				else
 				{
-					if (ChessPiece.isLocationEmpty(rval, c, gid, ignorelist, addpcs))
+					if (ChessPiece.isLocationEmptyVIAGID(rval, c, gid, ignorelist, addpcs))
 					{
 						locntempty = false;
 					}
@@ -3290,8 +3296,8 @@ class ChessPiece {
 			
 			let locntempty = true;
 			if ((loconiglist && pcatloconiglist && isvpctpeoniglist) || (!loconiglist &&
-				ChessPiece.isPieceAtLocationOnAListOfTypes(rval, c, gid, myvtps, ignorelist,
-					addpcs)))
+				ChessPiece.isPieceAtLocationOnAListOfTypesGenPieceList(rval, c, gid, myvtps,
+					ignorelist, addpcs)))
 			{
 				//console.log("INSIDE IF STATEMENT!");
 				if (c === cval);
@@ -3328,7 +3334,7 @@ class ChessPiece {
 				if (loconiglist);//the location is not empty
 				else
 				{
-					if (ChessPiece.isLocationEmpty(rval, c, gid, ignorelist, addpcs))
+					if (ChessPiece.isLocationEmptyVIAGID(rval, c, gid, ignorelist, addpcs))
 					{
 						locntempty = false;
 					}
@@ -3460,7 +3466,7 @@ class ChessPiece {
 				gid, ignorelist, addpcs), clrval);
 		}
 	}
-	static getSidePiecesGuardingLocation(loc, gid, clrval, ignorelist=null, addpcs=null)
+	static getSidePiecesGuardingLocationMain(loc, gid, clrval, ignorelist=null, addpcs=null)
 	{
 		if (ChessPiece.cc.isStringEmptyNullOrUndefined(loc) || loc.length != 2)
 		{
@@ -3472,9 +3478,9 @@ class ChessPiece {
 				ignorelist, addpcs);
 		}
 	}
-	static getSidePiecesGuardingLocation(rval, cval, gid, ignorelist=null, addpcs=null)
+	static getSidePiecesGuardingLocationUseCPColor(rval, cval, gid, ignorelist=null, addpcs=null)
 	{
-		let cp = ChessPiece.getPieceAt(rval, cval, gid);
+		let cp = ChessPiece.getPieceAtVIAGID(rval, cval, gid, ignorelist, addpcs);
 		if (ChessPiece.cc.isItemNullOrUndefined(cp)) return null;
 		else
 		{
@@ -3482,7 +3488,7 @@ class ChessPiece {
 				ignorelist, addpcs);
 		}
 	}
-	static getSidePiecesGuardingLocation(loc, gid, ignorelist=null, addpcs=null)
+	static getSidePiecesGuardingLocationUseCPColorMain(loc, gid, ignorelist=null, addpcs=null)
 	{
 		if (ChessPiece.cc.isStringEmptyNullOrUndefined(loc) || loc.length != 2)
 		{
@@ -3490,7 +3496,7 @@ class ChessPiece {
 		}
 		else
 		{
-			return ChessPiece.getSidePiecesGuardingLocation(loc[0], loc[1], gid,
+			return ChessPiece.getSidePiecesGuardingLocationUseCPColor(loc[0], loc[1], gid,
 				ignorelist, addpcs);
 		}
 	}
@@ -3508,7 +3514,7 @@ class ChessPiece {
 		return ChessPiece.getSidePiecesGuardingLocation(rval, cval, gid,
 			ChessPiece.getOppositeColor(clrval), ignorelist, addpcs);
 	}
-	static getEnemyPiecesGuardingLocation(loc, gid, clrval, ignorelist=null, addpcs=null)
+	static getEnemyPiecesGuardingLocationMain(loc, gid, clrval, ignorelist=null, addpcs=null)
 	{
 		if (ChessPiece.cc.isStringEmptyNullOrUndefined(loc) || loc.length != 2)
 		{
@@ -3520,9 +3526,9 @@ class ChessPiece {
 				ignorelist, addpcs);
 		}
 	}
-	static getEnemyPiecesGuardingLocation(rval, cval, gid, ignorelist=null, addpcs=null)
+	static getEnemyPiecesGuardingLocationUseCPColor(rval, cval, gid, ignorelist=null, addpcs=null)
 	{
-		let cp = ChessPiece.getPieceAt(rval, cval, gid);
+		let cp = ChessPiece.getPieceAtVIAGID(rval, cval, gid, ignorelist, addpcs);
 		if (ChessPiece.cc.isItemNullOrUndefined(cp)) return null;
 		else
 		{
@@ -3530,7 +3536,7 @@ class ChessPiece {
 				ChessPiece.getOppositeColor(cp.getColor()), ignorelist, addpcs);
 		}
 	}
-	static getEnemyPiecesGuardingLocation(loc, gid, ignorelist=null, addpcs=null)
+	static getEnemyPiecesGuardingLocationUseCPColorMain(loc, gid, ignorelist=null, addpcs=null)
 	{
 		if (ChessPiece.cc.isStringEmptyNullOrUndefined(loc) || loc.length != 2)
 		{
@@ -3538,7 +3544,7 @@ class ChessPiece {
 		}
 		else
 		{
-			return ChessPiece.getEnemyPiecesGuardingLocation(loc[0], loc[1], gid,
+			return ChessPiece.getEnemyPiecesGuardingLocationUseCPColor(loc[0], loc[1], gid,
 				ignorelist, addpcs);
 		}
 	}
@@ -3661,7 +3667,7 @@ class ChessPiece {
 		//else;//do nothing
 		let initbdpcs = ChessPiece.combineBoardAddAndIgnoreListsMain(oignorelist, oaddpcs, gid);
 		let cp = ChessPiece.getPieceAt(nr, nc, initbdpcs);
-		//console.log("cp = " + cp);
+		//console.log("cp = ", cp);
 		
 		let addit = true;
 		if (ChessPiece.cc.isItemNullOrUndefined(cp));
@@ -3835,8 +3841,7 @@ class ChessPiece {
 					}
 				}
 				//else;//do nothing
-				let cp = ChessPiece.getPieceAt(r, c,
-					ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid));
+				let cp = ChessPiece.getPieceAtVIAGID(r, c, gid, ignorelist, addpcs);
 				//console.log("cp = " + cp);
 				if (ChessPiece.cc.isItemNullOrUndefined(cp));
 				else
@@ -3937,8 +3942,7 @@ class ChessPiece {
 				kli++;
 			}
 			//else;//do nothing
-			let cp = ChessPiece.getPieceAt(r, sc,
-				ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid));
+			let cp = ChessPiece.getPieceAtVIAGID(r, sc, gid, ignorelist, addpcs);
 			//console.log("cp = " + cp);
 			if (ChessPiece.cc.isItemNullOrUndefined(cp));
 			else break;
@@ -3959,8 +3963,7 @@ class ChessPiece {
 				kli++;
 			}
 			//else;//do nothing
-			let cp = ChessPiece.getPieceAt(r, sc,
-				ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid));
+			let cp = ChessPiece.getPieceAtVIAGID(r, sc, gid, ignorelist, addpcs);
 			//console.log("cp = " + cp);
 			if (ChessPiece.cc.isItemNullOrUndefined(cp));
 			else break;
@@ -3982,8 +3985,7 @@ class ChessPiece {
 				kli++;
 			}
 			//else;//do nothing
-			let cp = ChessPiece.getPieceAt(sr, c,
-				ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid));
+			let cp = ChessPiece.getPieceAtVIAGID(sr, c, gid, ignorelist, addpcs);
 			//console.log("cp = " + cp);
 			if (ChessPiece.cc.isItemNullOrUndefined(cp));
 			else break;
@@ -4004,8 +4006,7 @@ class ChessPiece {
 				kli++;
 			}
 			//else;//do nothing
-			let cp = ChessPiece.getPieceAt(sr, c,
-				ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid));
+			let cp = ChessPiece.getPieceAtVIAGID(sr, c, gid, ignorelist, addpcs);
 			//console.log("cp = " + cp);
 			if (ChessPiece.cc.isItemNullOrUndefined(cp));
 			else break;
@@ -4257,12 +4258,12 @@ class ChessPiece {
 		{
 			for (let c = sci; ((0 < c || c === 0) && c < 8) && c < sc + 2; c++)
 			{
-				//console.log("r = " + r);
-				//console.log("c = " + c);
+				console.log("r = " + r);
+				console.log("c = " + c);
 				if (ChessPiece.canAddThisMoveToLoc(sr, sc, r, c, myclr, "KING",
 					gid, ignorelist, addpcs))//(r === sr && c === sc) || 
 				{
-					//console.log("ADD LOCATION!");
+					console.log("ADD LOCATION!");
 					//if (ChessPiece.isLocOnListOfLocs(r, c, keeplist));
 					//else
 					//{
@@ -4279,7 +4280,11 @@ class ChessPiece {
 		//copy keeplist to rlist
 		let rlist = [];//new int[kli][2];
 		for (let x = 0; x < kli; x++) rlist.push([keeplist[x][0], keeplist[x][1]]);
-		if (rlist.length === kli && rlist[0].length === 2) return rlist;
+		console.log("rlist = ", rlist);
+		if (rlist.length === kli && (kli === 0 || (0 < kli && rlist[0].length === 2)))
+		{
+			return rlist;
+		}
 		else throw new Error("illegal resultant array size for the list of locs!");
 	}
 	
@@ -4392,7 +4397,8 @@ class ChessPiece {
 				let numadd = 0;
 				if (ccleft)
 				{
-					clftloc = ChessPiece.getLeftCastleSideNewKingLocMain(myclr, gid, ignorelist, addpcs);
+					clftloc = ChessPiece.getLeftCastleSideNewKingLocMain(myclr, gid, ignorelist,
+						addpcs);
 					numadd++;
 					//console.log("clftloc[0] = " + clftloc[0]);
 					//console.log("clftloc[1] = " + clftloc[1]);
@@ -4480,7 +4486,8 @@ class ChessPiece {
 				}
 				else
 				{
-					return ChessPiece.getAllKingCanMoveToLocs(sr, sc, myclr, gid, ignorelist, addpcs);
+					return ChessPiece.getAllKingCanMoveToLocs(sr, sc, myclr, gid, ignorelist,
+						addpcs);
 				}
 			}
 			else if (mytpval === "KNIGHT")
@@ -4534,8 +4541,7 @@ class ChessPiece {
 				//console.log("r = " + r);
 				//console.log("c = " + c);
 				
-				let cp = ChessPiece.getPieceAt(r, c,
-					ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid));
+				let cp = ChessPiece.getPieceAtVIAGID(r, c, gid, ignorelist, addpcs);
 				//console.log("cp = " + cp);
 				
 				if (ChessPiece.cc.isItemNullOrUndefined(cp));
@@ -4996,6 +5002,12 @@ class ChessPiece {
 	static isPieceAtLocFreeToMoveAround(sr, sc, gid, ignorelist=null, addpcs=null, 
 		nocsling=false, bpassimnxtmv=false)
 	{
+		//console.log("sr = " + sr);
+		//console.log("sc = " + sc);
+		//console.log("gid = " + gid);
+		//console.log("nocsling = " + nocsling);
+		//console.log("bpassimnxtmv = " + bpassimnxtmv);
+		
 		ChessPiece.cc.letMustBeAnInteger(gid, "gid");
 		ChessPiece.cc.letMustBeAnInteger(sr, "sr");
 		ChessPiece.cc.letMustBeAnInteger(sc, "sc");
@@ -5004,22 +5016,21 @@ class ChessPiece {
 		
 		let allpcs = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
 		let cp = ChessPiece.getPieceAt(sr, sc, allpcs);
-		//console.log("sr = " + sr);
-		//console.log("sc = " + sc);
-		//console.log("cp = " + cp);
+		console.log("cp = ", cp);
 		if (ChessPiece.cc.isItemNullOrUndefined(cp)) return false;
 		else
 		{
 			let mvlocs = ChessPiece.getPieceCanMoveToLocs(sr, sc, cp.getColor(), cp.getType(), gid, 
 				ignorelist, addpcs, nocsling, bpassimnxtmv);
+			console.log("mvlocs = ", mvlocs);
 			if (ChessPiece.cc.isStringEmptyNullOrUndefined(mvlocs))
 			{
-				//console.log("MOVELOCS IS EMPTY!");
+				console.log("MOVELOCS IS EMPTY!");
 				return false;
 			}
 			else
 			{
-				//console.log("mvlocs.length = " + mvlocs.length);
+				console.log("mvlocs.length = " + mvlocs.length);
 				if (mvlocs.length === 1)
 				{
 					//console.log("mvlocs[0][0] = " + mvlocs[0][0]);
@@ -5495,6 +5506,7 @@ class ChessPiece {
 		if (ChessPiece.isPieceAtLocFreeToMoveAround(mkg.getRow(), mkg.getCol(), gid,
 			ignorelist, addpcs, true, false))
 		{
+			console.log("NOT CHECKMATE!");
 			return false;
 		}
 		//can move out of check
@@ -6831,7 +6843,7 @@ class ChessPiece {
 	//MAIN GEN MOVE TO COMMAND METHODS
 	
 	static genMoveToCommand(clr, tp, crval, ccval, nrval, ncval, gid, ignorelist=null,
-		addpcs=null, usecslingasmv=false, ptpval="QUEEN", bpassimnxtmv=false)
+		addpcs=null, ptpval="QUEEN", usecslingasmv=false, bpassimnxtmv=false)
 	{
 		ChessPiece.cc.letMustBeAnInteger(crval, "crval");
 		ChessPiece.cc.letMustBeAnInteger(ccval, "ccval");
@@ -7014,16 +7026,11 @@ class ChessPiece {
 		if (mvcmd.length === mxcnt);
 		else throw new Error("mvcmd does not have the correct size!");
 		return ChessPiece.getShortHandMoves(mvcmd);
-		//return ChessPiece.convertAllShortHandMovesToLongVersion(ChessPiece.getShortHandMoves(mvcmd));
+		//return ChessPiece.convertAllShortHandMovesToLongVersion(
+		//	ChessPiece.getShortHandMoves(mvcmd));
 	}
-	static genMoveToCommand(clr, tp, crval, ccval, nrval, ncval, gid, ignorelist=null,
-		addpcs=null, ptpval="QUEEN")
-	{
-		return ChessPiece.genMoveToCommand(clr, tp, crval, ccval, nrval, ncval, gid,
-			ignorelist, addpcs, false, ptpval, false);
-	}
-	static genMoveToCommand(clr, tp, cloc, nloc, gid,
-		ignorelist=null, addpcs=null, usecslingasmv=false, ptpval="QUEEN")
+	static genMoveToCommandMain(clr, tp, cloc, nloc, gid,
+		ignorelist=null, addpcs=null, ptpval="QUEEN", usecslingasmv=false, bpassimnxtmv=false)
 	{
 		if (ChessPiece.cc.isStringEmptyNullOrUndefined(cloc) || cloc.length != 2)
 		{
@@ -7037,20 +7044,10 @@ class ChessPiece {
 		//else;//do nothing
 		
 		return ChessPiece.genMoveToCommand(clr, tp, cloc[0], cloc[1], nloc[0], nloc[1], gid,
-			ignorelist, addpcs, usecslingasmv, ptpval, false);
+			ignorelist, addpcs, ptpval, usecslingasmv, bpassimnxtmv);
 	}
-	static genMoveToCommand(clr, tp, cloc, nloc, gid,
-		ignorelist=null, addpcs=null, ptpval="QUEEN")
-	{
-		return ChessPiece.genMoveToCommand(clr, tp, cloc, nloc, gid, ignorelist, addpcs, false, ptpval);
-	}
-	static genMoveToCommand(clr, tp, cloc, nloc, gid, ignorelist=null, addpcs=null)
-	{
-		return ChessPiece.genMoveToCommand(clr, tp, cloc, nloc, gid, ignorelist,
-			addpcs, false, "QUEEN");
-	}
-	static genMoveToCommand(cp, nrval, ncval, gid, ignorelist=null, addpcs=null,
-		usecslingasmv=false, ptpval="QUEEN")
+	static genMoveToCommandVIACP(cp, nrval, ncval, gid, ignorelist=null, addpcs=null,
+		ptpval="QUEEN", usecslingasmv=false, bpassimnxtmv=false)
 	{
 		if (ChessPiece.cc.isItemNullOrUndefined(cp))
 		{
@@ -7060,39 +7057,37 @@ class ChessPiece {
 		else
 		{
 			return ChessPiece.genMoveToCommand(cp.getColor(), cp.getType(), cp.getRow(),
-				cp.getCol(), nrval, ncval, gid, ignorelist, addpcs, usecslingasmv, ptpval, false);
+				cp.getCol(), nrval, ncval, gid, ignorelist, addpcs, ptpval, usecslingasmv,
+				bpassimnxtmv);
 		}
 	}
-	static genMoveToCommand(cp, nrval, ncval, gid, ignorelist=null, addpcs=null, ptpval="QUEEN")
-	{
-		return ChessPiece.genMoveToCommand(cp, nrval, ncval, gid, ignorelist, addpcs, false, ptpval);
-	}
-	static genMoveToCommand(cp, nloc, gid, ignorelist=null, addpcs=null,
-		usecslingasmv=false, ptpval="QUEEN")
+	static genMoveToCommandMainVIACP(cp, nloc, gid, ignorelist=null, addpcs=null, ptpval="QUEEN",
+		usecslingasmv=false, bpassimnxtmv=false)
 	{
 		if (ChessPiece.cc.isStringEmptyNullOrUndefined(nloc) || nloc.length != 2)
 		{
 			throw new Error("You need to provide the next chess piece location!");
 		}
-		//else;//do nothing
-		
-		if (ChessPiece.cc.isItemNullOrUndefined(cp))
-		{
-			throw new Error("You need to provide the current chess piece location and " +
-				"the new location!");
-		}
 		else
 		{
-			return ChessPiece.genMoveToCommand(cp.getColor(), cp.getType(), cp.getRow(), cp.getCol(),
-				nloc[0], nloc[1], gid, ignorelist, addpcs, usecslingasmv, ptpval, false);
+			return ChessPiece.genMoveToCommandVIACP(cp, nloc[0], nloc[1], gid, ignorelist,
+				addpcs, ptpval, usecslingasmv, bpassimnxtmv);
 		}
 	}
-	static genMoveToCommand(cp, nloc, gid, ignorelist=null, addpcs=null, ptpval="QUEEN")
+	static genMoveToCommandNoListsVIACP(cp, nloc, gid, ptpval="QUEEN",
+		usecslingasmv=false, bpassimnxtmv=false)
 	{
-		return ChessPiece.genMoveToCommand(cp, nloc, gid, ignorelist, addpcs, false, ptpval);
+		return ChessPiece.genMoveToCommandMainVIACP(cp, nloc, gid, null, null, ptpval,
+			usecslingasmv, bpassimnxtmv);
 	}
+	static genMoveToCommandNoListsMainVIACP(cp, nloc, gid, usecslingasmv=false, bpassimnxtmv=false)
+	{
+		return ChessPiece.genMoveToCommandNoListsVIACP(cp, nloc, gid, null, null, "QUEEN",
+			usecslingasmv, bpassimnxtmv);
+	} 
 	//non-static version convenience method
-	genMoveToCommand(nloc, ignorelist=null, addpcs=null, usecslingasmv=false, ptpval="QUEEN")
+	genMoveToCommandFromMe(nloc, ignorelist=null, addpcs=null, ptpval="QUEEN",
+		usecslingasmv=false, bpassimnxtmv=false)
 	{
 		if (ChessPiece.cc.isStringEmptyNullOrUndefined(nloc) || nloc.length != 2)
 		{
@@ -7100,41 +7095,39 @@ class ChessPiece {
 		}
 		else
 		{
-			return this.genMoveToCommand(this, nloc, this.getGameID(), ignorelist, addpcs,
-				usecslingasmv, ptpval);
+			return ChessPiece.genMoveToCommandMainVIACP(this, nloc, this.getGameID(), ignorelist,
+				addpcs, ptpval, usecslingasmv, bpassimnxtmv);
 		}
 	}
-	genMoveToCommand(nloc, ignorelist=null, addpcs=null, ptpval="QUEEN")
+	genMoveToCommandFromMeVIALocNoLists(nloc, ptpval="QUEEN", usecslingasmv=false,
+		bpassimnxtmv=false)
 	{
-		return this.genMoveToCommand(nloc, ignorelist, addpcs, false, ptpval);
+		return this.genMoveToCommandFromMe(nloc, null, null, ptpval, usecslingasmv,
+			bpassimnxtmv);
 	}
-	genMoveToCommand(nloc, usecslingasmv=false, ptpval="QUEEN")
+	genMoveToCommandFromMeVIALocNoListsMain(nloc, usecslingasmv=false, bpassimnxtmv=false)
 	{
-		return this.genMoveToCommand(nloc, null, null, usecslingasmv, ptpval);
+		return this.genMoveToCommandFromMeVIALocNoLists(nloc, "QUEEN", usecslingasmv,
+			bpassimnxtmv);
 	}
-	genMoveToCommand(nloc, usecslingasmv=false)
+	genMoveToCommandFromMeMain(nrval, ncval, ignorelist=null, addpcs=null, ptpval="QUEEN",
+		usecslingasmv=false, bpassimnxtmv=false)
 	{
-		return this.genMoveToCommand(nloc, usecslingasmv, "QUEEN");
+		return ChessPiece.genMoveToCommandVIACP(this, nrval, ncval, this.getGameID(), ignorelist,
+			addpcs, ptpval, usecslingasmv, bpassimnxtmv);
 	}
-	genMoveToCommand(nloc, ptpval="QUEEN")
+	genMoveToCommandFromMeNoLists(nrval, ncval, ptpval="QUEEN", usecslingasmv=false,
+		bpassimnxtmv=false)
 	{
-		return this.genMoveToCommand(nloc, false, ptpval);
+		return this.genMoveToCommandFromMeMain(nrval, ncval, null, null, ptpval,
+			usecslingasmv, bpassimnxtmv);
 	}
-	genMoveToCommand(nrval, ncval, ignorelist=null, addpcs=null, usecslingasmv=false,
-		ptpval="QUEEN")
+	genMoveToCommandFromMeNoListsMain(nrval, ncval, usecslingasmv=false, bpassimnxtmv=false)
 	{
-		return this.genMoveToCommand(this, nrval, ncval, this.getGameID(), ignorelist, addpcs,
-			usecslingasmv, ptpval);
+		return this.genMoveToCommandFromMeNoLists(nrval, ncval, "QUEEN", usecslingasmv,
+			bpassimnxtmv);
 	}
-	genMoveToCommand(nrval, ncval, ignorelist=null, addpcs=null)
-	{
-		return this.genMoveToCommand(nrval, ncval, ignorelist, addpcs, false);
-	}
-	genMoveToCommand(nrval, ncval, usecslingasmv=false)
-	{
-		return this.genMoveToCommand(nrval, ncval, null, null, usecslingasmv);
-	}
-	
+
 	
 	//UNDO OR REDO COMMANDS
 	
@@ -7815,7 +7808,11 @@ class ChessPiece {
 			}
 			else
 			{
-				if (cp.getType() === ChessPiece.getLongHandType(mytp) && cp.getColor() === fullclr);
+				if (cp.getType() === ChessPiece.getLongHandType(mytp) &&
+					cp.getColor() === fullclr)
+				{
+					//do nothing
+				}
 				else throw new Error("the current piece was not of the correct type and color!");
 			}
 			
@@ -7901,21 +7898,16 @@ class ChessPiece {
 		}
 		else throw new Error("ILLEGAL TYPE FOUND FOR COMMAND (" + usrcmd + ")!");
 	}
-	static genFullMoveCommandFromDisplayedCommand(usrcmd, gid, ptpval="QUEEN",
+	static genFullMoveCommandFromDisplayedCommandMain(usrcmd, gid, ptpval="QUEEN",
 		iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, bpassimnxtmv=false)
 	{
 		return ChessPiece.genFullMoveCommandFromDisplayedCommand(usrcmd, gid, ptpval, null, null,
 			iswhitedown, bpassimnxtmv);
 	}
-	static genFullMoveCommandFromDisplayedCommand(usrcmd, gid)
+	genFullMoveCommandFromDisplayedCommandFromMe(usrcmd, ptpval="QUEEN")
 	{
-		return ChessPiece.genFullMoveCommandFromDisplayedCommand(usrcmd, gid, "QUEEN", null, null,
-			ChessPiece.WHITE_MOVES_DOWN_RANKS, false);
-	}
-	genFullMoveCommandFromDisplayedCommand(usrcmd, ptpval="QUEEN")
-	{
-		return this.genFullMoveCommandFromDisplayedCommand(usrcmd, this.getGameID(), ptpval, null,
-			null, ChessPiece.WHITE_MOVES_DOWN_RANKS, false);
+		return ChessPiece.genFullMoveCommandFromDisplayedCommand(usrcmd, this.getGameID(),
+			ptpval, null, null, ChessPiece.WHITE_MOVES_DOWN_RANKS, false);
 	}
 	
 	
@@ -8513,7 +8505,8 @@ class ChessPiece {
 	//EXECUTES THE COMMANDS ABOVE ON THE LOCAL BOARD ONLY
 	//ONLY EXECUTES COMMANDS IN SHORT HAND NOTATION
 	///*
-	static makeLocalShortHandMove(mvcmd, gid, isundo=false, iswhitedown, isuser, isofficial=false)
+	static makeLocalShortHandMove(mvcmd, gid, isuser, isundo=false,
+		iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial=false)
 	{
 		ChessPiece.cc.letMustBeAnInteger(gid, "gid");
 		ChessPiece.cc.letMustBeBoolean(isundo, "isundo");
@@ -8649,7 +8642,8 @@ class ChessPiece {
 				if (isofficial);
 				else ChessPiece.getGame(gid).setUnofficialMove(null);
 				
-				ChessPiece.makeLocalShortHandMove(nwmvs, gid, isundo, iswhitedown, isuser, isofficial);
+				ChessPiece.makeLocalShortHandMove(nwmvs, gid, isuser, isundo, iswhitedown,
+					isofficial);
 				
 				//add the move to the last undone move...
 				//do we add the generated undo move OR do we add the move we are undoing?
@@ -8790,7 +8784,7 @@ class ChessPiece {
 				//needs to be called on the pawn
 				//extract the location of that pawn
 				//get the piece
-				let pn = ChessPiece.getPieceAt(ChessPiece.convertStringLocToRowCol(
+				let pn = ChessPiece.getPieceAtMain(ChessPiece.convertStringLocToRowCol(
 					mvcmd[pci].substring(4, 6), iswhitedown), mpclist);
 				if (ChessPiece.cc.isItemNullOrUndefined(pn))
 				{
@@ -8835,10 +8829,13 @@ class ChessPiece {
 				{
 					let mkg = ChessPiece.getCurrentSideKing(ChessPiece.getLongHandColor("" +
 						mvcmd[pci].charAt(0)), mpclist);
-					if (ChessPiece.cc.isItemNullOrUndefined(mkg)) throw new Error("the king must be found!");
+					if (ChessPiece.cc.isItemNullOrUndefined(mkg))
+					{
+						throw new Error("the king must be found!");
+					}
 					//else;//do nothing
-					let skgloc = ChessPiece.convertStringLocToRowCol(mvcmd[pci + 2].substring(3, 5),
-						iswhitedown);
+					let skgloc = ChessPiece.convertStringLocToRowCol(
+						mvcmd[pci + 2].substring(3, 5), iswhitedown);
 					if (mkg.getRow() === skgloc[0] && mkg.getCol() === skgloc[1]);
 					else
 					{
@@ -8849,7 +8846,7 @@ class ChessPiece {
 						iswhitedown));
 					mkg.decrementMoveCount();
 					console.log("MOVED THE KING BACK!");
-					let mcsl = ChessPiece.getPieceAt(
+					let mcsl = ChessPiece.getPieceAtMain(
 						ChessPiece.convertStringLocToRowCol(mvcmd[pci + 1].substring(3, 5),
 						iswhitedown), mpclist);
 					if (ChessPiece.cc.isItemNullOrUndefined(mcsl))
@@ -8869,14 +8866,14 @@ class ChessPiece {
 							"location and must be type and color of piece that we are looking " +
 							"for, but it was not!");
 					}
-					mcsl.setLocMain(ChessPiece.convertStringLocToRowCol(mvcmd[pci + 1].substring(7),
-						iswhitedown));
+					mcsl.setLocMain(ChessPiece.convertStringLocToRowCol(
+						mvcmd[pci + 1].substring(7), iswhitedown));
 					console.log("MOVED THE CASTLE BACK!");
 				}
 				else
 				{
-					ChessPiece.sideCastleLeftOrRight(ChessPiece.getLongHandColor("" + mvcmd[pci].charAt(0)),
-						useleftforcandp, gid);
+					ChessPiece.sideCastleLeftOrRight(ChessPiece.getLongHandColor("" +
+						mvcmd[pci].charAt(0)), useleftforcandp, gid);
 				}
 			}
 			console.log("DONE MAKING THE FULL MOVE!");
@@ -8891,8 +8888,8 @@ class ChessPiece {
 			{
 				let cp = new ChessPiece(ChessPiece.getLongHandType(mvcmd[x].substring(2, 4)),
 					ChessPiece.getLongHandColor("" + mvcmd[x].charAt(1)),
-					ChessPiece.convertStringLocToRowCol(mvcmd[x].substring(4, 6), iswhitedown), gid,
-					Number(mvcmd[x].substring(7, mvcmd[x].indexOf("MS"))), true);
+					ChessPiece.convertStringLocToRowCol(mvcmd[x].substring(4, 6), iswhitedown),
+					gid, Number(mvcmd[x].substring(7, mvcmd[x].indexOf("MS"))), true);
 				//need to update the piece list...
 				console.log("TOTAL PIECES: " + mpclist.length);
 				
@@ -8904,8 +8901,8 @@ class ChessPiece {
 			else if (tpcmds[x] === "DELETE")
 			{
 				//extract the location
-				ChessPiece.removePieceAtMain(ChessPiece.convertStringLocToRowCol(mvcmd[x].substring(4, 6),
-					iswhitedown), gid);
+				ChessPiece.removePieceAtMain(ChessPiece.convertStringLocToRowCol(
+					mvcmd[x].substring(4, 6), iswhitedown), gid);
 				
 				//need to update the piece list...
 				console.log("TOTAL PIECES: " + mpclist.length);
@@ -8922,17 +8919,21 @@ class ChessPiece {
 					mvcmd[x].substring(4, 6));
 				console.log("iswhitedown = " + iswhitedown);
 				
-				let pn = ChessPiece.getPieceAt(ChessPiece.convertStringLocToRowCol(
+				let pn = ChessPiece.getPieceAtMain(ChessPiece.convertStringLocToRowCol(
 					mvcmd[x].substring(4, 6), iswhitedown), mpclist);
 				console.log("pn = " + pn);
 				
-				if (ChessPiece.cc.isItemNullOrUndefined(pn)) throw new Error("THE PAWN MUST NOT BE NULL!");
+				if (ChessPiece.cc.isItemNullOrUndefined(pn))
+				{
+					throw new Error("THE PAWN MUST NOT BE NULL!");
+				}
 				else
 				{
 					if (isundo)
 					{
-						if (pn.getColor() === ChessPiece.getLongHandColor("" + mvcmd[x].charAt(1)) &&
-							pn.getType() === ChessPiece.getLongHandType(mvcmd[x].substring(2, 4)))
+						if (pn.getColor() === ChessPiece.getLongHandColor("" +
+							mvcmd[x].charAt(1)) && pn.getType() === ChessPiece.getLongHandType(
+								mvcmd[x].substring(2, 4)))
 						{
 							//do nothing this is the piece at the expected location
 						}
@@ -8961,7 +8962,7 @@ class ChessPiece {
 			}
 			else if (tpcmds[x] === "MOVE")
 			{
-				let cp = ChessPiece.getPieceAt(ChessPiece.convertStringLocToRowCol(
+				let cp = ChessPiece.getPieceAtMain(ChessPiece.convertStringLocToRowCol(
 					mvcmd[x].substring(3, 5), iswhitedown), mpclist);
 				console.log("cp = " + cp);
 				
@@ -9012,7 +9013,7 @@ class ChessPiece {
 				}
 				else
 				{
-					let cp = ChessPiece.getPieceAt(ChessPiece.convertStringLocToRowCol(
+					let cp = ChessPiece.getPieceAtMain(ChessPiece.convertStringLocToRowCol(
 						mvcmd[x].substring(3, 5), iswhitedown), mpclist);
 					if (ChessPiece.cc.isItemNullOrUndefined(cp))
 					{
@@ -9074,42 +9075,27 @@ class ChessPiece {
 		console.log("DONE MAKING THE FULL MOVE!");
 		console.log();
 	}
-	static makeLocalShortHandMove(mvcmd, gid, isundo=false, isuser)
+	static makeLocalLongHandMove(mvcmd, gid, isuser, isundo=false,
+		iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial=false)
 	{
-		ChessPiece.makeLocalShortHandMove(mvcmd, gid, isundo, ChessPiece.WHITE_MOVES_DOWN_RANKS, isuser);
+		ChessPiece.makeLocalShortHandMove(ChessPiece.getShortHandMoves(mvcmd), gid, isuser,
+			isundo, iswhitedown, isofficial);
 	}
-	static makeLocalShortHandMove(mvcmd, gid, isuser)
-	{
-		ChessPiece.makeLocalShortHandMove(mvcmd, gid, false,
-			ChessPiece.WHITE_MOVES_DOWN_RANKS, isuser, false);
-	}
-	static makeLocalLongHandMove(mvcmd, gid, isundo=false, iswhitedown, isuser, isofficial=false)
-	{
-		ChessPiece.makeLocalShortHandMove(ChessPiece.getShortHandMoves(mvcmd), gid, isundo,
-			iswhitedown, isuser, isofficial);
-	}
-	static makeLocalLongHandMove(mvcmd, gid, isuser)
-	{
-		ChessPiece.makeLocalLongHandMove(mvcmd, gid, false,
-			ChessPiece.WHITE_MOVES_DOWN_RANKS, isuser, false);
-	}
-	static makeLocalMove(mvcmd, gid, isundo=false, isshorthand, iswhitedown,
-		isuser, isofficial=false)
+	static makeLocalMove(mvcmd, gid, isuser, isshorthand=true, isundo=false, 
+		iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial=false)
 	{
 		console.log("CALLING SHORT OR LONG HAND MOVE with: iswhitedown = " + iswhitedown);
+		ChessPiece.cc.letMustBeBoolean(isshorthand, "isshorthand");
 		if (isshorthand)
 		{
-			ChessPiece.makeLocalShortHandMove(mvcmd, gid, isundo, iswhitedown, isuser, isofficial);
+			ChessPiece.makeLocalShortHandMove(mvcmd, gid, isuser, isundo, iswhitedown, isofficial);
 		}
-		else ChessPiece.makeLocalLongHandMove(mvcmd, gid, isundo, iswhitedown, isuser, isofficial);
+		else ChessPiece.makeLocalLongHandMove(mvcmd, gid, isuser, isundo, iswhitedown, isofficial);
 	}
-	static makeLocalMove(mvcmd, gid, isundo=false, iswhitedown, isuser, isofficial=false)
+	static makeLocalMoveMain(mvcmd, gid, isuser, isundo=false, 
+		iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial=false)
 	{
-		ChessPiece.makeLocalMove(mvcmd, gid, isundo, true, iswhitedown, isuser, isofficial);
-	}
-	static makeLocalMove(mvcmd, gid, isuser, isundo=false)
-	{
-		ChessPiece.makeLocalMove(mvcmd, gid, isundo, ChessPiece.WHITE_MOVES_DOWN_RANKS, isuser);
+		ChessPiece.makeLocalMove(mvcmd, gid, isuser, true, isundo, iswhitedown, isofficial);
 	}
 	//*/
 	

@@ -602,8 +602,8 @@ class ChessGame {
 		else if (this.moveindex < numofmvs)
 		{
 			ChessPiece.makeLocalShortHandMove(this.OFFICIAL_MOVES[this.moveindex],
-				this.getGameID(), false,
-				ChessPiece.WHITE_MOVES_DOWN_RANKS, false, true);//isuser, isofficial
+				this.getGameID(), false, false,
+				ChessPiece.WHITE_MOVES_DOWN_RANKS, true);//isuser, isundo, iswhitedown, isofficial
 		}
 		else throw new Error("CANNOT MOVE FORWARD, NO MORE MOVES PROVIDED!");
 	}
@@ -631,8 +631,8 @@ class ChessGame {
 		
 		ChessPiece.makeLocalShortHandMove(
 			ChessPiece.genUndoMoveToShortHandCommand(this.OFFICIAL_MOVES[this.moveindex]),
-			this.getGameID(), true,
-			ChessPiece.WHITE_MOVES_DOWN_RANKS, false, true);//isuser, isofficial
+			this.getGameID(), false, true,
+			ChessPiece.WHITE_MOVES_DOWN_RANKS, true);//isuser, isundo, iswhitedown, isofficial
 			
 		console.log("OLD moveindex = " + this.moveindex);
 		
