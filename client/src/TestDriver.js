@@ -49,7 +49,7 @@ class TestDriver {
     	console.log(bqn);
     	
 		let item = ChessPiece.getPieceAtVIAGID(4, 0, gid);
-    	console.log("ITEM AT (4, 0) IS: " + item);
+    	console.log("ITEM AT (4, 0) IS: ", item);
     	console.log();
     	
     	TestDriver.testGetPiecesGuardingLocation(gid);
@@ -311,7 +311,7 @@ class TestDriver {
     	console.log("BLACK KING IS IN CHECK: " + bkg.inCheck(ignorelist, null));
     	console.log("ALL BISHOPS ON SAME COLOR SQUARES: " +
 			ChessPiece.areAllBishopsOnSameColorSquare(nwpcslist));
-    	console.log("FREE PIECES: " +
+    	console.log("FREE PIECES: ",
 			ChessPiece.getPiecesThatAreFreeToMove(ignorelist, null, gid));
     	console.log("IS AUTO-STALEMATE: " + ChessPiece.isAutoStalemate(nwpcslist));
     	console.log();
@@ -1027,9 +1027,9 @@ class TestDriver {
     	ignorelist.push(ChessPiece.convertStringLocToRowCol("B2", iswhitedown));
     	ignorelist.push(ChessPiece.convertStringLocToRowCol("A1", iswhitedown));
     	let addpcs = [];//new ArrayList<ChessPiece>();
-    	let wpn = new ChessPiece("PAWN", "WHITE",
+    	let wpn = ChessPiece.makeNewChessPiece("PAWN", "WHITE",
     		ChessPiece.convertStringLocToRowCol("A1", iswhitedown), gid, 5, false);
-    	addpcs.push(new ChessPiece("PAWN", "BLACK",
+    	addpcs.push(ChessPiece.makeNewChessPiece("PAWN", "BLACK",
     		ChessPiece.convertStringLocToRowCol("H6", iswhitedown), gid, 3, false));
     	addpcs.push(wpn);
     	//print the board first
@@ -1053,10 +1053,10 @@ class TestDriver {
     	nwiglist.push(ChessPiece.convertStringLocToRowCol("B1", iswhitedown));
     	nwiglist.push(ChessPiece.convertStringLocToRowCol("A1", iswhitedown));
     	let nwaddpcs = [];//new ArrayList<ChessPiece>();
-    	let bpn = new ChessPiece("PAWN", "BLACK",
+    	let bpn = ChessPiece.makeNewChessPiece("PAWN", "BLACK",
     		ChessPiece.convertStringLocToRowCol("H8", iswhitedown), gid, 5, false);
     	nwaddpcs.push(bpn);
-    	nwaddpcs.push(new ChessPiece("QUEEN", "WHITE",
+    	nwaddpcs.push(ChessPiece.makeNewChessPiece("QUEEN", "WHITE",
     		ChessPiece.convertStringLocToRowCol("B1", iswhitedown), gid, 6, false));
     	let myonwpcslist = ChessPiece.combineBoardAddAndIgnoreLists(nwiglist, nwaddpcs, nwpcslist);
     	ChessPiece.printBoard(myonwpcslist);
@@ -1160,12 +1160,12 @@ class TestDriver {
     	ignorelist.push(ChessPiece.convertStringLocToRowCol("A7", iswhitedown));
     	ignorelist.push(ChessPiece.convertStringLocToRowCol("B2", iswhitedown));
     	let addpcs = [];//new ArrayList<ChessPiece>();
-    	let bpn = new ChessPiece("PAWN", "BLACK",
+    	let bpn = ChessPiece.makeNewChessPiece("PAWN", "BLACK",
     		ChessPiece.convertStringLocToRowCol("B5", iswhitedown), gid, 2, false);
     	addpcs.push(bpn);
-    	addpcs.push(new ChessPiece("PAWN", "WHITE",
+    	addpcs.push(ChessPiece.makeNewChessPiece("PAWN", "WHITE",
 			ChessPiece.convertStringLocToRowCol("A5", iswhitedown), gid, 1, false));
-    	addpcs.push(new ChessPiece("KNIGHT", "WHITE",
+    	addpcs.push(ChessPiece.makeNewChessPiece("KNIGHT", "WHITE",
 			ChessPiece.convertStringLocToRowCol("F5", iswhitedown), gid, 2, false));
     	//print the board first
     	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
@@ -1203,9 +1203,9 @@ class TestDriver {
     			ChessPiece.convertRowColToStringLocMain(bprgtloc,
 					ChessPiece.WHITE_MOVES_DOWN_RANKS));
     	}
-    	console.log("BLACK ENEMY PAWN FOR LEFT PAWNING: " +
+    	console.log("BLACK ENEMY PAWN FOR LEFT PAWNING: ",
 			bpn.getEnemyPawnForLeftPawning(nwpcslist));
-    	console.log("BLACK ENEMY PAWN FOR RIGHT PAWNING: " +
+    	console.log("BLACK ENEMY PAWN FOR RIGHT PAWNING: ",
 			bpn.getEnemyPawnForRightPawning(nwpcslist));
     	if (TestDriver.cc.isStringEmptyNullOrUndefined(bplftloc))
 		{
@@ -1326,15 +1326,15 @@ class TestDriver {
     	ignorelist.push(ChessPiece.convertStringLocToRowCol("A2", iswhitedown));
     	ignorelist.push(ChessPiece.convertStringLocToRowCol("G2", iswhitedown));
     	let addpcs = [];//new ArrayList<ChessPiece>();
-    	addpcs.push(new ChessPiece("PAWN", "WHITE",
+    	addpcs.push(ChessPiece.makeNewChessPiece("PAWN", "WHITE",
 			ChessPiece.convertStringLocToRowCol("E6", iswhitedown), gid, 1, false));
-    	addpcs.push(new ChessPiece("PAWN", "BLACK",
+    	addpcs.push(ChessPiece.makeNewChessPiece("PAWN", "BLACK",
 			ChessPiece.convertStringLocToRowCol("A5", iswhitedown), gid, 1, false));
-    	addpcs.push(new ChessPiece("PAWN", "BLACK",
+    	addpcs.push(ChessPiece.makeNewChessPiece("PAWN", "BLACK",
 			ChessPiece.convertStringLocToRowCol("G4", iswhitedown), gid, 1, false));
-    	addpcs.push(new ChessPiece("KNIGHT", "WHITE",
+    	addpcs.push(ChessPiece.makeNewChessPiece("KNIGHT", "WHITE",
 			ChessPiece.convertStringLocToRowCol("H6", iswhitedown), gid, 1, false));
-    	addpcs.push(new ChessPiece("BISHOP", "WHITE",
+    	addpcs.push(ChessPiece.makeNewChessPiece("BISHOP", "WHITE",
 			ChessPiece.convertStringLocToRowCol("C5", iswhitedown), gid, 1, false));
     	//print the board first
     	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
@@ -1411,9 +1411,9 @@ class TestDriver {
     	ignorelist.push(ChessPiece.convertStringLocToRowCol("B8", iswhitedown));
     	ignorelist.push(ChessPiece.convertStringLocToRowCol("A2", iswhitedown));
     	let addpcs = [];//new ArrayList<ChessPiece>();
-    	addpcs.push(new ChessPiece("PAWN", "BLACK",
+    	addpcs.push(ChessPiece.makeNewChessPiece("PAWN", "BLACK",
 			ChessPiece.convertStringLocToRowCol("A5", iswhitedown), gid, 2, false));
-    	addpcs.push(new ChessPiece("KNIGHT", "WHITE",
+    	addpcs.push(ChessPiece.makeNewChessPiece("KNIGHT", "WHITE",
 			ChessPiece.convertStringLocToRowCol("F3", iswhitedown), gid, 3, false));
     	//print the board first
     	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
@@ -1568,13 +1568,13 @@ class TestDriver {
     	ignorelist.push(ChessPiece.convertStringLocToRowCol("D8", iswhitedown));
     	ignorelist.push(ChessPiece.convertStringLocToRowCol("A2", iswhitedown));
     	let addpcs = [];//new ArrayList<ChessPiece>();
-    	addpcs.push(new ChessPiece("BISHOP", "WHITE",
+    	addpcs.push(ChessPiece.makeNewChessPiece("BISHOP", "WHITE",
 			ChessPiece.convertStringLocToRowCol("C5", iswhitedown), gid, 1, false));
-    	addpcs.push(new ChessPiece("PAWN", "WHITE",
+    	addpcs.push(ChessPiece.makeNewChessPiece("PAWN", "WHITE",
 			ChessPiece.convertStringLocToRowCol("E6", iswhitedown), gid, 1, false));
-    	addpcs.push(new ChessPiece("QUEEN", "WHITE",
+    	addpcs.push(ChessPiece.makeNewChessPiece("QUEEN", "WHITE",
 			ChessPiece.convertStringLocToRowCol("F2", iswhitedown), gid, 2, false));
-    	addpcs.push(new ChessPiece("PAWN", "BLACK",
+    	addpcs.push(ChessPiece.makeNewChessPiece("PAWN", "BLACK",
 			ChessPiece.convertStringLocToRowCol("A6", iswhitedown), gid, 3, false));
     	//print the board first
     	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
@@ -1681,15 +1681,15 @@ class TestDriver {
     	ignorelist.push(ChessPiece.convertStringLocToRowCol("A7", iswhitedown));
     	ignorelist.push(ChessPiece.convertStringLocToRowCol("G2", iswhitedown));
     	let addpcs = [];//new ArrayList<ChessPiece>();
-    	addpcs.push(new ChessPiece("PAWN", "WHITE",
+    	addpcs.push(ChessPiece.makeNewChessPiece("PAWN", "WHITE",
 			ChessPiece.convertStringLocToRowCol("E6", iswhitedown), gid, 1, false));
-    	addpcs.push(new ChessPiece("PAWN", "WHITE",
+    	addpcs.push(ChessPiece.makeNewChessPiece("PAWN", "WHITE",
 			ChessPiece.convertStringLocToRowCol("A5", iswhitedown), gid, 1, false));
-    	addpcs.push(new ChessPiece("QUEEN", "WHITE",
+    	addpcs.push(ChessPiece.makeNewChessPiece("QUEEN", "WHITE",
 			ChessPiece.convertStringLocToRowCol("H4", iswhitedown), gid, 1, false));
-    	addpcs.push(new ChessPiece("PAWN", "BLACK",
+    	addpcs.push(ChessPiece.makeNewChessPiece("PAWN", "BLACK",
 			ChessPiece.convertStringLocToRowCol("F3", iswhitedown), gid, 1, false));
-    	addpcs.push(new ChessPiece("PAWN", "BLACK",
+    	addpcs.push(ChessPiece.makeNewChessPiece("PAWN", "BLACK",
 			ChessPiece.convertStringLocToRowCol("G4", iswhitedown), gid, 1, false));
     	//print the board first
     	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
@@ -1767,13 +1767,13 @@ class TestDriver {
     	ignorelist.push(ChessPiece.convertStringLocToRowCol("D1", iswhitedown));
     	ignorelist.push(ChessPiece.convertStringLocToRowCol("G7", iswhitedown));
     	let addpcs = [];
-    	addpcs.push(new ChessPiece("PAWN", "WHITE",
+    	addpcs.push(ChessPiece.makeNewChessPiece("PAWN", "WHITE",
 			ChessPiece.convertStringLocToRowCol("F6", iswhitedown), gid, 1, false));
-    	addpcs.push(new ChessPiece("PAWN", "WHITE",
+    	addpcs.push(ChessPiece.makeNewChessPiece("PAWN", "WHITE",
 			ChessPiece.convertStringLocToRowCol("G5", iswhitedown), gid, 1, false));
-    	addpcs.push(new ChessPiece("QUEEN", "BLACK",
+    	addpcs.push(ChessPiece.makeNewChessPiece("QUEEN", "BLACK",
 			ChessPiece.convertStringLocToRowCol("H5", iswhitedown), gid, 1, false));
-    	addpcs.push(new ChessPiece("PAWN", "BLACK",
+    	addpcs.push(ChessPiece.makeNewChessPiece("PAWN", "BLACK",
 			ChessPiece.convertStringLocToRowCol("E3", iswhitedown), gid, 1, false));
     	//print the board first
     	let nwpcslist = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
@@ -1912,7 +1912,7 @@ class TestDriver {
 		//piece can move to
     	console.log("WHITE KING IS IN CHECK: " + wkg.inCheck(ignorelist, addpcs));
     	console.log("BLACK KING IS IN CHECK: " + bkg.inCheck(ignorelist, addpcs));
-    	console.log("FREE PIECES: " + ChessPiece.getPiecesThatAreFreeToMove(gid,
+    	console.log("FREE PIECES: ", ChessPiece.getPiecesThatAreFreeToMove(gid,
 			ignorelist, addpcs));
     	//console.log("IS AUTO-STALEMATE: " + ChessPiece.isAutoStalemate(nwpcslist));
     	console.log("WHITE IN STALEMATE: " + ChessPiece.isStalemateWhite(gid, ignorelist, addpcs));
@@ -2120,7 +2120,7 @@ class TestDriver {
     	console.log("BLACK KING IS IN CHECK: " + bkg.inCheck(ignorelist, addpcs));
     	console.log("ALL BISHOPS ON SAME COLOR SQUARES: " +
 			ChessPiece.areAllBishopsOnSameColorSquare(nwpcslist));
-    	console.log("FREE PIECES: " + ChessPiece.getPiecesThatAreFreeToMove(gid, ignorelist,
+    	console.log("FREE PIECES: ", ChessPiece.getPiecesThatAreFreeToMove(gid, ignorelist,
 			addpcs));
     	//console.log("IS AUTO-STALEMATE: " + ChessPiece.isAutoStalemate(nwpcslist));
     	//console.log("WHITE HAS NO LEGAL MOVES IT CAN MAKE: " +
@@ -2190,7 +2190,7 @@ class TestDriver {
     	console.log("BLACK KING IS IN CHECK: " + bkg.inCheck(ignorelist, addpcs));
     	console.log("ALL BISHOPS ON SAME COLOR SQUARES: " +
 			ChessPiece.areAllBishopsOnSameColorSquare(nwpcslist));
-    	console.log("FREE PIECES: " + ChessPiece.getPiecesThatAreFreeToMove(gid,
+    	console.log("FREE PIECES: ", ChessPiece.getPiecesThatAreFreeToMove(gid,
 			ignorelist, addpcs));
     	//console.log("IS AUTO-STALEMATE: " + ChessPiece.isAutoStalemate(nwpcslist));
     	//console.log("WHITE HAS NO LEGAL MOVES IT CAN MAKE: " +
@@ -2249,7 +2249,7 @@ class TestDriver {
     	console.log("BLACK KING IS IN CHECK: " + bkg.inCheck(ignorelist, null));
     	console.log("ALL BISHOPS ON SAME COLOR SQUARES: " +
 			ChessPiece.areAllBishopsOnSameColorSquare(nwpcslist));
-    	console.log("FREE PIECES: " +
+    	console.log("FREE PIECES: ",
 			ChessPiece.getPiecesThatAreFreeToMove(gid, ignorelist, null));
     	//console.log("IS AUTO-STALEMATE: " + ChessPiece.isAutoStalemate(nwpcslist));
     	//console.log("WHITE HAS NO LEGAL MOVES IT CAN MAKE: " +
@@ -2308,7 +2308,7 @@ class TestDriver {
 		//piece can move to
     	console.log("WHITE KING IS IN CHECK: " + wkg.inCheck(ignorelist, addpcs));
     	console.log("BLACK KING IS IN CHECK: " + bkg.inCheck(ignorelist, addpcs));
-    	console.log("FREE PIECES: " +
+    	console.log("FREE PIECES: ",
 			ChessPiece.getPiecesThatAreFreeToMove(gid, ignorelist, addpcs));
     	//console.log("IS AUTO-STALEMATE: " + ChessPiece.isAutoStalemate(nwpcslist));
     	//console.log("WHITE HAS NO LEGAL MOVES IT CAN MAKE: " +
