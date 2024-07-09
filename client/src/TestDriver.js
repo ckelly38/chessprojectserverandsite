@@ -70,9 +70,9 @@ class TestDriver {
     	//TestDriver.testCanMoveToLocs(gid, null, null);
     	
     	//TestDriver.testResignation(gid);
-    	//TestDriver.testPawning(gid, true);
+    	TestDriver.testPawning(gid, true);
     	//TestDriver.setUpBoardForPawnPromotionMain(gid, true);
-    	TestDriver.setUpBoardForCastlingWhiteRightMain(gid, true);
+    	//TestDriver.setUpBoardForCastlingWhiteRightMain(gid, true);
     	//TestDriver.setUpBoardWithKnightCheckingKingMain(gid, true);
     	//CHECKMATE TESTS
     	//TestDriver.setUpBoardWithFourMoveCheckMateMain(gid, true);
@@ -98,8 +98,8 @@ class TestDriver {
     	//setUpBoardWithKingAndBishopsVKingBishops(gid, 1, 1, false);
 		//true passed in produces a stalemate
     	
-    	//console.log("");
-    	//console.log("AFTER SPECIAL TESTS!");
+    	console.log("");
+    	console.log("AFTER SPECIAL TESTS!");
     	
     	
 		//let isuser = false;
@@ -749,7 +749,8 @@ class TestDriver {
     
     static driverMakeMove(cp, elocstr, iswhitedown, isuser, ptpval="QUEEN")
     {
-    	TestDriver.cc.letMustBeBoolean(iswhitedown, "iswhitedown");
+    	debugger;
+		TestDriver.cc.letMustBeBoolean(iswhitedown, "iswhitedown");
 		TestDriver.cc.letMustBeBoolean(isuser, "isuser");
 		TestDriver.cc.letMustBeDefinedAndNotNull(cp, "cp");
 		TestDriver.cc.letMustBeDefinedAndNotNull(elocstr, "elocstr");
@@ -830,10 +831,10 @@ class TestDriver {
     	}
     	else
     	{
-    		ChessPiece.getGame(gid).stepBackward();
-    		ChessPiece.getGame(gid).stepBackward();
+    		ChessPiece.getGameVIAGID(gid).stepBackward();
+    		ChessPiece.getGameVIAGID(gid).stepBackward();
     		ChessPiece.printBoardViaGameID(gid);
-    		ChessPiece.getGame(gid).stepForward();
+    		ChessPiece.getGameVIAGID(gid).stepForward();
     		ChessPiece.printBoardViaGameID(gid);
     	}
     }
@@ -928,7 +929,7 @@ class TestDriver {
 				ChessPiece.WHITE_MOVES_DOWN_RANKS);
     		//ChessPiece.makeLocalMoveMain(mymv, gid, isuser, false,
 			//	ChessPiece.WHITE_MOVES_DOWN_RANKS);
-    		ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    		ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     		
     		console.log("TOTAL NUMBER OF PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
     		ChessPiece.printBoardViaGameID(gid);
@@ -947,7 +948,7 @@ class TestDriver {
 	    	
 	    	console.log("TOTAL NUMBER OF PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
     		
-    		ChessPiece.getGame(gid).makeLastOfficialMoveUnofficial();
+    		ChessPiece.getGameVIAGID(gid).makeLastOfficialMoveUnofficial();
     		ChessPiece.makeLocalMoveMain(myunmv, gid, isuser, true,
 				ChessPiece.WHITE_MOVES_DOWN_RANKS);
     		
@@ -958,7 +959,7 @@ class TestDriver {
     		
     		ChessPiece.makeLocalMoveMain(mymv, gid, isuser, false,
 				ChessPiece.WHITE_MOVES_DOWN_RANKS);
-    		ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    		ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     		
     		console.log("TOTAL NUMBER OF PIECES: " + ChessPiece.getNumItemsInList(ChessPiece.cps));
     		ChessPiece.printBoardViaGameID(gid);
@@ -1113,9 +1114,9 @@ class TestDriver {
     	TestDriver.driverMakeMove(wpn, "A5", iswhitedown, isuser);
     	
     	ChessPiece.printBoardViaGameID(gid);
-    	//now test pawning methods here
-    	console.log("WHITE CAN PAWN: " + ChessPiece.canSidePawn("WHITE", gid));
-    	console.log("BLACK CAN PAWN: " + ChessPiece.canSidePawn("BLACK", gid));
+		//now test pawning methods here
+    	console.log("WHITE CAN PAWN: " + ChessPiece.canSidePawnMain("WHITE", gid));
+    	console.log("BLACK CAN PAWN: " + ChessPiece.canSidePawnMain("BLACK", gid));
     	let mymv = bpn.genMoveToCommandFromMe(
 			ChessPiece.convertStringLocToRowCol("A6", iswhitedown));
     	let myunmv = ChessPiece.genUndoMoveToShortHandCommand(mymv);
@@ -1129,21 +1130,22 @@ class TestDriver {
     	let scmd = "BLPNB5TOA6";
     	let oscmd = "BPNB5TOA6";
     	let myscmd = oscmd;//scmd
+    	debugger;
     	let fullmv = ChessPiece.genFullMoveCommandFromDisplayedCommandMain(myscmd, gid, "QUEEN",
 			iswhitedown, false);
     	ChessPiece.makeLocalMoveMain(fullmv, gid, isuser, false, iswhitedown);
 		//mvcmd, gid, isuser, isundo, iswhitedown
     	//ChessPiece.makeLocalMoveMain(mymv, gid, isuser, false);//mvcmd, gid, isuser, isundo
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	//bpn.pawnLeft();
     	ChessPiece.printBoardViaGameID(gid);
-    	ChessPiece.getGame(gid).makeLastOfficialMoveUnofficial();
+    	ChessPiece.getGameVIAGID(gid).makeLastOfficialMoveUnofficial();
     	ChessPiece.makeLocalMoveMain(myunmv, gid, isuser, true, ChessPiece.WHITE_MOVES_DOWN_RANKS);
     	ChessPiece.printBoardViaGameID(gid);
     	
-    	ChessPiece.getGame(gid).setUnofficialMove(mymv);
+    	ChessPiece.getGameVIAGID(gid).setUnofficialMove(mymv);
     	bpn.pawnLeft();
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	
     	ChessPiece.printBoardViaGameID(gid);
     }
@@ -1257,7 +1259,7 @@ class TestDriver {
     	//wkt.setLocMain(ChessPiece.convertStringLocToRowCol("H6", iswhitedown));
     	//wkt.setMoveCount(wkt.getMoveCount() + 1);
     	
-    	let bpn = ChessPiece.getPieceAtVIAGIDMain(ChessPiece.convertStringLocToRowCol("A2",
+		let bpn = ChessPiece.getPieceAtVIAGIDMain(ChessPiece.convertStringLocToRowCol("A2",
 			iswhitedown), gid);
     	TestDriver.driverMakeMove(bpn, "A4", iswhitedown, isuser);
     	
@@ -1280,7 +1282,7 @@ class TestDriver {
     	console.log("WHITE IS IN CHECKMATE: " + ChessPiece.inCheckmateWhite(gid, null, null));
     	console.log("BLACK IS IN CHECKMATE: " + ChessPiece.inCheckmateBlack(gid, null, null));
     	ChessPiece.printBoardViaGameID(gid);
-    	let mymv = ChessPiece.genCastlingMoveToCommand("WHITE", false, gid, null, null);
+		let mymv = ChessPiece.genCastlingMoveToCommand("WHITE", false, gid, null, null);
     	let myunmv = ChessPiece.genUndoMoveToShortHandCommand(mymv);
     	let myredmv = ChessPiece.genRedoMoveToShortHandCommand(myunmv);
     	ChessPiece.convertAllShortHandMovesToLongVersion(myunmv);
@@ -1294,22 +1296,21 @@ class TestDriver {
     	let myscmd = oscmd;//scmd
     	let fullmv = ChessPiece.genFullMoveCommandFromDisplayedCommandMain(myscmd, gid,
 			"QUEEN", iswhitedown, false);
-    	ChessPiece.makeLocalMoveMain(fullmv, gid, isuser, false, iswhitedown);
+		ChessPiece.makeLocalMoveMain(fullmv, gid, isuser, false, iswhitedown);
 		//mvcmd, gid, isundo, iswhitedown, isuser
     	//ChessPiece.makeLocalMoveMain(mymv, gid, isuser, false, iswhitedown);
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	//ChessPiece.whiteCastleRight(gid, null, null);
 		//move count will be automatically incremented in this method
     	ChessPiece.printBoardViaGameID(gid);
-    	
-    	ChessPiece.getGame(gid).makeLastOfficialMoveUnofficial();
+    	ChessPiece.getGameVIAGID(gid).makeLastOfficialMoveUnofficial();
     	ChessPiece.makeLocalMoveMain(myunmv, gid, isuser, true, ChessPiece.WHITE_MOVES_DOWN_RANKS);
     	
     	ChessPiece.printBoardViaGameID(gid);
-    	ChessPiece.getGame(gid).setUnofficialMove(mymv);
+    	ChessPiece.getGameVIAGID(gid).setUnofficialMove(mymv);
     	ChessPiece.whiteCastleRight(gid, null, null);
 		//move count will be automatically incremented in this method
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	ChessPiece.printBoardViaGameID(gid);
     }
     static setUpBoardForCastlingWhiteRightWithoutMovingThere(gid)
@@ -1382,7 +1383,7 @@ class TestDriver {
     	//wkt.setLocMain(ChessPiece.convertStringLocToRowCol("C6", iswhitedown));
     	//wkt.setMoveCount(wkt.getMoveCount() + 1);
     	ChessPiece.makeLocalMove(mymv, gid, isuser, false, ChessPiece.WHITE_MOVES_DOWN_RANKS);
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	
     	let bpn = ChessPiece.getPieceAtVIAGIDMain(
 			ChessPiece.convertStringLocToRowCol("A2", iswhitedown), gid);
@@ -1520,29 +1521,29 @@ class TestDriver {
     	let wpn = ChessPiece.getPieceAtVIAGID(6, 4, gid);//E7
     	ChessPiece.makeLocalShortHandMove(wpn.genMoveToCommandFromMeMain(5, 4), gid, isuser, false,
 			iswhitedown);//E6
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	let bpn = ChessPiece.getPieceAtVIAGID(1, 0, gid);//A2
     	ChessPiece.makeLocalShortHandMove(bpn.genMoveToCommandFromMeMain(3, 0), gid, isuser, false,
 			iswhitedown);//A4
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	ChessPiece.printBoardViaGameID(gid);
     	let wqn = ChessPiece.getPieceAtVIAGID(7, 3, gid);//D8
     	ChessPiece.makeLocalShortHandMove(wqn.genMoveToCommandFromMeMain(5, 5), gid, isuser, false,
 			iswhitedown);//F6
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	ChessPiece.makeLocalShortHandMove(bpn.genMoveToCommandFromMeMain(4, 0), gid, isuser, false,
 			iswhitedown);//A5
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	let wbp = ChessPiece.getPieceAtVIAGID(7, 5, gid);//F8
     	ChessPiece.makeLocalShortHandMove(wbp.genMoveToCommandFromMeMain(4, 2), gid, isuser, false,
 			iswhitedown);//C5
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	ChessPiece.makeLocalShortHandMove(bpn.genMoveToCommandFromMeMain(5, 0), gid, isuser, false,
 			iswhitedown);//A6
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	ChessPiece.makeLocalShortHandMove(wqn.genMoveToCommandFromMeMain(1, 5), gid, isuser, false,
 			iswhitedown);//F2
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	ChessPiece.printBoardViaGameID(gid);
     	//test check mate and check detection here and methods determinging where a
 		//piece can move to
@@ -1636,24 +1637,24 @@ class TestDriver {
     	let wpn = ChessPiece.getPieceAtVIAGID(6, 4, gid);//E7
     	ChessPiece.makeLocalShortHandMove(wpn.genMoveToCommandFromMeMain(5, 4), gid, isuser, false,
 			iswhitedown);//E6
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	let bpn = ChessPiece.getPieceAtVIAGID(1, 5, gid);//F2
     	ChessPiece.makeLocalShortHandMove(bpn.genMoveToCommandFromMeMain(2, 5), gid, isuser, false,
 			iswhitedown);//F3
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	let owpn = ChessPiece.getPieceAtVIAGID(6, 0, gid);//A7
     	ChessPiece.makeLocalShortHandMove(owpn.genMoveToCommandFromMeMain(5, 0), gid, isuser,
 			false, iswhitedown);//A6
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	let obpn = ChessPiece.getPieceAtVIAGID(1, 6, gid);//G2
     	ChessPiece.makeLocalShortHandMove(obpn.genMoveToCommandFromMeMain(3, 6), gid, isuser,
 			false, iswhitedown);//G4
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	//ChessPiece.printBoardViaGameID(gid);
     	let wqn = ChessPiece.getPieceAtVIAGID(7, 3, gid);//D8
     	ChessPiece.makeLocalShortHandMove(wqn.genMoveToCommandFromMeMain(3, 7), gid, isuser, false,
 			iswhitedown);//H4
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	ChessPiece.printBoardViaGameID(gid);
     	//test check mate and check detection here and methods determinging where a
 		//piece can move to
@@ -1728,19 +1729,19 @@ class TestDriver {
     	let wpn = ChessPiece.getPieceAtVIAGID(6, 5, gid);//F7
     	ChessPiece.makeLocalShortHandMove(wpn.genMoveToCommandFromMeMain(5, 5), gid, isuser, false,
 			iswhitedown);//F6
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	let bpn = ChessPiece.getPieceAtVIAGID(1, 4, gid);//E2
     	ChessPiece.makeLocalShortHandMove(bpn.genMoveToCommandFromMeMain(2, 4), gid, isuser, false,
 			iswhitedown);//E3
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	let owpn = ChessPiece.getPieceAtVIAGID(6, 6, gid);//G7
     	ChessPiece.makeLocalShortHandMove(owpn.genMoveToCommandFromMeMain(4, 6), gid, isuser,
 			false, iswhitedown);//G5
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	let bqn = ChessPiece.getPieceAtVIAGID(0, 3, gid);//D1
     	ChessPiece.makeLocalShortHandMove(bqn.genMoveToCommandFromMeMain(4, 7), gid, isuser, false,
 			iswhitedown);//H5
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	ChessPiece.printBoardViaGameID(gid);
     	//test check mate and check detection here and methods determinging where a
 		//piece can move to
@@ -2378,7 +2379,7 @@ class TestDriver {
     	ChessPiece.makeLocalShortHandMove(mymv, gid, isuser, false, iswhitedown);//C7
     	//ChessPiece.makeLocalShortHandMove(wqn.genMoveToCommandFromMeMain(6, 1), gid, isuser,
 		//	false, iswhitedown);//B7
-    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     	ChessPiece.printBoardViaGameID(gid);
     	//now print the results of stalemate and checkmate
     	let wkg = ChessPiece.getCurrentSideKingMain("WHITE", gid);
@@ -2396,12 +2397,12 @@ class TestDriver {
     	//console.log("MY O UNDO MOVE:");
     	ChessPiece.convertAllShortHandMovesToLongVersion(myounmv);
     	
-    	ChessPiece.getGame(gid).makeLastOfficialMoveUnofficial();
+    	ChessPiece.getGameVIAGID(gid).makeLastOfficialMoveUnofficial();
     	ChessPiece.makeLocalMove(myunmv, gid, isuser, true, iswhitedown);
-    	//ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
-    	ChessPiece.getGame(gid).clearUnofficialMove();
+    	//ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
+    	ChessPiece.getGameVIAGID(gid).clearUnofficialMove();
     	ChessPiece.printBoardViaGameID(gid);
-    	console.log(ChessPiece.getGame(gid).getSideTurn() + "'S TURN!");
+    	console.log(ChessPiece.getGameVIAGID(gid).getSideTurn() + "'S TURN!");
     	
     	let dodrawtests = true;
     	let tstdrawcmd = true;
@@ -2418,25 +2419,25 @@ class TestDriver {
     	{
     		console.log("");
     		console.log("TEST REDO COMMAND:");
-    		ChessPiece.makeLocalMove(ChessPiece.getGame(gid).genCommandToRedoLastUndoneMove(),
+    		ChessPiece.makeLocalMove(ChessPiece.getGameVIAGID(gid).genCommandToRedoLastUndoneMove(),
 				gid, isuser);
-	    	ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
-	    	ChessPiece.getGame(gid).setLastUndoneMove(null);
+	    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
+	    	ChessPiece.getGameVIAGID(gid).setLastUndoneMove(null);
 	    	ChessPiece.printBoardViaGameID(gid);
-	    	console.log(ChessPiece.getGame(gid).getSideTurn() + "'S TURN!");
+	    	console.log(ChessPiece.getGameVIAGID(gid).getSideTurn() + "'S TURN!");
 	    	console.log("");
 	    	
 	    	console.log("TEST UNDO COMMAND:");
-	    	ChessPiece.getGame(gid).makeLastOfficialMoveUnofficial();
-	    	ChessPiece.makeLocalMove(ChessPiece.getGame(gid).genCommandToUndoLastMadeMove(),
+	    	ChessPiece.getGameVIAGID(gid).makeLastOfficialMoveUnofficial();
+	    	ChessPiece.makeLocalMove(ChessPiece.getGameVIAGID(gid).genCommandToUndoLastMadeMove(),
 				gid, isuser, true, iswhitedown);
-	    	//ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
-	    	ChessPiece.getGame(gid).clearUnofficialMove();
+	    	//ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
+	    	ChessPiece.getGameVIAGID(gid).clearUnofficialMove();
 	    	ChessPiece.printBoardViaGameID(gid);
 	    	console.log("");
     	}
     	//else;//do nothing
-    	console.log(ChessPiece.getGame(gid).getSideTurn() + "'S TURN!");
+    	console.log(ChessPiece.getGameVIAGID(gid).getSideTurn() + "'S TURN!");
     	
     	let otstdrawcmd = true;
     	if (otstdrawcmd && dodrawtests)
@@ -2450,7 +2451,7 @@ class TestDriver {
     		//make the other move
     		ChessPiece.makeLocalShortHandMove(wqn.genMoveToCommandFromMeMain(6, 1), gid, isuser,
 				false, iswhitedown);//B7
-    		ChessPiece.getGame(gid).makeUnofficialMoveOfficial();
+    		ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
     		ChessPiece.printBoardViaGameID(gid);
     	}
     	//check the results

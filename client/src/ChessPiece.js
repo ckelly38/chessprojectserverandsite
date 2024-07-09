@@ -5475,14 +5475,14 @@ class ChessPiece {
 			let normalpclocs = null;
 			if (this.getType() === "KING")
 			{
-				normalpclocs = this.getKingCanMoveToLocs(this.getRow(), this.getCol(),
-					this.getColor(), ignorelist, addpcs, this.getGameID());
+				normalpclocs = ChessPiece.getKingCanMoveToLocs(this.getRow(), this.getCol(),
+					this.getColor(), this.getGameID(), ignorelist, addpcs);
 			}
 			else
 			{
 				//pawn
-				normalpclocs = this.getPawnCanMoveToLocs(this.getRow(), this.getCol(),
-					this.getColor(), ignorelist, addpcs, this.getGameID());
+				normalpclocs = ChessPiece.getPawnCanMoveToLocs(this.getRow(), this.getCol(),
+					this.getColor(), this.getGameID(), ignorelist, addpcs);
 			}
 			let onnrml = false;
 			let onall = false;
@@ -5577,7 +5577,7 @@ class ChessPiece {
 			//in passing or EN PASSANT is a form of attack
 			//you can only pawn a pawn that has made its first move
 			locs = ChessPiece.getAllPawnCanMoveToLocs(this.getRow(), this.getCol(),
-				this.getColor(), ignorelist, addpcs, this.getGameID(), bpassimnxtmv);
+				this.getColor(), this.getGameID(), ignorelist, addpcs, bpassimnxtmv);
 		}
 		else if (this.getType() === "KING")
 		{
@@ -6488,11 +6488,11 @@ class ChessPiece {
 	}
 	
 	//COLOR TYPE at: START_LOC_STRING to: END_LOC_STRING
-	static genLongOrShortHandMoveCommandOnlyString(clr, tp, cr, cc, nr, nc, usedir,
+	static genLongOrShortHandMoveCommandOnlyString(clr, tp, cr, mcc, nr, nc, usedir,
 		useleft, useshort)
 	{
 		ChessPiece.cc.letMustBeAnInteger(cr, "cr");
-		ChessPiece.cc.letMustBeAnInteger(cc, "cc");
+		ChessPiece.cc.letMustBeAnInteger(mcc, "mcc");
 		ChessPiece.cc.letMustBeAnInteger(nr, "nr");
 		ChessPiece.cc.letMustBeAnInteger(nc, "nc");
 		ChessPiece.cc.letMustBeDefinedAndNotNull(clr, "clr");
@@ -6507,7 +6507,7 @@ class ChessPiece {
 		const dirpart = ((usedir) ? dirstr : "");
 		const transolocstr = ((useshort) ? "TO" : " to: ");
 		let cmd = "" + myclr + dirpart + mytp +
-			ChessPiece.convertRowColToStringLoc(cr, cc, ChessPiece.WHITE_MOVES_DOWN_RANKS) +
+			ChessPiece.convertRowColToStringLoc(cr, mcc, ChessPiece.WHITE_MOVES_DOWN_RANKS) +
 			transolocstr +
 			ChessPiece.convertRowColToStringLoc(nr, nc, ChessPiece.WHITE_MOVES_DOWN_RANKS);
 		return cmd;
@@ -6683,23 +6683,23 @@ class ChessPiece {
 		//WKGE8TOC8
 		
 		const dirstr = ((useleft) ? "LEFT" : "RIGHT");
-		if (ChessPiece.canSideCastleLeftOrRight(useleft, clr, ignorelist, addpcs, gid));
+		if (ChessPiece.canSideCastleLeftOrRight(useleft, clr, gid, ignorelist, addpcs));
 		else ChessPiece.cc.logAndThrowNewError("" + clr + " CANNOT CASTLE " + dirstr + "!");
 		let allpcs = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
 		let mkg = ChessPiece.getCurrentSideKing(clr, allpcs);
 		const ncol = ((useleft) ? 0 : 7);
 		let clcp = ChessPiece.getPieceAt(mkg.getRow(), ncol, allpcs);
 		let ncloc = ChessPiece.getLeftOrRightCastleSideNewCastleOrKingLoc(useleft, false, clr,
-			ignorelist, addpcs, gid);
+			gid, ignorelist, addpcs);
 		const useshort = false;
 		let ccmvcmd = ChessPiece.genLongOrShortHandMoveCommandOnlyString(clr, "CASTLE",
 			clcp.getRow(), clcp.getCol(), ncloc[0], ncloc[1], false, false, useshort);
 			//usedir, useleft, useshort
 		console.log("ccmvcmd = " + ccmvcmd);
 		let nkgloc = ChessPiece.getLeftOrRightCastleSideNewCastleOrKingLoc(useleft, true, clr,
-			ignorelist, addpcs, gid);
-		let kgmvcmd = ChessPiece.genLongOrShortHandMoveCommandOnlyString(clr, "KING", mkg.getRow(),
-			mkg.getCol(), nkgloc[0], nkgloc[1], false, false, useshort);
+			gid, ignorelist, addpcs);
+		let kgmvcmd = ChessPiece.genLongOrShortHandMoveCommandOnlyString(clr, "KING",
+			mkg.getRow(), mkg.getCol(), nkgloc[0], nkgloc[1], false, false, useshort);
 			//usedir, useleft, useshort
 		console.log("kgmvcmd = " + kgmvcmd);
 		let mvcmd = ["" + clr + " " + dirstr + " CASTLE:", "" + ccmvcmd, "" + kgmvcmd];
@@ -6903,6 +6903,12 @@ class ChessPiece {
 				myclrs.push(null);
 				console.log("mymvs[" + n + "] = ", mymvs[n]);
 
+				if (ChessPiece.cc.isStringEmptyNullOrUndefined(mymvs[n]))
+				{
+					continue;
+				}
+				//else;//do nothing
+
 				let mytpsforcmd = mymvs[n].map((mvftp) => ChessPiece.getTypeOfMoveCommand(mvftp));
 				//let mytpsforcmd = new String[mymvs[n].length];
 				let addedtp = false;
@@ -7015,6 +7021,7 @@ class ChessPiece {
 	static genMoveToCommand(clr, tp, crval, ccval, nrval, ncval, gid, ignorelist=null,
 		addpcs=null, ptpval="QUEEN", usecslingasmv=false, bpassimnxtmv=false)
 	{
+		debugger;
 		ChessPiece.cc.letMustBeAnInteger(crval, "crval");
 		ChessPiece.cc.letMustBeAnInteger(ccval, "ccval");
 		ChessPiece.cc.letMustBeAnInteger(nrval, "nrval");
@@ -7881,7 +7888,7 @@ class ChessPiece {
 					"POSITION!");
 			}
 			let ncsloc = ChessPiece.getLeftOrRightCastleSideNewCastleOrKingLoc(useleft, false,
-				fullclr, ignorelist, addpcs, gid);
+				fullclr, gid, ignorelist, addpcs);
 			//console.log("ncsloc[0] = " + ncsloc[0]);
 			//console.log("ncsloc[1] = " + ncsloc[1]);
 			let cslcmd = ChessPiece.genLongOrShortHandMoveCommandOnlyString(fullclr, "CASTLE",
@@ -7890,7 +7897,7 @@ class ChessPiece {
 				fullclr, gid, ignorelist, addpcs);
 			//console.log("nkgloc[0] = " + nkgloc[0]);
 			//console.log("nkgloc[1] = " + nkgloc[1]);
-			let kgcmd = ChessPiece.genLongOrShortHandMoveCommandOnlyString(mkg, nkgloc[0],
+			let kgcmd = ChessPiece.genLongOrShortHandMoveCommandOnlyStringMain(mkg, nkgloc[0],
 				nkgloc[1], false, false, "THE KING MUST NOT BE NULL!", true, true);
 			resstr.push("" + cslcmd);
 			resstr.push("" + kgcmd);
@@ -8709,6 +8716,7 @@ class ChessPiece {
 	static makeLocalShortHandMove(mvcmd, gid, isuser, isundo=false,
 		iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial=false)
 	{
+		debugger;
 		ChessPiece.cc.letMustBeAnInteger(gid, "gid");
 		ChessPiece.cc.letMustBeBoolean(isundo, "isundo");
 		ChessPiece.cc.letMustBeBoolean(iswhitedown, "iswhitedown");
@@ -9365,7 +9373,8 @@ class ChessPiece {
 	}
 	static canPawnForSideBePromotedMain(clrval, gid)
 	{
-		return ChessPiece.canPawnForSideBePromoted(clrval, ChessPiece.getAllPiecesWithGameID(gid));
+		return ChessPiece.canPawnForSideBePromoted(clrval,
+			ChessPiece.getAllPiecesWithGameID(gid));
 	}
 	
 	promotePawnTo(nwtype)
@@ -9441,7 +9450,7 @@ class ChessPiece {
 				return false;
 			}
 			
-			let ep = this.getPieceAt(this.getRow(), lc, allpcs);
+			let ep = ChessPiece.getPieceAt(this.getRow(), lc, allpcs);
 			if (ChessPiece.cc.isItemNullOrUndefined(ep))
 			{
 				//console.log("THE LOCATION " + ChessPiece.getLocString(this.getRow(), lc) +
@@ -9564,7 +9573,7 @@ class ChessPiece {
 	}
 	canPawnMain(allpcs)
 	{
-		return (this.canPawnLeft(allpcs) || this.canPawnRight(allpcs));
+		return (this.canPawnLeftMain(allpcs) || this.canPawnRightMain(allpcs));
 	}
 	canPawn()
 	{
@@ -9572,6 +9581,7 @@ class ChessPiece {
 	}
 	static canSidePawn(clrval, allpcs)
 	{
+		debugger;
 		ChessPiece.cc.letMustBeDefinedAndNotNull(allpcs, "allpcs");
 		ChessPiece.cc.letMustBeDefinedAndNotNull(clrval, "clrval");
 		
@@ -9581,7 +9591,8 @@ class ChessPiece {
 		//if none are true, or no pawns return false
 		
 		let pns = ChessPiece.getAllPawnsOfColor(clrval, allpcs);
-		//console.log("pns = ", pns);
+		console.log("pns = ", pns);
+		
 		if (ChessPiece.getNumItemsInList(pns) < 1)
 		{
 			console.log("THIS SIDE HAS NO PAWNS! THERE MUST BE AT LEAST ONE PAWN ON EACH " +
@@ -9621,7 +9632,7 @@ class ChessPiece {
 				ChessPiece.cc.logAndThrowNewError("we can pawn, so there must be an enemy, " +
 					"but col is invalid!");
 			}
-			return this.getPieceAt(this.getRow(), lc, allpcs);
+			return ChessPiece.getPieceAt(this.getRow(), lc, allpcs);
 		}
 		else return null;
 	}
@@ -9723,6 +9734,7 @@ class ChessPiece {
 	//THIS MUST BE CALLED ON THE PAWN THAT CAN PAWN
 	pawnLeftOrRight(useleft, allpcs, bpassimnxtmv=false)
 	{
+		debugger;
 		ChessPiece.cc.letMustBeBoolean(useleft, "useleft");
 		ChessPiece.cc.letMustBeBoolean(bpassimnxtmv, "bpassimnxtmv");
 		ChessPiece.cc.letMustBeDefinedAndNotNull(allpcs, "allpcs");
@@ -9730,7 +9742,7 @@ class ChessPiece {
 		if (this.canPawnLeftOrRight(useleft, allpcs, bpassimnxtmv))
 		{
 			let eploc = this.getEnemyPawnLeftOrRightLocation(useleft, allpcs, bpassimnxtmv);
-			this.removePieceAt(eploc[0], eploc[1], this.getGameID());
+			ChessPiece.removePieceAt(eploc[0], eploc[1], this.getGameID());
 			let npnloc = this.getPawnLeftOrRightLocation(useleft, allpcs, bpassimnxtmv);
 			this.setLoc(npnloc[0], npnloc[1]);
 			this.incrementMoveCount();

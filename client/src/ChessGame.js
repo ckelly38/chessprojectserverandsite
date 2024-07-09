@@ -258,7 +258,7 @@ class ChessGame {
 		ChessGame.colorsForMovesAlternateMain(this.OFFICIAL_MOVES);
 	}
 	
-	static noMovesAfterResigning(myoffmvs)
+	static noMovesAfterResigningFromMoves(myoffmvs)
 	{
 		if (ChessGame.cc.isStringEmptyNullOrUndefined(myoffmvs)) return;
 		else
@@ -287,7 +287,7 @@ class ChessGame {
 	}
 	noMovesAfterResigning()
 	{
-		this.noMovesAfterResigning(this.OFFICIAL_MOVES);
+		ChessGame.noMovesAfterResigningFromMoves(this.OFFICIAL_MOVES);
 	}
 	
 	//IF NO OFFICIAL MOVES -> WHITE
@@ -450,7 +450,6 @@ class ChessGame {
 	
 	addOfficialMove(mymvcmd)
 	{
-		debugger;
 		if (ChessGame.cc.isStringEmptyNullOrUndefined(mymvcmd))
 		{
 			ChessGame.cc.logAndThrowNewError("cannot add an empty or null move to the " +
@@ -483,7 +482,6 @@ class ChessGame {
 	
 	makeUnofficialMoveOfficial()
 	{
-		debugger;
 		if (this.isCompleted())
 		{
 			ChessGame.cc.logAndThrowNewError("cannot make the unofficial move official " +
@@ -516,10 +514,8 @@ class ChessGame {
 			{
 				this.setUnofficialMove(this.OFFICIAL_MOVES[this.OFFICIAL_MOVES.length - 1]);
 				this.OFFICIAL_MOVES[this.OFFICIAL_MOVES.length - 1] = null;
-				this.OFFICIAL_MOVES.filter((mitem, indx) => {
-					if (indx === this.OFFICIAL_MOVES.length - 1) return false;//not this
-					else return true;//keep these
-				});
+				this.OFFICIAL_MOVES.pop();
+				//this.printAllOfficialMoves();
 			}
 			else ChessGame.cc.logAndThrowNewError("THERE MUST BE AT LEAST ONE OFFICIAL MOVE!");
 		}
