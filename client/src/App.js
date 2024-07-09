@@ -36,7 +36,7 @@ function App() {
     {
       //do nothing
     }
-    else throw new Error(loginprefsetctypenmerrmsg);
+    else this.cc.logAndThrowNewError(loginprefsetctypenmerrmsg);
 
     const mysimpusrobj = cc.getSimplifiedUserObj(user);
     const nvbar = (<Navbar />);//simpusrobj={mysimpusrobj}
@@ -65,7 +65,7 @@ function App() {
       //getPcs() === null || getPcs() === undefined || getPcs().length < 1 
       if (cc.isStringEmptyNullOrUndefined(getPcs()))
       {
-          throw new Error("either illegal id (" + mid +
+          this.cc.logAndThrowNewError("either illegal id (" + mid +
               ") or array was empty when not supposed to!");
       }
       //else;//do nothing

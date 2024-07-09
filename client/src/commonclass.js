@@ -9,6 +9,12 @@ class CommonClass{
         return (this.isItemNullOrUndefined(stra) || stra.length < 1);
     }
     
+    logAndThrowNewError(errmsg)
+    {
+        console.error(errmsg);
+        throw new Error(errmsg);
+    }
+
     letMustBeDefinedAndNotNull(val, vnm="varnm")
     {
         let varnm = "";
@@ -16,7 +22,7 @@ class CommonClass{
         else varnm = "" + vnm;
         if (this.isItemNullOrUndefined(val))
         {
-            throw new Error("" + varnm + " must be a defined variable!");
+            this.logAndThrowNewError("" + varnm + " must be a defined variable!");
         }
     }
 
@@ -27,12 +33,12 @@ class CommonClass{
         else varnm = "" + vnm;
         if (this.isItemNullOrUndefined(val))
         {
-            throw new Error("" + varnm + " must be a defined boolean variable!");
+            this.logAndThrowNewError("" + varnm + " must be a defined boolean variable!");
         }
         else
         {
             if (val === true || val === false);
-            else throw new Error("" + varnm + " must be a defined boolean variable!");
+            else this.logAndThrowNewError("" + varnm + " must be a defined boolean variable!");
         }
     }
 
@@ -105,7 +111,7 @@ class CommonClass{
         if (this.isStringEmptyNullOrUndefined(vnm)) varnm = "numvarnm";
         else varnm = "" + vnm;
         if (this.isNumber(val));
-        else throw new Error("" + varnm + " must be a number, but it was not!");
+        else this.logAndThrowNewError("" + varnm + " must be a number, but it was not!");
     }
 
     letMustBeAnInteger(val, vnm="numvarnm")
@@ -114,7 +120,7 @@ class CommonClass{
         if (this.isStringEmptyNullOrUndefined(vnm)) varnm = "numvarnm";
         else varnm = "" + vnm;
         if (this.isInteger(val));
-        else throw new Error("" + varnm + " must be an integer, but it was not!");
+        else this.logAndThrowNewError("" + varnm + " must be an integer, but it was not!");
     }
 
     isStringAOnStringBList(stra, mstrs)
@@ -165,7 +171,7 @@ class CommonClass{
         vtypes.forEach((item, index) => {
             if (this.isStringEmptyNullOrUndefined(item))
             {
-                throw new Error("the type name must not be empty, null, or undefined!");
+                this.logAndThrowNewError("the type name must not be empty, null, or undefined!");
             }
             else
             {
@@ -174,7 +180,7 @@ class CommonClass{
                 {
                     if (index + 1 < vtypes.length) retstr += ", " + item;
                     else if (index + 1 === vtypes.length) retstr += ", or " + item;
-                    else throw new Error("illegal index found and used here!");
+                    else this.logAndThrowNewError("illegal index found and used here!");
                 }
             }
         });
@@ -224,11 +230,11 @@ class CommonClass{
             else if (typenm === "Preferences") mybgcolor = "pink";
             else
             {
-                throw new Error(this.getTypeErrorMsgFromList(["Ranks", "Stats", "Statistics",
-                    "GameList", "GameBoard", "Episode", "Toy", "Show", "SignUp", "Login",
-                    "Preferences"]));
-                //throw new Error("typenm must be Episode, Toy, Show, or SignUp, Login, " +
-                //    "or Preferences but it was not!");
+                this.logAndThrowNewError(this.getTypeErrorMsgFromList(["Ranks", "Stats",
+                    "Statistics", "GameList", "GameBoard", "Episode", "Toy", "Show", "SignUp",
+                    "Login", "Preferences"]));
+                //this.logAndThrowNewError("typenm must be Episode, Toy, Show, or SignUp, " +
+                //  "Login, or Preferences but it was not!");
             }
         }
         return mybgcolor;
@@ -245,7 +251,7 @@ class CommonClass{
                 if (dispvals.length === vals.length);
                 else
                 {
-                    throw new Error("the display vals and the values must " +
+                    this.logAndThrowNewError("the display vals and the values must " +
                         "be the same length, but they were not!");
                 }
             }
@@ -321,7 +327,7 @@ class CommonClass{
                 "id": -1
             };
         }
-        else throw new Error("typenm must be Episode, Toy, or Show, but it was not!");
+        else this.logAndThrowNewError("typenm must be Episode, Toy, or Show, but it was not!");
     }
 
     //if dataobj is null or undefined it returns a default object
@@ -349,7 +355,7 @@ class CommonClass{
         {
             if (this.isItemNullOrUndefined(dataobj.episodes))
             {
-                throw new Error("the teps was more than zero, but there are no " +
+                this.logAndThrowNewError("the teps was more than zero, but there are no " +
                     "episodes in the object, so it should have been zero!");
             }
             //else;//do nothing
@@ -379,13 +385,13 @@ class CommonClass{
 
             if (mymaxsnumi < 0 || mymaxsnum < 1)
             {
-                throw new Error("the teps was more than zero, but there were either " +
+                this.logAndThrowNewError("the teps was more than zero, but there were either " +
                     "no eps in the object OR there was no valid season number on any " +
                     "of the episodes. The season number must be greater than zero!");
             }
             else numseasons = mymaxsnum;
         }
-        else throw new Error("teps must be a positive or zero integer!");
+        else this.logAndThrowNewError("teps must be a positive or zero integer!");
         //console.log("numseasons = " + numseasons);
 
         let rmndr = -1;
@@ -397,7 +403,7 @@ class CommonClass{
                 rmndr = 0;
                 numepsperseason = 0;
             }
-            else throw new Error("if numseasons is zero, then teps must also be zero!");
+            else this.logAndThrowNewError("if numseasons is zero, then teps must also be zero!");
         }
         else
         {
@@ -486,8 +492,8 @@ class CommonClass{
             hlist = ["Name", "# Of Seasons", "# Of Episodes", "~ Total Episodes/Season",
                 "Episodes Link", "Toys Link", "Description"];
         }
-        else throw new Error(this.getTypeErrorMsgFromList(["Episode", "Toy", "Show"]));
-        //else throw new Error("typenm must be Episode, Toy, or Show, but it was not!");
+        else this.logAndThrowNewError(this.getTypeErrorMsgFromList(["Episode", "Toy", "Show"]));
+        //else this.logAndThrowNewError("typenm must be Episode, Toy, or Show, but it was not!");
         return hlist;
     }
     isHeaderCentered(hstr)

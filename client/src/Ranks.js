@@ -9,7 +9,7 @@ function Ranks(props)
     {
         cc.letMustBeDefinedAndNotNull(mynm, "mynm");
         if (cc.isInteger(myval));
-        else throw new Error("myval (" + myval + ") must be an integer, but it was not!");
+        else cc.logAndThrowNewError("myval (" + myval + ") must be an integer, but it was not!");
         let myfpartstr = null;
         if (myval === 0) myfpartstr = ": OFF";
         else if (myval === 1) myfpartstr = ": ^";
@@ -20,9 +20,9 @@ function Ranks(props)
     function getNextVal(myval, mxval=2)
     {
         if (cc.isInteger(myval));
-        else throw new Error("myval (" + myval + ") must be an integer, but it was not!");
+        else cc.logAndThrowNewError("myval (" + myval + ") must be an integer, but it was not!");
         if (cc.isInteger(mxval));
-        else throw new Error("mxval (" + mxval + ") must be an integer, but it was not!");
+        else cc.logAndThrowNewError("mxval (" + mxval + ") must be an integer, but it was not!");
         if (myval === mxval) return 0;
         else return myval + 1;
     }
@@ -258,7 +258,7 @@ function Ranks(props)
             let myrevsrtedcpy = myDeepCopyObj(mysrtedcpy).reverse();//[...mysrtedcpy]
             //console.log("myrevsrtedcpy = ", myrevsrtedcpy);
             //console.log("called reverse!");
-            //throw new Error("NEED TO MAKE SURE THE LIST ACTUALLY REVERSED!");
+            //cc.logAndThrowNewError("NEED TO MAKE SURE THE LIST ACTUALLY REVERSED!");
 
             myretlistdata = myDeepCopyObj(myrevsrtedcpy);
         }

@@ -20,7 +20,7 @@ function SignUpLoginPreferences({typenm}) {
 
     const typenmerrmsg = cc.getTypeErrorMsgFromList(["Preferences", "SignUp", "Login"]);
     if (typenm === "Preferences" || typenm === "SignUp" || typenm === "Login");
-    else throw new Error(typenmerrmsg);
+    else this.cc.logAndThrowNewError(typenmerrmsg);
 
     const prefsSignUpSchema = yup.object().shape({
         username: yup.string().required("You must enter a username!").min(1),
@@ -51,7 +51,7 @@ function SignUpLoginPreferences({typenm}) {
             myinitpswrd = "" + simpusrobj.password;
             myinitacslv = simpusrobj.access_level;
         }
-        else throw new Error(typenmerrmsg);
+        else this.cc.logAndThrowNewError(typenmerrmsg);
 
         if (typenm === "Login") return {"username": myinitusrnm, "password": myinitpswrd};
         else if (typenm === "SignUp" || typenm === "Preferences")
@@ -59,7 +59,7 @@ function SignUpLoginPreferences({typenm}) {
             return {"username": myinitusrnm, "password": myinitpswrd,
                 "access_level": myinitacslv};
         }
-        else throw new Error(typenmerrmsg);
+        else this.cc.logAndThrowNewError(typenmerrmsg);
     }
 
     function unsubscribeMe(event)
@@ -165,7 +165,7 @@ function SignUpLoginPreferences({typenm}) {
             let mthdnm = "";
             if (typenm === "SignUp") mthdnm = "POST";
             else if (typenm === "Login" || typenm === "Preferences") mthdnm = "PATCH";
-            else throw new Error(typenmerrmsg);
+            else this.cc.logAndThrowNewError(typenmerrmsg);
             console.log("mthdnm = " + mthdnm);
 
             let mytosrvrdataobj = null;
@@ -202,7 +202,7 @@ function SignUpLoginPreferences({typenm}) {
                 }
             }
             else if (typenm === "Login" || typenm === "SignUp") mytosrvrdataobj = values;
-            else throw new Error(typenmerrmsg);
+            else this.cc.logAndThrowNewError(typenmerrmsg);
             console.log("mytosrvrdataobj = ", mytosrvrdataobj);
             console.log("usesatleastoneval = " + usesatleastoneval);
 
@@ -225,7 +225,7 @@ function SignUpLoginPreferences({typenm}) {
                 {
                     murl = "/" + typenm.toLowerCase();
                 }
-                else throw new Error(typenmerrmsg);
+                else this.cc.logAndThrowNewError(typenmerrmsg);
                 console.log("murl = " + murl);
     
                 fetch(murl, myconfigobj).then((res) => res.json()).then((data) => {
@@ -275,7 +275,7 @@ function SignUpLoginPreferences({typenm}) {
                             setSuccessMsg(mysucmsg);
                             setUser(mynwusr);
                         }
-                        else throw new Error(typenmerrmsg);
+                        else this.cc.logAndThrowNewError(typenmerrmsg);
                     }
                 }).catch((err) => {
                     console.error("there was an error attempting to login!");
@@ -315,7 +315,7 @@ function SignUpLoginPreferences({typenm}) {
     let mybtnnm = "";
     if (typenm === "Preferences") mybtnnm = "Update";
     else if (typenm === "Login" || typenm === "SignUp") mybtnnm = "" + typenm;
-    else throw new Error(typenmerrmsg);
+    else this.cc.logAndThrowNewError(typenmerrmsg);
 
     return (<div style={{ backgroundColor: bgcolor }}><h1>{typenm}:</h1>
     <form onSubmit={formik.handleSubmit}>

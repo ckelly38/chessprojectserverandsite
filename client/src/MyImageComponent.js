@@ -6,7 +6,7 @@ function MyImageComponent({type, color, url=null})
     let cc = new CommonClass();
     if (cc.isStringEmptyNullOrUndefined(type) || cc.isStringEmptyNullOrUndefined(color))
     {
-        throw new Error("type and color must be defined, and not null, and not empty!");
+        this.cc.logAndThrowNewError("type and color must be defined, and not null, and not empty!");
     }
     else
     {

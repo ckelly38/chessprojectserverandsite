@@ -7,7 +7,7 @@ class ChessGame {
 	{
 		ChessGame.cc.letMustBeBoolean(isdone, "isdone");
 		ChessGame.cc.letMustBeAnInteger(gid, "gid");
-		if (gid < 1) throw new Error("GAME ID must be at least 1!");
+		if (gid < 1) ChessGame.cc.logAndThrowNewError("GAME ID must be at least 1!");
 		//else;//do nothing
 		let numitems = ChessPiece.getNumItemsInList(ChessGame.all);
 		if (numitems < 1);
@@ -17,7 +17,7 @@ class ChessGame {
 			{
 				if (ChessGame.all[x].getGameID() === gid)
 				{
-					throw new Error("there must be only one game with that ID!");
+					ChessGame.cc.logAndThrowNewError("there must be only one game with that ID!");
 				}
 				//else;//do nothing
 			}
@@ -82,10 +82,10 @@ class ChessGame {
 		return this.gameID;
 	}
 	
-	static getGame(gid)
+	static getGameVIAGID(gid)
 	{
 		ChessGame.cc.letMustBeAnInteger(gid, "gid");
-		if (gid < 1) throw new Error("GAME ID must be at least 1!");
+		if (gid < 1) ChessGame.cc.logAndThrowNewError("GAME ID must be at least 1!");
 		else
 		{
 			let numitems = ChessPiece.getNumItemsInList(this.all);
@@ -98,30 +98,28 @@ class ChessGame {
 				}
 			}
 			//return null;
-			throw new Error("GAME with ID (" + gid + ") not found!");
+			ChessGame.cc.logAndThrowNewError("GAME with ID (" + gid + ") not found!");
 		}
 	}
 	getGame()
 	{
-		return this.getGame(this.getGameID());
+		return this.getGameVIAGID(this.getGameID());
 	}
 	
 	setMyColor(val)
 	{
 		if (ChessGame.cc.isStringEmptyNullOrUndefined(val))
 		{
-			throw new Error("my color must be BOTH, WHITE, OR BLACK ONLY!");
+			ChessGame.cc.logAndThrowNewError("my color must be BOTH, WHITE, OR BLACK ONLY!");
 		}
-		else if (val === "WHITE") this.mycolor = "WHITE";
-		else if (val === "BLACK") this.mycolor = "BLACK";
-		else if (val === "BOTH") this.mycolor = "BOTH";
-		else throw new Error("my color must be BOTH, WHITE, OR BLACK ONLY!");
+		else if (val === "WHITE" || val === "BLACK" || val === "BOTH") this.mycolor = "" + val;
+		else ChessGame.cc.logAndThrowNewError("my color must be BOTH, WHITE, OR BLACK ONLY!");
 	}
 	getMyColor()
 	{
 		let myvalidclrs = ["WHITE", "BLACK", "BOTH"];
 		if (ChessPiece.itemIsOnGivenList(this.mycolor, myvalidclrs)) return "" + this.mycolor;
-		else throw new Error("my color must be BOTH, WHITE, OR BLACK ONLY!");
+		else ChessGame.cc.logAndThrowNewError("my color must be BOTH, WHITE, OR BLACK ONLY!");
 	}
 	
 	static doesColorAMatchColorB(clrvala, clrvalb)
@@ -151,7 +149,7 @@ class ChessGame {
 	
 	setLastSetLocMove(mvstr)
 	{
-		if (this.cc.isItemNullOrUndefined(mvstr)) this.lastsetlocmv = null;
+		if (ChessGame.cc.isItemNullOrUndefined(mvstr)) this.lastsetlocmv = null;
 		else this.lastsetlocmv = "" + mvstr;
 	}
 	getLastSetLocMove()
@@ -167,7 +165,7 @@ class ChessGame {
 		{
 			for (let x = 0; x < numofmvs; x++)
 			{
-				if (this.cc.isItemNullOrUndefined(this.OFFICIAL_MOVES[x]));
+				if (ChessGame.cc.isItemNullOrUndefined(this.OFFICIAL_MOVES[x]));
 				else if (this.OFFICIAL_MOVES[x].length < 1) this.OFFICIAL_MOVES[x] = null;
 				else
 				{
@@ -181,14 +179,14 @@ class ChessGame {
 		}
 	}
 	
-	static colorsForMovesAlternate(myoffmvs)
+	static colorsForMovesAlternateMain(myoffmvs)
 	{
 		let clrs = ChessPiece.getSideColorsForMoves(myoffmvs);
 		let tps = ChessPiece.getSideTypesForMoves(myoffmvs);
-		this.cc.letMustBeDefinedAndNotNull(myoffmvs, "myoffmvs")
-		if (this.cc.isItemNullOrUndefined(clrs) || clrs.length != myoffmvs.length)
+		ChessGame.cc.letMustBeDefinedAndNotNull(myoffmvs, "myoffmvs")
+		if (ChessGame.cc.isItemNullOrUndefined(clrs) || clrs.length != myoffmvs.length)
 		{
-			throw new Error("myoffmvs must be the same size as the colors!");
+			ChessGame.cc.logAndThrowNewError("myoffmvs must be the same size as the colors!");
 		}
 		else
 		{
@@ -220,7 +218,8 @@ class ChessGame {
 							let nxtismvcmd = ChessPiece.itemIsOnGivenList(tps[n + 1], mvtps);
 							if (fismvcmd && nxtismvcmd)
 							{
-								throw new Error("COLORS DO NOT ALTERNATE AND MUST!");
+								ChessGame.cc.logAndThrowNewError("COLORS DO NOT ALTERNATE " +
+									"AND MUST!");
 							}
 							else needother = true;
 						}
@@ -240,36 +239,44 @@ class ChessGame {
 							if (cmpi < 0 || myoffmvs.length - 1 < cmpi) break;
 							//else;//do nothing proceed below
 							if (clrs[cmpi] === ChessPiece.getOppositeColor(clrs[n]));
-							else throw new Error("COLORS DO NOT ALTERNATE AND MUST!");
+							else
+							{
+								ChessGame.cc.logAndThrowNewError("COLORS DO NOT ALTERNATE " +
+									"AND MUST!");
+							}
 						}
 						//else;//do nothing
 					}
 					//else;//do nothing
 				}
-				else throw new Error("COLOR (" + clrs[n] + ") IS INVALID!");
+				else ChessGame.cc.logAndThrowNewError("COLOR (" + clrs[n] + ") IS INVALID!");
 			}
 		}
 	}
 	colorsForOfficialMovesAlternate()
 	{
-		this.colorsForMovesAlternate(this.OFFICIAL_MOVES);
+		ChessGame.colorsForMovesAlternateMain(this.OFFICIAL_MOVES);
 	}
 	
 	static noMovesAfterResigning(myoffmvs)
 	{
-		if (this.cc.isStringEmptyNullOrUndefined(myoffmvs)) return;
+		if (ChessGame.cc.isStringEmptyNullOrUndefined(myoffmvs)) return;
 		else
 		{
 			let tps = ChessPiece.getSideTypesForMoves(myoffmvs);
 			if (tps.length === myoffmvs.length);
-			else throw new Error("myoffmvs must be the same size as the command types!");
+			else
+			{
+				ChessGame.cc.logAndThrowNewError("myoffmvs must be the same size as the " +
+					"command types!");
+			}
 			for (let n = 0; n < myoffmvs.length; n++)
 			{
 				if (tps[n] === "RESIGN")
 				{
 					if (n + 1 < myoffmvs.length)
 					{
-						throw new Error("NO MOVES ALLOWED AFTER RESIGNING!");
+						ChessGame.cc.logAndThrowNewError("NO MOVES ALLOWED AFTER RESIGNING!");
 					}
 					//else;//do nothing
 				}
@@ -293,13 +300,14 @@ class ChessGame {
 		//if a side has return the opposite color side
 		let clrs = ChessPiece.getSideColorsForMoves(myoffmvs);
 		let tps = ChessPiece.getSideTypesForMoves(myoffmvs);
-		if (this.cc.isStringEmptyNullOrUndefined(clrs) && this.cc.isStringEmptyNullOrUndefined(tps))
+		if (ChessGame.cc.isStringEmptyNullOrUndefined(clrs) &&
+			ChessGame.cc.isStringEmptyNullOrUndefined(tps))
 		{
 			return "WHITE";
 		}
 		else if (clrs.length != myoffmvs.length)
 		{
-			throw new Error("myoffmvs must be the same size as the colors!");
+			ChessGame.cc.logAndThrowNewError("myoffmvs must be the same size as the colors!");
 		}
 		else
 		{
@@ -317,25 +325,25 @@ class ChessGame {
 	}
 	getSideTurn()
 	{
-		return this.getSideTurn(this.OFFICIAL_MOVES);
+		return ChessGame.getSideTurnFromMoves(this.OFFICIAL_MOVES);
 	}
 	
 	getNumOfficialMoves()
 	{
-		if (this.cc.isStringEmptyNullOrUndefined(this.OFFICIAL_MOVES)) return 0;
+		if (ChessGame.cc.isStringEmptyNullOrUndefined(this.OFFICIAL_MOVES)) return 0;
 		else return this.OFFICIAL_MOVES.length;
 	}
 	
 	printAllMoves(mymvs, mvstp)
 	{
-		if (this.cc.isStringEmptyNullOrUndefined(mymvs))
+		if (ChessGame.cc.isStringEmptyNullOrUndefined(mymvs))
 		{
-			if (this.cc.isStringEmptyNullOrUndefined(mvstp)) console.log("NO MOVES!");
+			if (ChessGame.cc.isStringEmptyNullOrUndefined(mvstp)) console.log("NO MOVES!");
 			else console.log("NO " + mvstp + " MOVES!");
 		}
 		else
 		{
-			if (this.cc.isStringEmptyNullOrUndefined(mvstp))
+			if (ChessGame.cc.isStringEmptyNullOrUndefined(mvstp))
 			{
 				console.log("THERE ARE " + mymvs.length + " MOVES AND THEY ARE:");
 			}
@@ -393,7 +401,7 @@ class ChessGame {
 		else
 		{
 			//right here validate it
-			ChessGame.colorsForMovesAlternate(myoffmvs);
+			ChessGame.colorsForMovesAlternateMain(myoffmvs);
 			//make sure no commands after resigning
 			this.noMovesAfterResigning(myoffmvs, false);
 			
@@ -404,12 +412,12 @@ class ChessGame {
 			{
 				if (ChessGame.cc.isStringEmptyNullOrUndefined(myoffmvs[x]))
 				{
-					this.OFFICIAL_MOVES.add(null);
+					this.OFFICIAL_MOVES.push(null);
 				}
 				else
 				{
 					let mynwstrarr = myoffmvs[x].map((mitem) => "" + mitem);
-					this.OFFICIAL_MOVES.add(mynwstrarr);
+					this.OFFICIAL_MOVES.push(mynwstrarr);
 				}
 			}
 			//this.colorsForOfficialMovesAlternate();
@@ -419,10 +427,10 @@ class ChessGame {
 	
 	setUnofficialMove(mymvcmd)
 	{
-		if (this.cc.isStringEmptyNullOrUndefined(mymvcmd)) this.UNOFFICIAL_MOVE = null;
+		if (ChessGame.cc.isStringEmptyNullOrUndefined(mymvcmd)) this.UNOFFICIAL_MOVE = null;
 		else
 		{
-			if (this.cc.isStringEmptyNullOrUndefined(this.UNOFFICIAL_MOVE))
+			if (ChessGame.cc.isStringEmptyNullOrUndefined(this.UNOFFICIAL_MOVE))
 			{
 				this.UNOFFICIAL_MOVE = mymvcmd.map((mitem) => "" + mitem);
 			}
@@ -430,8 +438,8 @@ class ChessGame {
 			{
 				this.printAllOfficialMoves();
 				this.printUnofficialMove();
-				throw new Error("YOU NEED TO MAKE THE MOVE OFFICIAL FIRST OR CLEAR " +
-					"THE UNOFFICIAL MOVE!");
+				ChessGame.cc.logAndThrowNewError("YOU NEED TO MAKE THE MOVE OFFICIAL " +
+					"FIRST OR CLEAR THE UNOFFICIAL MOVE!");
 			}
 		}
 	}
@@ -442,24 +450,30 @@ class ChessGame {
 	
 	addOfficialMove(mymvcmd)
 	{
-		if (this.cc.isStringEmptyNullOrUndefined(mymvcmd))
+		debugger;
+		if (ChessGame.cc.isStringEmptyNullOrUndefined(mymvcmd))
 		{
-			throw new Error("cannot add an empty or null move to the official move list!");
+			ChessGame.cc.logAndThrowNewError("cannot add an empty or null move to the " +
+				"official move list!");
 		}
 		else
 		{
 			if (this.isCompleted())
 			{
-				throw new Error("cannot add the official because the game is already completed!");
+				ChessGame.cc.logAndThrowNewError("cannot add the official because the " +
+					"game is already completed!");
 			}
 			else
 			{
 				let mycp = mymvcmd.map((mitem) => "" + mitem);
 				
-				if (this.cc.isItemNullOrUndefined(this.OFFICIAL_MOVES)) this.OFFICIAL_MOVES = [];
+				if (ChessGame.cc.isItemNullOrUndefined(this.OFFICIAL_MOVES))
+				{
+					this.OFFICIAL_MOVES = [];
+				}
 				//else;//do nothing
 				
-				this.OFFICIAL_MOVES.add(mycp);
+				this.OFFICIAL_MOVES.push(mycp);
 				this.colorsForOfficialMovesAlternate();
 				this.noMovesAfterResigning();
 				//this.printAllOfficialMoves();
@@ -469,10 +483,11 @@ class ChessGame {
 	
 	makeUnofficialMoveOfficial()
 	{
+		debugger;
 		if (this.isCompleted())
 		{
-			throw new Error("cannot make the unofficial move official because the game " +
-				"is already completed!");
+			ChessGame.cc.logAndThrowNewError("cannot make the unofficial move official " +
+				"because the game is already completed!");
 		}
 		else
 		{
@@ -491,11 +506,11 @@ class ChessGame {
 		//it in checkmate instead?
 		//if (isCompleted())
 		
-		if (this.cc.isStringEmptyNullOrUndefined(this.UNOFFICIAL_MOVE))
+		if (ChessGame.cc.isStringEmptyNullOrUndefined(this.UNOFFICIAL_MOVE))
 		{
-			if (this.cc.isStringEmptyNullOrUndefined(this.OFFICIAL_MOVES))
+			if (ChessGame.cc.isStringEmptyNullOrUndefined(this.OFFICIAL_MOVES))
 			{
-				throw new Error("THERE MUST BE AT LEAST ONE OFFICIAL MOVE!");
+				ChessGame.cc.logAndThrowNewError("THERE MUST BE AT LEAST ONE OFFICIAL MOVE!");
 			}
 			else if (0 < this.OFFICIAL_MOVES.length)
 			{
@@ -506,17 +521,17 @@ class ChessGame {
 					else return true;//keep these
 				});
 			}
-			else throw new Error("THERE MUST BE AT LEAST ONE OFFICIAL MOVE!");
+			else ChessGame.cc.logAndThrowNewError("THERE MUST BE AT LEAST ONE OFFICIAL MOVE!");
 		}
-		else throw new Error("THE UNOFFICIAL MOVE MUST BE EMPTY!");
+		else ChessGame.cc.logAndThrowNewError("THE UNOFFICIAL MOVE MUST BE EMPTY!");
 	}
 	
 	setLastUndoneMove(mymvcmd)
 	{
-		if (this.cc.isStringEmptyNullOrUndefined(mymvcmd)) this.LAST_UNDONE_MOVE = null;
+		if (ChessGame.cc.isStringEmptyNullOrUndefined(mymvcmd)) this.LAST_UNDONE_MOVE = null;
 		else
 		{
-			if (this.cc.isStringEmptyNullOrUndefined(this.LAST_UNDONE_MOVE))
+			if (ChessGame.cc.isStringEmptyNullOrUndefined(this.LAST_UNDONE_MOVE))
 			{
 				this.LAST_UNDONE_MOVE = [];//new String[mymvcmd.length];
 				for (let n = 0; n < mymvcmd.length; n++)
@@ -532,7 +547,7 @@ class ChessGame {
 					this.LAST_UNDONE_MOVE[x] = null;
 				}
 				this.LAST_UNDONE_MOVE = null;
-				//throw new Error("YOU NEED TO CLEAR THE LAST UNDONE MOVE FIRST!");
+				//ChessGame.cc.logAndThrowNewError("YOU NEED TO CLEAR THE LAST UNDONE MOVE FIRST!");
 			}
 		}
 	}
@@ -548,11 +563,11 @@ class ChessGame {
 		//then get the UNOFFICIAL_MOVE
 		//then generate the undo command
 		let mymv = null;
-		if (this.cc.isStringEmptyNullOrUndefined(this.UNOFFICIAL_MOVE))
+		if (ChessGame.cc.isStringEmptyNullOrUndefined(this.UNOFFICIAL_MOVE))
 		{
-			if (this.cc.isStringEmptyNullOrUndefined(this.OFFICIAL_MOVES))
+			if (ChessGame.cc.isStringEmptyNullOrUndefined(this.OFFICIAL_MOVES))
 			{
-				throw new Error("No move found!");
+				ChessGame.cc.logAndThrowNewError("No move found!");
 			}
 			else mymv = this.OFFICIAL_MOVES[this.OFFICIAL_MOVES.length - 1];
 		}
@@ -563,7 +578,7 @@ class ChessGame {
 	//returns a copy of the given move
 	static genCopyOfStringArray(myinmv)
 	{
-		if (this.cc.isStringEmptyNullOrUndefined(myinmv)) return null;
+		if (ChessGame.cc.isStringEmptyNullOrUndefined(myinmv)) return null;
 		else return myinmv.map((mitem) => "" + mitem);
 	}
 	//returns a copy of the LAST_UNDONE_MOVE
@@ -585,8 +600,11 @@ class ChessGame {
 		//-MAKE IT (IT IS ALREADY OFFICIAL, SO DO NOT ADD TO LIST OF OFFICIAL MOVES)
 		
 		//if (this.isCompleted());
-		//else throw new Error("GAME MUST BE COMPLETED IN ORDER TO STEP THROUGH IT!");
-		
+		//else
+		//{
+		//	ChessGame.cc.logAndThrowNewError("GAME MUST BE COMPLETED IN ORDER TO STEP THROUGH IT!");
+		//}
+
 		console.log("OLD moveindex = " + this.moveindex);
 		
 		this.moveindex++;
@@ -597,7 +615,7 @@ class ChessGame {
 		let numofmvs = ChessPiece.getNumItemsInList(this.OFFICIAL_MOVES);
 		if (numofmvs < 1)
 		{
-			throw new Error("CANNOT MOVE FORWARD, NO MOVES PROVIDED!");
+			ChessGame.cc.logAndThrowNewError("CANNOT MOVE FORWARD, NO MOVES PROVIDED!");
 		}
 		else if (this.moveindex < numofmvs)
 		{
@@ -605,7 +623,7 @@ class ChessGame {
 				this.getGameID(), false, false,
 				ChessPiece.WHITE_MOVES_DOWN_RANKS, true);//isuser, isundo, iswhitedown, isofficial
 		}
-		else throw new Error("CANNOT MOVE FORWARD, NO MORE MOVES PROVIDED!");
+		else ChessGame.cc.logAndThrowNewError("CANNOT MOVE FORWARD, NO MORE MOVES PROVIDED!");
 	}
 	
 	stepBackward()
@@ -617,9 +635,12 @@ class ChessGame {
 		//-THEN GET THE PREVIOUS MOVE
 		
 		if (this.isCompleted());
-		else throw new Error("GAME MUST BE COMPLETED IN ORDER TO STEP THROUGH IT!");
-		
-		if (this.moveindex < 0) throw new Error("CANNOT STEP BACKWARD!");
+		else
+		{
+			ChessGame.cc.logAndThrowNewError("GAME MUST BE COMPLETED IN ORDER TO STEP THROUGH IT!");
+		}
+
+		if (this.moveindex < 0) ChessGame.cc.logAndThrowNewError("CANNOT STEP BACKWARD!");
 		//else;//do nothing
 		
 		//get the current move
@@ -652,7 +673,11 @@ class ChessGame {
 		
 		if (this.moveindex < numofmvs) return false;
 		else if (this.moveindex === numofmvs) return true;
-		else throw new Error("illegal moveindex or total number of moves found and used here!");
+		else
+		{
+			ChessGame.cc.logAndThrowNewError("illegal moveindex or total number of moves " +
+				"found and used here!");
+		}
 	}
 	
 	makeAllGivenOfficialMoves()
@@ -681,7 +706,7 @@ class ChessGame {
 	
 	setIsTied(nwval)
 	{
-		this.cc.letMustBeBoolean(nwval, "istiednwval");
+		ChessGame.cc.letMustBeBoolean(nwval, "istiednwval");
 		if (nwval)
 		{
 			this.istied = true;
@@ -696,28 +721,34 @@ class ChessGame {
 	
 	setColorWins(clrval, nwval)
 	{
-		this.cc.letMustBeBoolean(nwval, "colorwinsnwval");
-		if (this.cc.isStringEmptyNullOrUndefined(clrval))
+		ChessGame.cc.letMustBeBoolean(nwval, "colorwinsnwval");
+		if (ChessGame.cc.isStringEmptyNullOrUndefined(clrval))
 		{
-			throw new Error("color cannot be null or empty!");
+			ChessGame.cc.logAndThrowNewError("color cannot be null or empty!");
 		}
 		else if (clrval === "WHITE") this.whitewins = nwval;
 		else if (clrval === "BLACK") this.blackwins = nwval;
-		else throw new Error("invalid color (" + clrval + ") found and used here!");
+		else
+		{
+			ChessGame.cc.logAndThrowNewError("invalid color (" + clrval + ") found and used here!");
+		}
 		if (nwval) this.completeGameAndCommunicateWithTheServer("" + clrval + " WINS!");
 		//else;//do nothing
 	}
 	
 	setColorResigns(clrval, nwval)
 	{
-		this.cc.letMustBeBoolean(nwval, "colorresignsnwval");
-		if (this.cc.isStringEmptyNullOrUndefined(clrval))
+		ChessGame.cc.letMustBeBoolean(nwval, "colorresignsnwval");
+		if (ChessGame.cc.isStringEmptyNullOrUndefined(clrval))
 		{
-			throw new Error("color cannot be null or empty!");
+			ChessGame.cc.logAndThrowNewError("color cannot be null or empty!");
 		}
 		else if (clrval === "WHITE") this.wresigned = nwval;
 		else if (clrval === "BLACK") this.bresigned = nwval;
-		else throw new Error("invalid color (" + clrval + ") found and used here!");
+		else
+		{
+			ChessGame.cc.logAndThrowNewError("invalid color (" + clrval + ") found and used here!");
+		}
 		if (nwval)
 		{
 			console.log(clrval + " RESIGNED!");
@@ -728,17 +759,21 @@ class ChessGame {
 	
 	setColorWantsADraw(clrval, nwval)
 	{
-		this.cc.letMustBeBoolean(nwval, "clrdrawval");
+		ChessGame.cc.letMustBeBoolean(nwval, "clrdrawval");
 		
-		if (this.cc.isStringEmptyNullOrUndefined(clrval))
+		if (ChessGame.cc.isStringEmptyNullOrUndefined(clrval))
 		{
-			throw new Error("illegal color (" + clrval + ") found and used here!");
+			ChessGame.cc.logAndThrowNewError("illegal color (" + clrval + ") found and used here!");
 		}
 		else
 		{
 			if (clrval === "WHITE") this.whitewantsdraw = nwval;
 			else if (clrval === "BLACK") this.blackwantsdraw = nwval;
-			else throw new Error("illegal color (" + clrval + ") found and used here!");
+			else
+			{
+				ChessGame.cc.logAndThrowNewError("illegal color (" + clrval +
+					") found and used here!");
+			}
 			if (this.whitewantsdraw && this.blackwantsdraw) this.setIsTied(true);
 			//else;//do nothing
 		}

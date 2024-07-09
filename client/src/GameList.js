@@ -111,7 +111,11 @@ function GameList(props)
 
                 mxgid = Math.max(...mygids);
                 if (cc.isNumber(mxgid)) mxgid += 1;
-                else throw new Error("the value for the maximum new game id must be a number!");
+                else
+                {
+                    this.cc.logAndThrowNewError("the value for the maximum new game " +
+                        "id must be a number!");
+                }
             }
             else return;
             console.log("mxgid = " + mxgid);

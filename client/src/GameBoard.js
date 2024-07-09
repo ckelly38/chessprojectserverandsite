@@ -57,7 +57,7 @@ function GameBoard(props)
                     mycolsonrw.push(<td key={"rank" + myrnk}>{myrnk}</td>);
                 }
                 else if (c === 9) mycolsonrw.push(<td key={"rval" + r}>{r}</td>);
-                else throw new Error("illegal value found and used here for c!");
+                else this.cc.logAndThrowNewError("illegal value found and used here for c!");
             }
             myrws.push(<tr key={"rowid" + r}>{mycolsonrw}</tr>);
         }
