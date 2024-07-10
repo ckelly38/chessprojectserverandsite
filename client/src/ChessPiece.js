@@ -317,24 +317,30 @@ class ChessPiece {
 		else ChessPiece.cc.logAndThrowNewError("PAWNS ARE FOUND ON ALL COLS!");
 	}
 	
-	static isGenderKnownForPiece(tp)
+	static isGenderKnownForPieceMain(tp)
 	{
 		ChessPiece.cc.letMustBeDefinedAndNotNull(tp, "tp");
 		ChessPiece.cc.letMustBeDefinedAndNotNull(ChessPiece.validTypes, "validTypes");
 		
-		if (ChessPiece.cc.itemIsOnGivenList(tp, ChessPiece.validTypes)) return (tp != "PAWN");
-		else ChessPiece.cc.logAndThrowNewError("tp (" + tp + ") is not a valid chess piece type!");
+		if (ChessPiece.itemIsOnGivenList(tp, ChessPiece.validTypes))
+		{
+			return ((tp === "PAWN") ? false : true);
+		}
+		else
+		{
+			ChessPiece.cc.logAndThrowNewError("tp (" + tp + ") is not a valid chess piece type!");
+		}
 	}
 	isGenderKnownForPiece()
 	{
-		return ChessPiece.isGenderKnownForPiece(this.getType());
+		return ChessPiece.isGenderKnownForPieceMain(this.getType());
 	}
 	//false for female, true for male, ILLEGALSTATE for PAWNS
-	static getGenderForPiece(tp)
+	static getGenderForPieceMain(tp)
 	{
 		ChessPiece.cc.letMustBeDefinedAndNotNull(tp, "tp");
 
-		if (ChessPiece.isGenderKnownForPiece(tp))
+		if (ChessPiece.isGenderKnownForPieceMain(tp))
 		{
 			//return the answer
 			if (tp === "QUEEN") return false;
@@ -348,7 +354,7 @@ class ChessPiece {
 	}
 	getGenderForPiece()
 	{
-		return ChessPiece.getGenderForPiece(this.getType());
+		return ChessPiece.getGenderForPieceMain(this.getType());
 	}
 	convertGenderValueToString()
 	{
@@ -653,7 +659,7 @@ class ChessPiece {
 		}
 		else return ChessPiece.getLocString(loc[0], loc[1]);
 	}
-	getLocString()
+	getMyLocString()
 	{
 		return ChessPiece.getLocString(this.getRow(), this.getCol());
 	}
@@ -712,7 +718,7 @@ class ChessPiece {
 		if (terr)
 		{
 			ChessPiece.cc.logAndThrowNewError("cannot move to new location " +
-				this.getLocString(rval, cval) + "!");
+				ChessPiece.getLocString(rval, cval) + "!");
 		}
 		//else;//do nothing
 	}
@@ -956,8 +962,8 @@ class ChessPiece {
 		const lstr = ChessPiece.getLocString(rval, cval);
 		if (ChessPiece.isvalidrorc(rval) && ChessPiece.isvalidrorc(cval))
 		{
-			return "" + lstr + " " +
-				ChessPiece.convertRowColToStringLoc(rval, cval, ChessPiece.WHITE_MOVES_DOWN_RANKS);
+			return "" + lstr + " " + ChessPiece.convertRowColToStringLoc(rval, cval,
+					ChessPiece.WHITE_MOVES_DOWN_RANKS);
 		}
 		else return lstr;
 	}
@@ -1959,18 +1965,28 @@ class ChessPiece {
 		if (numpcs < 1);
 		else
 		{
-			for (let x = 0; x < numpcs; x++)
-			{
-				if (ChessPiece.cps[x].getRow() === rval && ChessPiece.cps[x].getCol() === cval &&
-					ChessPiece.cps[x].getGameID() === gid)
+			ChessPiece.cps = ChessPiece.cps.filter((mpc) => {
+				if (mpc.getRow() === rval && mpc.getCol() === cval &&
+					mpc.getGameID() === gid)
 				{
-					console.log("REMOVED ", ChessPiece.cps[x]);
-					ChessPiece.cps.remove(ChessPiece.cps[x]);//NOT DONE YET 7-2-2024 7 PM
-					numpcs--;
-					x--;
+					console.log("REMOVED ", mpc);
+					return false;//remove
 				}
-				//else;//do nothing
-			}
+				else return true;//keep
+			});
+
+			//for (let x = 0; x < numpcs; x++)
+			//{
+			//	if (ChessPiece.cps[x].getRow() === rval && ChessPiece.cps[x].getCol() === cval &&
+			//		ChessPiece.cps[x].getGameID() === gid)
+			//	{
+			//		console.log("REMOVED ", ChessPiece.cps[x]);
+			//		ChessPiece.cps.remove(ChessPiece.cps[x]);//NOT DONE YET 7-2-2024 7 PM
+			//		numpcs--;
+			//		x--;
+			//	}
+			//	//else;//do nothing
+			//}
 		}
 	}
 	static removePieceAtMain(loc, gid, clearboardcalled=false)
@@ -6241,7 +6257,7 @@ class ChessPiece {
 					else if (0 < i && (oldmv.charAt(i) === 'a' ||  oldmv.charAt(i) === 'A') &&
 						(oldmv.charAt(i + 1) === 't' || oldmv.charAt(i + 1) === 'T') &&
 						oldmv.charAt(i + 2) === ':' && oldmv.charAt(i + 3) === ' ' &&
-						oldmv.charAt(i + 4) != '(')
+						oldmv.charAt(i + 4) !== '(')
 					{
 						si = i + 3;
 						addstraight = true;
@@ -6252,7 +6268,7 @@ class ChessPiece {
 					else if (0 < i && oldmv.charAt(i - 1) === ' ' && (oldmv.charAt(i) === 't' ||
 						oldmv.charAt(i) === 't') && (oldmv.charAt(i + 1) === 'o' ||
 						oldmv.charAt(i + 1) === 'O') && oldmv.charAt(i + 2) === ':' &&
-						oldmv.charAt(i + 3) === ' ' && oldmv.charAt(i + 4) != '(')
+						oldmv.charAt(i + 3) === ' ' && oldmv.charAt(i + 4) !== '(')
 					{
 						si = i + 3;
 						addstraight = true;
@@ -7251,7 +7267,8 @@ class ChessPiece {
 		return ChessPiece.genMoveToCommandMainVIACP(cp, nloc, gid, null, null, ptpval,
 			usecslingasmv, bpassimnxtmv);
 	}
-	static genMoveToCommandNoListsMainVIACP(cp, nloc, gid, usecslingasmv=false, bpassimnxtmv=false)
+	static genMoveToCommandNoListsMainVIACP(cp, nloc, gid, usecslingasmv=false,
+		bpassimnxtmv=false)
 	{
 		return ChessPiece.genMoveToCommandNoListsVIACP(cp, nloc, gid, null, null, "QUEEN",
 			usecslingasmv, bpassimnxtmv);
@@ -8864,12 +8881,18 @@ class ChessPiece {
 				if (ChessPiece.cc.isItemNullOrUndefined(oldmvwithundo))
 				{
 					if (ChessPiece.cc.isItemNullOrUndefined(mvcmd));
-					else ChessPiece.cc.logAndThrowNewError("old move is not the required length!");
+					else
+					{
+						ChessPiece.cc.logAndThrowNewError("old move is not the required length!");
+					}
 				}
 				else
 				{
 					if (oldmvwithundo.length === mvcmd.length);
-					else ChessPiece.cc.logAndThrowNewError("old move is not the required length!");
+					else
+					{
+						ChessPiece.cc.logAndThrowNewError("old move is not the required length!");
+					}
 				}
 				let oldmv = [];//new String[mvcmd.length];
 				for (let x = 0; x < oldmvwithundo.length; x++)
@@ -9022,6 +9045,7 @@ class ChessPiece {
 								iswhitedown), gid,
 							Number(mvcmd[pci + 1].substring(7,
 								mvcmd[pci + 1].indexOf("MS"))), true);
+						//console.log(cp);
 						console.log("CREATED: " + cp.toString() + "!");
 						let prevrw = -1;
 						if (cp.getColor() === "WHITE") prevrw = 6;
@@ -9283,7 +9307,8 @@ class ChessPiece {
 					if (isundo || isofficial);
 					else ChessPiece.getGameVIAGID(gid).setLastUndoneMove(null);
 					
-					ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
+					if (isofficial);
+					else ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
 					ChessPiece.getGameVIAGID(gid).setColorResigns(ChessPiece.getLongHandColor("" +
 						mvcmd[x].charAt(0)), true);
 					if (x + 1 < mvcmd.length)
@@ -9315,9 +9340,13 @@ class ChessPiece {
 		ChessPiece.cc.letMustBeBoolean(isshorthand, "isshorthand");
 		if (isshorthand)
 		{
-			ChessPiece.makeLocalShortHandMove(mvcmd, gid, isuser, isundo, iswhitedown, isofficial);
+			ChessPiece.makeLocalShortHandMove(mvcmd, gid, isuser, isundo,
+				iswhitedown, isofficial);
 		}
-		else ChessPiece.makeLocalLongHandMove(mvcmd, gid, isuser, isundo, iswhitedown, isofficial);
+		else
+		{
+			ChessPiece.makeLocalLongHandMove(mvcmd, gid, isuser, isundo, iswhitedown, isofficial);
+		}
 	}
 	static makeLocalMoveMain(mvcmd, gid, isuser, isundo=false, 
 		iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial=false)
@@ -9353,7 +9382,7 @@ class ChessPiece {
 	}
 	canPawnBePromoted()
 	{
-		return this.canPawnBePromotedAt(this.getRow(), this.getCol(), this.getColor(),
+		return ChessPiece.canPawnBePromotedAt(this.getRow(), this.getCol(), this.getColor(),
 			this.getType());
 	}
 	static canPawnForSideBePromoted(clrval, allpcs)
@@ -9581,7 +9610,6 @@ class ChessPiece {
 	}
 	static canSidePawn(clrval, allpcs)
 	{
-		debugger;
 		ChessPiece.cc.letMustBeDefinedAndNotNull(allpcs, "allpcs");
 		ChessPiece.cc.letMustBeDefinedAndNotNull(clrval, "clrval");
 		
@@ -9734,7 +9762,6 @@ class ChessPiece {
 	//THIS MUST BE CALLED ON THE PAWN THAT CAN PAWN
 	pawnLeftOrRight(useleft, allpcs, bpassimnxtmv=false)
 	{
-		debugger;
 		ChessPiece.cc.letMustBeBoolean(useleft, "useleft");
 		ChessPiece.cc.letMustBeBoolean(bpassimnxtmv, "bpassimnxtmv");
 		ChessPiece.cc.letMustBeDefinedAndNotNull(allpcs, "allpcs");
@@ -10058,7 +10085,7 @@ class ChessPiece {
 	toString()
 	{
 		return "<ChessPiece of Type: " + this.getType() + " and Color: " + this.getColor() +
-			" at: " + this.getLocString(this.getRow(), this.getCol()) + " of Gender: " +
+			" at: " + ChessPiece.getLocString(this.getRow(), this.getCol()) + " of Gender: " +
 				this.convertGenderValueToString() + " with TotalMoveCount: " +
 				this.getMoveCount() + " on Game ID: " + this.getGameID() + ">";
 	}
