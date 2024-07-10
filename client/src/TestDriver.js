@@ -21,14 +21,16 @@ class TestDriver {
     	let game = ChessGame.makeNewChessGameFromColor(1, "WHITE");
     	//let og = ChessGame.makeNewChessGameFromGID(1);//error
     	//let mog = ChessGame.makeNewChessGameFromColor(2, "WHITE");
-    	//testPawnPromotionViaStepingForwardThroughGame(2);
-    	//testMovingPiecesAmbiguityViaStepingForwardThroughGame(2);
-    	//testCastlingViaStepingForwardThroughGame(2);
-    	//testPawningViaStepingForwardThroughGame(2);
-    	//testColorsForMovesAlternateViaStepingForwardThroughGame(2);
-    	//testOtherColorsAlternateViaStepingForwardThroughGame(2);
-    	//testFourMoveCheckMateBlackViaStepingForwardThroughGame(2);
-    	//testResignationViaStepingForwardThroughGame(2);//error
+    	debugger;
+
+		//TestDriver.testPawnPromotionViaStepingForwardThroughGame(2);
+    	//TestDriver.testMovingPiecesAmbiguityViaStepingForwardThroughGame(2);
+    	//TestDriver.testCastlingViaStepingForwardThroughGame(2);
+    	TestDriver.testPawningViaStepingForwardThroughGame(2);
+    	//TestDriver.testColorsForMovesAlternateViaStepingForwardThroughGame(2);
+    	//TestDriver.testOtherColorsAlternateViaStepingForwardThroughGame(2);
+    	//TestDriver.testFourMoveCheckMateBlackViaStepingForwardThroughGame(2);
+    	//TestDriver.testResignationViaStepingForwardThroughGame(2);//error
     	
     	ChessPiece.setUpBoard(gid);
     	console.log("DONE SETTING UP THE BOARD!");
@@ -58,26 +60,25 @@ class TestDriver {
     	console.log("WHITE CAN CASTLE: " + ChessPiece.canSideCastle("WHITE", gid));
     	console.log("BLACK CAN CASTLE: " + ChessPiece.canSideCastle("BLACK", gid));
     	console.log("");
-		debugger;
     	
     	//console.log(ChessPiece.getColorOfLoc(7, 7));
     	
     	//TestDriver.setUpBoardTestIsEmptyMoveToLocsWithoutMovingThere(gid);
     	//if (true) return;
     	
-    	//TestDriver.getAndPrintAllPiecesGenders();
-    	//TestDriver.testConvertingLocations();
-    	//TestDriver.testCanMoveToLocs(gid, null, null);
+    	//TestDriver.getAndPrintAllPiecesGenders(gid);
+		//TestDriver.testConvertingLocations();
+		//TestDriver.testCanMoveToLocsWithDefaults(gid, null, null);
     	
     	//TestDriver.testResignation(gid);
-    	//TestDriver.testPawning(gid, true);
-    	//TestDriver.setUpBoardForPawnPromotionMain(gid, true);
-    	//TestDriver.setUpBoardForCastlingWhiteRightMain(gid, true);
-    	//TestDriver.setUpBoardWithKnightCheckingKingMain(gid, true);
+    	//TestDriver.testPawning(gid, false);
+    	//TestDriver.setUpBoardForPawnPromotionMain(gid, false);
+    	//TestDriver.setUpBoardForCastlingWhiteRightMain(gid, false);
+    	//TestDriver.setUpBoardWithKnightCheckingKingMain(gid, false);
     	//CHECKMATE TESTS
-    	//TestDriver.setUpBoardWithFourMoveCheckMateMain(gid, true);
-    	TestDriver.setUpBoardWithTwoMoveCheckMateBlackMain(gid, true);
-    	//TestDriver.setUpBoardWithTwoMoveCheckMateWhiteMain(gid, true);
+    	//TestDriver.setUpBoardWithFourMoveCheckMateMain(gid, false);
+    	//TestDriver.setUpBoardWithTwoMoveCheckMateBlackMain(gid, false);
+    	//TestDriver.setUpBoardWithTwoMoveCheckMateWhiteMain(gid, false);
     	//TestDriver.setUpBoardCheckmateKingBishopVSameDiffColorSquares(gid);//no moving there
     	//TestDriver.setUpBoardWhiteCheckmateAfterManyMoves(gid);//no moving there
     	//STALEMATE TESTS
@@ -95,7 +96,7 @@ class TestDriver {
     	//TestDriver.setUpBoardWithKingAndKnightVKing(gid);
     	//
     	//NOT A STALEMATE BECAUSE BISHOPS ARE ON DIFFERENT COLOR SQUARES
-    	//setUpBoardWithKingAndBishopsVKingBishops(gid, 1, 1, false);
+    	//TestDriver.setUpBoardWithKingAndBishopsVKingBishops(gid, 1, 1, false);
 		//true passed in produces a stalemate
     	
     	console.log("");
@@ -152,9 +153,9 @@ class TestDriver {
     	let mycps = ChessPiece.getAllPiecesWithGameID(gid);
     	for (let c = 0; c < mycps.length; c++)
     	{
-    		let cp = mycps.get(c);
+    		let cp = mycps[c];
     		console.log("THE GENDER OF THE " + cp.getColor() + " " + cp.getType() + " AT: " +
-    			cp.getLocString() + " IS: " + cp.convertGenderValueToString() +
+    			cp.getMyLocString() + " IS: " + cp.convertGenderValueToString() +
 				" WITH GAME ID: " + cp.getGameID());
     	}
     	console.log("mycps.length = " + mycps.length);
@@ -204,12 +205,17 @@ class TestDriver {
     	console.log(ChessPiece.convertRowColToStringLocMain(
 			ChessPiece.convertStringLocToRowCol("D3", iswhitedown),
     		ChessPiece.WHITE_MOVES_DOWN_RANKS));
-    	console.log(ChessPiece.convertRowColToStringLocMain(
-			ChessPiece.convertStringLocToRowCol("X9", iswhitedown),
-    		ChessPiece.WHITE_MOVES_DOWN_RANKS));
-    	console.log(ChessPiece.convertRowColToStringLocMain(
-			ChessPiece.convertStringLocToRowCol("A9", iswhitedown),
-    		ChessPiece.WHITE_MOVES_DOWN_RANKS));
+    	const runillegaltests = false;
+		if (runillegaltests)
+		{
+			console.log(ChessPiece.convertRowColToStringLocMain(
+				ChessPiece.convertStringLocToRowCol("X9", iswhitedown),
+				ChessPiece.WHITE_MOVES_DOWN_RANKS));
+			console.log(ChessPiece.convertRowColToStringLocMain(
+				ChessPiece.convertStringLocToRowCol("A9", iswhitedown),
+				ChessPiece.WHITE_MOVES_DOWN_RANKS));
+		}
+		//else;//do nothing
     }
     
     static testGetPiecesGuardingLocation(gid)
@@ -313,19 +319,17 @@ class TestDriver {
     	console.log("ALL BISHOPS ON SAME COLOR SQUARES: " +
 			ChessPiece.areAllBishopsOnSameColorSquare(nwpcslist));
     	console.log("FREE PIECES: ",
-			ChessPiece.getPiecesThatAreFreeToMove(ignorelist, null, gid));
+			ChessPiece.getPiecesThatAreFreeToMove(gid, ignorelist, null));
     	console.log("IS AUTO-STALEMATE: " + ChessPiece.isAutoStalemate(nwpcslist));
     	console.log("");
     	
     	//returns false because there is a piece there on the normal board
     	console.log("IS (row: 1, col: 7) EMPTY: " + ChessPiece.isLocationEmptyVIAGID(1, 7, gid,
 			ignorelist, null));
-    	console.log("IS (row: 1, col: 7) EMPTY: " + ChessPiece.isLocationEmptyVIAGID(1, 7,
-			nwpcslist));
+    	console.log("IS (row: 1, col: 7) EMPTY: " + ChessPiece.isLocationEmpty(1, 7, nwpcslist));
     	console.log("IS (row: 6, col: 7) EMPTY: " + ChessPiece.isLocationEmptyVIAGID(6, 7, gid,
 			ignorelist, null));
-    	console.log("IS (row: 6, col: 7) EMPTY: " + ChessPiece.isLocationEmptyVIAGID(6, 7,
-			nwpcslist));
+    	console.log("IS (row: 6, col: 7) EMPTY: " + ChessPiece.isLocationEmpty(6, 7, nwpcslist));
     	
     	TestDriver.testKingCanMoveToLocs(gid, 7, 4, "WHITE", ignorelist, null);
     	TestDriver.testKingCanMoveToLocs(gid, 0, 4, "BLACK", ignorelist, null);
@@ -636,7 +640,8 @@ class TestDriver {
     	console.log("RESULTS " + clrval + " " + tpval +
 			" CAN MOVE TO LOCS WITH STARTING LOCATION " +
     		ChessPiece.getLocStringAndConvertIt(rval, cval) + "!");
-    	ChessPiece.printLocsArray(locs, locsarrnm);
+    	ChessPiece.printLocsArray(locs, locsarrnm,
+			ChessPiece.getPieceAtVIAGID(rval, cval, gid, ignorelist, addpcs));
     }
     static testKingCanMoveToLocs(gid, kgr, kgc, kgclr, ignorelist=null, addpcs=null)
     {
@@ -749,8 +754,7 @@ class TestDriver {
     
     static driverMakeMove(cp, elocstr, iswhitedown, isuser, ptpval="QUEEN")
     {
-    	debugger;
-		TestDriver.cc.letMustBeBoolean(iswhitedown, "iswhitedown");
+    	TestDriver.cc.letMustBeBoolean(iswhitedown, "iswhitedown");
 		TestDriver.cc.letMustBeBoolean(isuser, "isuser");
 		TestDriver.cc.letMustBeDefinedAndNotNull(cp, "cp");
 		TestDriver.cc.letMustBeDefinedAndNotNull(elocstr, "elocstr");
@@ -1179,15 +1183,15 @@ class TestDriver {
     	//console.log(nwpcslist);
     	ChessPiece.printBoard(nwpcslist);
     	//call canPawnLeft on Black Pawn
-    	console.log("WHITE CAN PAWN: " + ChessPiece.canSidePawn("WHITE", nwpcslist));
-    	console.log("BLACK CAN PAWN: " + ChessPiece.canSidePawn("BLACK", nwpcslist));
+    	console.log("WHITE CAN PAWN: " + ChessPiece.canSidePawn("WHITE", nwpcslist, true));
+		console.log("BLACK CAN PAWN: " + ChessPiece.canSidePawn("BLACK", nwpcslist, true));
     	let bpwncanmvlocs = ChessPiece.getPieceCanMoveToLocsMain(bpn.getRow(), bpn.getCol(),
 			"BLACK", "PAWN", gid, ignorelist, addpcs);
     	ChessPiece.printLocsArray(bpwncanmvlocs, "bpwncanmvlocs");
     	console.log("BLACK CAN PAWN LEFT: " + bpn.canPawnLeft(nwpcslist));
     	console.log("BLACK CAN PAWN RIGHT: " + bpn.canPawnRight(nwpcslist));
-    	let bplftloc = bpn.getPawnLeftLocation(nwpcslist);
-    	let bprgtloc = bpn.getPawnRightLocation(nwpcslist);
+    	let bplftloc = bpn.getPawnLeftLocation(nwpcslist, true);
+    	let bprgtloc = bpn.getPawnRightLocation(nwpcslist, true);
     	if (TestDriver.cc.isStringEmptyNullOrUndefined(bplftloc))
 		{
 			console.log("BLACK PAWNING MOVE TO LEFT LOCATION: null");
@@ -1211,9 +1215,9 @@ class TestDriver {
 					ChessPiece.WHITE_MOVES_DOWN_RANKS));
     	}
     	console.log("BLACK ENEMY PAWN FOR LEFT PAWNING: ",
-			bpn.getEnemyPawnForLeftPawning(nwpcslist));
+			bpn.getEnemyPawnForLeftPawning(nwpcslist, true));
     	console.log("BLACK ENEMY PAWN FOR RIGHT PAWNING: ",
-			bpn.getEnemyPawnForRightPawning(nwpcslist));
+			bpn.getEnemyPawnForRightPawning(nwpcslist, true));
     	if (TestDriver.cc.isStringEmptyNullOrUndefined(bplftloc))
 		{
 			console.log("BLACK PAWN CAN MOVE TO THE LEFT PAWNING LOCATION: false");
@@ -1221,7 +1225,7 @@ class TestDriver {
 		else
     	{
     		console.log("BLACK PAWN CAN MOVE TO THE LEFT PAWNING LOCATION: " +
-    			bpn.canMoveTo(bplftloc[0], bplftloc[1], ignorelist, addpcs, false));
+    			bpn.canMoveTo(bplftloc[0], bplftloc[1], ignorelist, addpcs, true));
     	}
     	if (TestDriver.cc.isStringEmptyNullOrUndefined(bprgtloc))
 		{
@@ -1230,7 +1234,7 @@ class TestDriver {
 		else
     	{
     		console.log("BLACK PAWN CAN MOVE TO THE RIGHT PAWNING LOCATION: " +
-    			bpn.canMoveTo(bprgtloc[0], bprgtloc[1], ignorelist, addpcs, false));
+    			bpn.canMoveTo(bprgtloc[0], bprgtloc[1], ignorelist, addpcs, true));
     	}
     	//pcslocs in the order of: king, knight, castle (rook), bishop, pawn, queen
     	TestDriver.testCanMoveToLocs(gid, 7, 4, "WHITE", 4, 5, "WHITE", 7, 7, "WHITE", 0, 2,
@@ -2028,7 +2032,7 @@ class TestDriver {
     	//ChessPiece.printLocsArray(ChessPiece.getAllLocsThatCanBeReachedByPiece(wkg.getRow(),
 		//	wkg.getCol(), "KING", "WHITE",
     	//	gid, ignorelist, addpcs), "wkingpossiblecanmovetolocs");
-    	console.log("WHITE IN STALEMATE: " + ChessPiece.isStalemateWhite(gid, ignorelist, addpcs));
+		console.log("WHITE IN STALEMATE: " + ChessPiece.isStalemateWhite(gid, ignorelist, addpcs));
     	console.log("BLACK IN STALEMATE: " + ChessPiece.isStalemateBlack(gid, ignorelist, addpcs));
     	console.log("WHITE IS IN CHECKMATE: " + ChessPiece.inCheckmateWhite(gid,
 			ignorelist, addpcs));
@@ -2422,7 +2426,7 @@ class TestDriver {
     	{
     		console.log("");
     		console.log("TEST REDO COMMAND:");
-    		ChessPiece.makeLocalMove(
+			ChessPiece.makeLocalMove(
 				ChessPiece.getGameVIAGID(gid).genCommandToRedoLastUndoneMove(), gid, isuser);
 	    	ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
 	    	ChessPiece.getGameVIAGID(gid).setLastUndoneMove(null);

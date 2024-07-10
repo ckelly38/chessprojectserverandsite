@@ -580,12 +580,12 @@ class ChessGame {
 	//returns a copy of the LAST_UNDONE_MOVE
 	genCommandToRedoLastUndoneMove()
 	{
-		return this.genCopyOfStringArray(this.LAST_UNDONE_MOVE);
+		return ChessGame.genCopyOfStringArray(this.LAST_UNDONE_MOVE);
 	}
 	//returns a copy of the UNOFFICIAL_MOVE
 	genCopyOfUnofficialMove()
 	{
-		return this.genCopyOfStringArray(this.UNOFFICIAL_MOVE);
+		return ChessGame.genCopyOfStringArray(this.UNOFFICIAL_MOVE);
 	}
 	
 	stepForward()
