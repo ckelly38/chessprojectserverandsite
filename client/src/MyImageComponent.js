@@ -6,12 +6,12 @@ function MyImageComponent({type, color, url=null})
     let cc = new CommonClass();
     if (cc.isStringEmptyNullOrUndefined(type) || cc.isStringEmptyNullOrUndefined(color))
     {
-        this.cc.logAndThrowNewError("type and color must be defined, and not null, and not empty!");
+        cc.logAndThrowNewError("type and color must be defined, and not null, and not empty!");
     }
     else
     {
         let mysrc = null;
-        if (cc.isStringEmptyNullOrUndefined(url)) mysrc = "./" + type + ".png";
+        if (cc.isStringEmptyNullOrUndefined(url)) mysrc = "" + type + ".png";//"./"
         else mysrc = "" + url;
         
         //https://bdwm.be/css-change-a-transparent-png-to-any-color-you-want/

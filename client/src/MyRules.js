@@ -1,8 +1,13 @@
-import React from "react";
+import React, { createContext } from "react";
+import CommonClass from "./commonclass";
 
 function MyRules()
 {
-    return (<div>THE <b>RULES OF CHESS</b> THAT THIS PROGRAM ENFORCES:<ul>
+    const cc = new CommonClass();
+    return (<div style={{backgroundColor: cc.getBGColorToBeUsed(false, "Rules"),
+        paddingTop: 5
+    }}>
+        THE <b>RULES OF CHESS</b> THAT THIS PROGRAM ENFORCES:<ul>
         <li>The Pieces: <ul>
             <li><b>The Castle or Rook (MALE):</b><ul>
                 <li>Can have at most 10 Castles!</li>
@@ -90,7 +95,7 @@ function MyRules()
         
         <li><b><u>You are not allowed to move into Check!</u></b></li>
         <li>When a piece can be directly attacked by an enemy, that piece is in Check! If that piece is the King that is being attacked, then your side is in Check!</li>
-        <li>If your side is in Check, you must get out of Check if you can! If you cannot, then Checkmate!</li>
+        <li>If your side is in Check, you must get out of Check if you can! If you cannot, then it is Checkmate!</li>
         
         <p>GENERAL RULES:</p>
 

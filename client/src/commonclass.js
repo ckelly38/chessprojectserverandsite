@@ -217,14 +217,16 @@ class CommonClass{
         else
         {
             if (typenm === "Episode") mybgcolor = "cyan";
+            else if (typenm === "Toy") mybgcolor = "orange";
+            else if (typenm === "Show") mybgcolor = "yellow";
+
+            else if (typenm === "Rules") mybgcolor = "yellow";
             else if (typenm === "Ranks" || typenm === "Stats" || typenm === "Statistics")
             {
                 mybgcolor = "orange";
             }
             else if (typenm === "GameBoard") mybgcolor = "orange";
             else if (typenm === "GameList") mybgcolor = "lime";
-            else if (typenm === "Toy") mybgcolor = "orange";
-            else if (typenm === "Show") mybgcolor = "yellow";
             else if (typenm === "SignUp") mybgcolor = "yellow";
             else if (typenm === "Login") mybgcolor = "lime";
             else if (typenm === "Preferences") mybgcolor = "pink";
@@ -283,6 +285,61 @@ class CommonClass{
 
         return {"id": usrid, "username": musrnm, "access_level": alv, "instatus": lgi,
             "password": pswd};
+    }
+    
+    isUpperCase(c)
+    {
+        if (this.isStringEmptyNullOrUndefined(c)) return false;
+        else return (c.toUpperCase() === c);
+    }
+
+    isLowerCase(c)
+    {
+        if (this.isStringEmptyNullOrUndefined(c)) return false;
+        else return (c.toLowerCase() === c);
+    }
+
+    titleCase(wd)
+    {
+        //uppercase first letter of each word
+        //look for next space
+        //everything before next space is lowercase except starting letters...
+
+        let myretwd = "";
+        if (this.isItemNullOrUndefined(wd)) return null;
+        else if (wd.length < 1) return "";
+        else if (wd.length === 1)
+        {
+            if (this.isUpperCase(wd.charAt(0))) return "" + wd;
+            else return wd.toUpperCase();
+        } 
+        else
+        {
+            let startwd = true;
+            for (let i = 0; i < wd.length; i++)
+            {
+                if (startwd)
+                {
+                    if (this.isUpperCase(wd.charAt(i))) myretwd += "" + wd.charAt(i);
+                    else myretwd += ("" + wd.charAt(i)).toUpperCase();
+                    startwd = false;
+                }
+                else
+                {
+                    if (wd.charAt(i) === " ")
+                    {
+                        myretwd += " ";
+                        startwd = true;
+                    }
+                    else
+                    {
+                        if (this.isLowerCase(wd.charAt(i))) myretwd += "" + wd.charAt(i);
+                        else myretwd += ("" + wd.charAt(i)).toLowerCase();
+                    }
+                }
+            }
+        }
+        return myretwd;
     }
 
     //PROBABLY WILL NEVER USE ANYTHING BELOW THIS LINE

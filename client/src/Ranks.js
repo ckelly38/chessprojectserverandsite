@@ -341,6 +341,7 @@ function Ranks(props)
         </table>
         <p>Total Games Played: {mtt - (mts / 2)}</p>
         {iserr ? <p>{errormsg}</p>: null}
+        <p>NOTE: FORFEITS count as a {fftscntaswn ? "win" : "loss"}!</p>
     </div>);
 }
 

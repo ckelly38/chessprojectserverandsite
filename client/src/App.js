@@ -1,4 +1,4 @@
-import logo from './logo.svg';
+//import logo from './logo.svg';
 import './App.css';
 import React, { useState, useContext } from "react";
 import { Switch, Route, Redirect, useHistory } from "react-router-dom";
@@ -15,7 +15,8 @@ import Ranks from "./Ranks";
 import NewPiece from "./NewPiece";
 import PieceListForm from "./PieceListForm";
 import CommonClass from "./commonclass";
-import TestDriver from './TestDriver';
+import ChessGame from "./ChessGame";
+//import TestDriver from './TestDriver';
 
 function App() {
   const cc = new CommonClass();
@@ -114,6 +115,8 @@ function App() {
   console.log("mypieces = ", mypieces);
 
   //TestDriver.main(null);
+  //let gid = 1;
+  //const [mygame, setMyGame] = useState(ChessGame.makeNewChessGameFromColor(gid, "BOTH"));
 
   return (<div>
       <Switch>

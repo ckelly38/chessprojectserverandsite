@@ -1,5 +1,7 @@
-import React, { useState} from "react";
+import React, { useEffect, useState} from "react";
 import MyImageComponent from "./MyImageComponent";
+import ChessPiece from "./ChessPiece";
+import ChessGame from "./ChessGame";
 import CommonClass from "./commonclass";
 //import logo from './logo.svg';
 //import BishopImg from './Bishop.png';
@@ -19,10 +21,23 @@ function GameBoard(props)
     //console.log("backgroundColor: " + cc.getBGColorToBeUsed(false, "GameBoard"));
     //<img src={logo} className="App-logo" alt="logo" />
     
+    let gid = 1;
+    //let [mygame, setGame] = useState(ChessGame.makeNewChessGameFromColor(gid, "BOTH"));
+    //useEffect(() => {
+    //    setGame(ChessGame.makeNewChessGameFromColor(gid, "BOTH"));
+    //}, []);
+    //console.log(mygame);
+    ChessPiece.setUpBoard(gid);
+    
     function generateTableRows(wtmvsdwnrks, lsqrclr, dsqrclr, lpcclr, dpcclr)
     {
         let myrws = [];
         let uselightclr = true;
+        console.log(cc.titleCase("KING"));
+        console.log(cc.titleCase("QUEEN"));
+        console.log(cc.titleCase("BISHOP"));
+        console.log(cc.titleCase("PAWN"));
+        console.log(cc.titleCase("MY MANY CASTLES"));
         for (let r = 0; r < 8; r++)
         {
             let mycolsonrw = [];
@@ -36,9 +51,14 @@ function GameBoard(props)
                 if (c < 8)
                 {
                     //these need to come from the piece list
-                    let pcttp = "Queen";
+                    //cp is null, then type is null; otherwise cp.getType()
+                    let cp = ChessPiece.getPieceAtVIAGID(r, c, gid, null, null);
+                    let islocempty = cc.isItemNullOrUndefined(cp);
+                    let ispcatloc = !islocempty;
+                    let pcttp = (ispcatloc ? cc.titleCase(cp.getType()) : null);
                     let uselightpcclr = false;
-                    let ispcatloc = true;
+                    if (ispcatloc) uselightpcclr = (cp.getColor() === "WHITE");
+                    //else;//do nothing
                     let pcclr = null;//"pink";//#118800
                     if (uselightpcclr) pcclr = "" + lpcclr;
                     else pcclr = "" + dpcclr;
@@ -256,11 +276,16 @@ function GameBoard(props)
         }
     }
     
-
-    let iscompleted = false;
-    let currentsideisincheck = true;
-    let acurrentsidequeenisincheck = false;
+    //let clrvalturn = ChessGame.getGameVIAGID(gid).getSideTurn();
     let iswhiteturn = false;
+    //const iswhiteturn = (clrvalturn === "WHITE");
+    let iscompleted = false;
+    //let iscompleted = ChessGame.getGameVIAGID(gid).isCompleted();
+    let currentsideisincheck = false;
+    //let currentsideisincheck = ChessPiece.isSideInCheck(clrvalturn, gid, null, null);
+    let acurrentsidequeenisincheck = false;
+    //let acurrentsidequeenisincheck = ChessPiece.isAtLeastOneQueenForSideInCheck(
+    //    clrvalturn, gid, null, null);
     let [useroworcollocdisp, setUseRowColLocDisplay] = useState(false);
     let [showqnwarning, setShowQueenWarning] = useState(true);
     let [whitemovesdownranks, setWhiteMovesDownRanks] = useState(true);

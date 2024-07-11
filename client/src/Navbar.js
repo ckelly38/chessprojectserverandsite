@@ -31,7 +31,7 @@ function Navbar(props) {
 
     return (<div className="navbarcls">
         <div className="homelinkcls"><Link to="/">Home</Link></div>
-        <div className="showslinkcls"><Link to="/shows">Shows</Link></div>
+        <div className="showslinkcls"><Link to="/rules">Rules</Link></div>
         {(notloggedin || nocreateaccess) ? null :
           <Link className={"horizontal-gradient"} exact="true" to="/shows/new">New Show</Link>}
         <div className="epslinkcls">
@@ -40,7 +40,7 @@ function Navbar(props) {
         {(notloggedin || nocreateaccess) ? null :
           <Link className={"horizontal-gradient"} to={"/shows/" + mysid + "/episodes/new"}>
             New Episode</Link>}
-        <div className="toyslinkcls"><Link to="/toys">Toys</Link></div>
+        <div className="toyslinkcls"><Link to="/stats">Stats</Link></div>
         {(notloggedin || nocreateaccess) ? null :
           ((safetousesid) ? <Link className={"horizontal-gradient"}
             to={"/shows/" + mysid + "/toys/new"}>New Toy</Link>:
