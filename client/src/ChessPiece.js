@@ -4422,6 +4422,8 @@ class ChessPiece {
 		ChessPiece.cc.letMustBeDefinedAndNotNull(myclr, "myclr");
 		
 		let allpcs = ChessPiece.combineBoardAddAndIgnoreListsMain(ignorelist, addpcs, gid);
+		//console.log("allpcs = ", allpcs);
+
 		let cp = ChessPiece.getPieceAt(sr, sc, allpcs);
 		let pcmlocs = ChessPiece.getPawnCanMoveToLocs(sr, sc, myclr, gid, ignorelist, addpcs);
 		if (ChessPiece.cc.isItemNullOrUndefined(cp)) return pcmlocs;
@@ -4435,13 +4437,13 @@ class ChessPiece {
 				//now can handle the pawning stuff
 				let pleftloc = null;
 				let prightloc = null;
-				if (cp.canPawnLeft(allpcs, bpassimnxtmv))
+				if (cp.canPawnLeftMain(allpcs, bpassimnxtmv))
 				{
-					pleftloc = cp.getPawnLeftLocation(allpcs, bpassimnxtmv);
+					pleftloc = cp.getPawnLeftLocationMain(allpcs, bpassimnxtmv);
 				}
-				if (cp.canPawnRight(allpcs, bpassimnxtmv))
+				if (cp.canPawnRightMain(allpcs, bpassimnxtmv))
 				{
-					prightloc = cp.getPawnRightLocation(allpcs, bpassimnxtmv);
+					prightloc = cp.getPawnRightLocationMain(allpcs, bpassimnxtmv);
 				}
 				let numaddlocs = 0;
 				let addpleft = false;
@@ -4460,6 +4462,7 @@ class ChessPiece {
 				}
 				//console.log("addpleft = " + addpleft);
 				//console.log("addpright = " + addpright);
+
 				let locs = null;
 				if (ChessPiece.cc.isStringEmptyNullOrUndefined(pcmlocs)) locs = null;
 				else
@@ -7833,7 +7836,7 @@ class ChessPiece {
 				console.log("eloc[1] = " + eloc[1]);
 				
 				sloc = ChessPiece.getStartLocForPieceThatCanMoveTo(eloc[0], eloc[1], fullclr,
-					"PAWN", ignorelist, addpcs, gid, false, bpassimnxtmv);
+					"PAWN", gid, ignorelist, addpcs, false, bpassimnxtmv);
 				if (ChessPiece.cc.isStringEmptyNullOrUndefined(sloc))
 				{
 					ChessPiece.cc.logAndThrowNewError("THERE MUST BE A STARTING LOCATION " +
@@ -7977,9 +7980,13 @@ class ChessPiece {
 				console.log("elocstr = " + elocstr);
 				console.log("eloc[0] = " + eloc[0]);
 				console.log("eloc[1] = " + eloc[1]);
+				//console.log("ignorelist = " , ignorelist);
+				//console.log("addpcs = " , addpcs);
+
 				sloc = ChessPiece.getStartLocForPieceThatCanMoveTo(eloc[0], eloc[1], fullclr,
 					ChessPiece.getLongHandType(mytp), gid, ignorelist, addpcs, false,
 						bpassimnxtmv);
+				
 				if (ChessPiece.cc.isStringEmptyNullOrUndefined(sloc))
 				{
 					ChessPiece.cc.logAndThrowNewError("THERE MUST BE A STARTING LOCATION IN " +
@@ -9506,6 +9513,7 @@ class ChessPiece {
 			let ep = ChessPiece.getPieceAt(this.getRow(), lc, allpcs);
 			if (ChessPiece.cc.isItemNullOrUndefined(ep))
 			{
+				//console.log("allpcs = ", allpcs);
 				//console.log("THE LOCATION " + ChessPiece.getLocString(this.getRow(), lc) +
 				//	" IS EMPTY!");
 				return false;

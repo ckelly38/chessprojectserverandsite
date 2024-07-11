@@ -113,7 +113,7 @@ function App() {
   //simpusrobj={cc.getSimplifiedUserObj(user)}
   console.log("mypieces = ", mypieces);
 
-  TestDriver.main(null);
+  //TestDriver.main(null);
 
   return (<div>
       <Switch>

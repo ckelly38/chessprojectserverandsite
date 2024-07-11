@@ -21,14 +21,14 @@ class TestDriver {
     	let game = ChessGame.makeNewChessGameFromColor(1, "WHITE");
     	//let og = ChessGame.makeNewChessGameFromGID(1);//error
     	//let mog = ChessGame.makeNewChessGameFromColor(2, "WHITE");
-    	debugger;
+    	//debugger;
 
 		//TestDriver.testPawnPromotionViaStepingForwardThroughGame(2);
-    	//TestDriver.testMovingPiecesAmbiguityViaStepingForwardThroughGame(2);
+    	//TestDriver.testMovingPiecesAmbiguityViaStepingForwardThroughGame(2);//error
     	//TestDriver.testCastlingViaStepingForwardThroughGame(2);
-    	TestDriver.testPawningViaStepingForwardThroughGame(2);
+    	//TestDriver.testPawningViaStepingForwardThroughGame(2);
     	//TestDriver.testColorsForMovesAlternateViaStepingForwardThroughGame(2);
-    	//TestDriver.testOtherColorsAlternateViaStepingForwardThroughGame(2);
+    	//TestDriver.testOtherColorsAlternateViaStepingForwardThroughGame(2);//error
     	//TestDriver.testFourMoveCheckMateBlackViaStepingForwardThroughGame(2);
     	//TestDriver.testResignationViaStepingForwardThroughGame(2);//error
     	
@@ -538,7 +538,7 @@ class TestDriver {
 		//else;//do nothing
 		
 		const iswhitedown = true;
-    	let addambigcmd = false;
+    	const addambigcmd = true;//if true causes error
 		const mxsz = ((addambigcmd) ? 8 : 7);
     	let myunoffmvs = [];//new String[mxsz];
     	myunoffmvs.push("WKTTOH6");
