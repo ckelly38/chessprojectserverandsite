@@ -331,11 +331,7 @@ class CommonClass{
                         myretwd += " ";
                         startwd = true;
                     }
-                    else
-                    {
-                        if (this.isLowerCase(wd.charAt(i))) myretwd += "" + wd.charAt(i);
-                        else myretwd += ("" + wd.charAt(i)).toLowerCase();
-                    }
+                    else myretwd += ("" + wd.charAt(i)).toLowerCase();
                 }
             }
         }

@@ -5,6 +5,7 @@ class ChessGame {
 	static cc = new CommonClass();
 	constructor(gid, offmvs=null, isdone=false, mclrval="BOTH")
 	{
+		console.log("INSIDE OF CHESSGAME CONSTRUCTOR!");
 		ChessGame.cc.letMustBeBoolean(isdone, "isdone");
 		ChessGame.cc.letMustBeAnInteger(gid, "gid");
 		if (gid < 1) ChessGame.cc.logAndThrowNewError("GAME ID must be at least 1!");
@@ -45,6 +46,7 @@ class ChessGame {
 		this.setOfficialMoves(offmvs);
 		this.setMyColor(mclrval);
 		ChessGame.all.push(this);
+		console.log(this);
 	}
 	//constructor(gid, offmvs=null, isdone=false)
 	//{

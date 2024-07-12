@@ -9,6 +9,9 @@ class ChessPiece {
 	static WHITE_MOVES_DOWN_RANKS = false;
 	static clrs = ChessPiece.getSquareColors();
 	static cps = [];
+	static remPC = null;
+	static addPC = null;
+	static getPCS = null;
 	//only one copy so will cause a problem with multiple games
 	constructor(tp="", clr="", r=-1, c=-1, gid=-1, initmvcnt=0, addit=true)
 	{
@@ -38,7 +41,13 @@ class ChessPiece {
 			this.movecount = initmvcnt;
 			this.isfirstmove = false;
 		}
-		if (addit) ChessPiece.cps.push(this);
+		if (addit)
+		{
+			//console.log("ATEMPTING TO ADD THE PIECE TO THE LIST!");
+			//console.log("ChessPiece.addPC = ", ChessPiece.addPC);
+			if (ChessPiece.cc.isItemNullOrUndefined(ChessPiece.addPC)) ChessPiece.cps.push(this);
+			else ChessPiece.addPC(this);
+		}
 		//else;//do nothing
 	}
 	//constructor(tp="", clr="", r=-1, c=-1, gid=-1, addit=true)
@@ -79,7 +88,21 @@ class ChessPiece {
 		return ChessPiece.makeNewChessPieceMain(tp, clr, [r, c], gid, addit);
 	}
 	
-	
+	static setMyAddPieceToListFunc(myfunc)
+	{
+		ChessPiece.addPC = myfunc;
+	}
+
+	static setMyRemovePieceFromListFunc(myfunc)
+	{
+		ChessPiece.remPC = myfunc;
+	}
+
+	static setGetPCS(myfunc)
+	{
+		ChessPiece.getPCS = myfunc;
+	}
+
 	getGameID()
 	{
 		return 0 + this.gameID;
@@ -265,17 +288,25 @@ class ChessPiece {
 		if (gid < 1) ChessPiece.cc.logAndThrowNewError("GAME ID must be at least 1!");
 		else
 		{
+			//console.log("ChessPiece.getPCS = ", ChessPiece.getPCS);
+			//console.log("ChessPiece.cc.isItemNullOrUndefined(ChessPiece.getPCS) = ",
+			//	ChessPiece.cc.isItemNullOrUndefined(ChessPiece.getPCS));
+			//console.log("ChessPiece.getPCS() = ", ChessPiece.getPCS());
+			//console.log("ChessPiece.cps = ", ChessPiece.cps);
+
+			const mypcsarr = (ChessPiece.cc.isItemNullOrUndefined(ChessPiece.getPCS) ?
+				ChessPiece.cps : ChessPiece.getPCS());
 			let mycps = null;
-			if (ChessPiece.getNumItemsInList(ChessPiece.cps) < 1) return null;
+			if (ChessPiece.getNumItemsInList(mypcsarr) < 1) return null;
 			//else;//do nothing
-			for (let x = 0; x < ChessPiece.cps.length; x++)
+			for (let x = 0; x < mypcsarr.length; x++)
 			{
-				if (ChessPiece.cps[x].getGameID() === gid)
+				if (mypcsarr[x].getGameID() === gid)
 				{
 					if (ChessPiece.cc.isItemNullOrUndefined(mycps)) mycps = [];
 					//else;//do nothing
 					
-					mycps.push(ChessPiece.cps[x]);
+					mycps.push(mypcsarr[x]);
 				}
 				//else;//do nothing
 			}
@@ -1967,32 +1998,25 @@ class ChessPiece {
 
 		if (clearboardcalled);
 		else ChessPiece.isBoardValidMain(gid);
-		let numpcs = ChessPiece.getNumItemsInList(ChessPiece.cps);
+		const mypcsarr = (ChessPiece.cc.isItemNullOrUndefined(ChessPiece.getPCS) ?
+			ChessPiece.cps : ChessPiece.getPCS());
+		let numpcs = ChessPiece.getNumItemsInList(mypcsarr);
 		if (numpcs < 1);
 		else
 		{
-			ChessPiece.cps = ChessPiece.cps.filter((mpc) => {
-				if (mpc.getRow() === rval && mpc.getCol() === cval &&
-					mpc.getGameID() === gid)
-				{
-					console.log("REMOVED ", mpc);
-					return false;//remove
-				}
-				else return true;//keep
-			});
-
-			//for (let x = 0; x < numpcs; x++)
-			//{
-			//	if (ChessPiece.cps[x].getRow() === rval && ChessPiece.cps[x].getCol() === cval &&
-			//		ChessPiece.cps[x].getGameID() === gid)
-			//	{
-			//		console.log("REMOVED ", ChessPiece.cps[x]);
-			//		ChessPiece.cps.remove(ChessPiece.cps[x]);//NOT DONE YET 7-2-2024 7 PM
-			//		numpcs--;
-			//		x--;
-			//	}
-			//	//else;//do nothing
-			//}
+			if (ChessPiece.cc.isItemNullOrUndefined(ChessPiece.remPC))
+			{
+				ChessPiece.cps = ChessPiece.cps.filter((mpc) => {
+					if (mpc.getRow() === rval && mpc.getCol() === cval &&
+						mpc.getGameID() === gid)
+					{
+						console.log("REMOVED ", mpc);
+						return false;//remove
+					}
+					else return true;//keep
+				});
+			}
+			else ChessPiece.remPC(rval, cval, gid);
 		}
 	}
 	static removePieceAtMain(loc, gid, clearboardcalled=false)

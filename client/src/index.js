@@ -5,6 +5,7 @@ import App from './App';
 //import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom/cjs/react-router-dom.min';
 import { UserProvider } from "./UserProvider";
+//import { GameProvider } from "./GameProvider";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

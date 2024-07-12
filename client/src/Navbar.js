@@ -29,6 +29,7 @@ function Navbar(props) {
     const nocreateaccess = (alv !== 2);
     const username = simpusrobj["username"];
 
+    //"/shows/" + mysid + "/toys"
     return (<div className="navbarcls">
         <div className="homelinkcls"><Link to="/">Home</Link></div>
         <div className="showslinkcls"><Link to="/rules">Rules</Link></div>
@@ -46,7 +47,7 @@ function Navbar(props) {
             to={"/shows/" + mysid + "/toys/new"}>New Toy</Link>:
           <Link className={"horizontal-gradient"} exact="true" to="/toys/new">New Toy</Link>)}
         <div className="toysforshowlinkcls">
-          <Link to={"/shows/" + mysid + "/toys"}>Toys For Show</Link>
+          <Link to={"/play"}>Play Game</Link>
         </div>
         {(notloggedin) ? null : <><div className="mytoyslinkcls">
           <Link to="/my-toys">My Toys</Link></div>

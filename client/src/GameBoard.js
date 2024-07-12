@@ -1,7 +1,9 @@
-import React, { useEffect, useState} from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
+import { useHistory } from "react-router-dom";
 import MyImageComponent from "./MyImageComponent";
 import ChessPiece from "./ChessPiece";
 import ChessGame from "./ChessGame";
+//import { GameContext } from "./GameProvider";
 import CommonClass from "./commonclass";
 //import logo from './logo.svg';
 //import BishopImg from './Bishop.png';
@@ -14,6 +16,19 @@ import CommonClass from "./commonclass";
 function GameBoard(props)
 {
     let cc = new CommonClass();
+    //const { pieces, getPieces, addPieceToList, removePieceFromList,
+    //    game, setGame } = useContext(GameContext);
+    const history = useHistory();
+    let uselistfromcontext = false;
+    console.log("INSIDE GAME BOARD!");
+    if (uselistfromcontext)
+    {
+        //ChessPiece.setGetPCS(getPieces);
+        //ChessPiece.setMyAddPieceToListFunc(addPieceToList);
+        //ChessPiece.setMyRemovePieceFromListFunc(removePieceFromList);
+    }
+    //else;//do nothing use ChessPiece.cps
+    
 
     //const iserr = !(cc.isStringEmptyNullOrUndefined(errormsg));
     //{iserr ? <p>{errormsg}</p>: null}
@@ -21,23 +36,76 @@ function GameBoard(props)
     //console.log("backgroundColor: " + cc.getBGColorToBeUsed(false, "GameBoard"));
     //<img src={logo} className="App-logo" alt="logo" />
     
-    let gid = 1;
+    let gid = 1;//game.getGameID();
     //let [mygame, setGame] = useState(ChessGame.makeNewChessGameFromColor(gid, "BOTH"));
     //useEffect(() => {
     //    setGame(ChessGame.makeNewChessGameFromColor(gid, "BOTH"));
     //}, []);
     //console.log(mygame);
-    ChessPiece.setUpBoard(gid);
+    let calledsetup = useRef(false);
+    let [loaded, setLoaded] = useState(false);
+    let [piece_type, setPieceType] = useState("KING");
+    let [start_row, setStartRow] = useState(0);
+    let [start_col, setStartCol] = useState(0);
+    let [end_row, setEndRow] = useState(0);
+    let [end_col, setEndCol] = useState(0);
+    let [useroworcollocdisp, setUseRowColLocDisplay] = useState(false);
+    let [showqnwarning, setShowQueenWarning] = useState(true);
+    let [whitemovesdownranks, setWhiteMovesDownRanks] = useState(true);
+    console.log("OLD calledsetup.current = ", calledsetup.current);
     
+    useEffect(() => {
+        console.log("INSIDE OF USE EFFECT!");
+        if (calledsetup.current);
+        else
+        {
+            ChessPiece.setUpBoard(gid);
+            ChessGame.makeNewChessGameFromColor(gid, "BOTH");
+            console.log("PIECE LIST AFTER SET UP BOARD CALLED:");
+            //console.log("pieces = ", pieces);
+            //console.log("getPieces() = ", getPieces());
+            console.log("ChessPiece.cps = ", ChessPiece.cps);
+            console.log("ChessGame.all = ", ChessGame.all);
+            calledsetup.current = true;
+            console.log("NEW calledsetup.current = ", calledsetup.current);
+            setLoaded(true);//needed to display the pieces, sling shot route does not work
+        }
+    }, [calledsetup.current]);
+    
+    function setSelectedLoc(rval, cval, ispcatloc)
+    {
+        console.log("INSIDE OF SET-SELECTED-LOC()!");
+        console.log("rval = " + rval);
+        console.log("cval = " + cval);
+        console.log("ispcatloc = " + ispcatloc);
+        cc.letMustBeBoolean(ispcatloc, "ispcatloc");
+        cc.letMustBeAnInteger(rval, "rval");
+        cc.letMustBeAnInteger(cval, "cval");
+        
+        if (ispcatloc)
+        {
+            //we can get the ChessPiece here
+            let cp = ChessPiece.getPieceAtVIAGID(rval, cval, gid, null, null);
+            cc.letMustBeDefinedAndNotNull(cp, "cp");
+            //rval, cval, cp.getType() for type and location
+            console.log("cp = ", cp);
+            setStartRow(rval);
+            setStartCol(cval);
+            setPieceType(cp.getType());
+        }
+        else
+        {
+            //the location is empty piece type is blank or null
+            //we can set the rval and cval as a location to move to
+            setEndRow(rval);
+            setEndCol(cval);
+        }
+    }
+
     function generateTableRows(wtmvsdwnrks, lsqrclr, dsqrclr, lpcclr, dpcclr)
     {
         let myrws = [];
         let uselightclr = true;
-        console.log(cc.titleCase("KING"));
-        console.log(cc.titleCase("QUEEN"));
-        console.log(cc.titleCase("BISHOP"));
-        console.log(cc.titleCase("PAWN"));
-        console.log(cc.titleCase("MY MANY CASTLES"));
         for (let r = 0; r < 8; r++)
         {
             let mycolsonrw = [];
@@ -52,7 +120,15 @@ function GameBoard(props)
                 {
                     //these need to come from the piece list
                     //cp is null, then type is null; otherwise cp.getType()
-                    let cp = ChessPiece.getPieceAtVIAGID(r, c, gid, null, null);
+                    console.log("calledsetup.current = ", calledsetup.current);
+                    
+                    let cp = null;//needed to prevent an error of empty or null board list
+                    if (calledsetup.current)
+                    {
+                        cp = ChessPiece.getPieceAtVIAGID(r, c, gid, null, null);
+                    }
+                    //else;//do nothing if this is the case empty board will be displayed
+
                     let islocempty = cc.isItemNullOrUndefined(cp);
                     let ispcatloc = !islocempty;
                     let pcttp = (ispcatloc ? cc.titleCase(cp.getType()) : null);
@@ -62,7 +138,8 @@ function GameBoard(props)
                     let pcclr = null;//"pink";//#118800
                     if (uselightpcclr) pcclr = "" + lpcclr;
                     else pcclr = "" + dpcclr;
-                    mycolsonrw.push(<td key={"(" + r + ", " + c + ")"}
+                    mycolsonrw.push(<td onClick={(event) => setSelectedLoc(r, c, ispcatloc)}
+                        key={"(" + r + ", " + c + ")"}
                         style={{backgroundColor: mysqrclr, height: 60, width: 60}}>
                             {(ispcatloc) ? (<MyImageComponent type={pcttp} color={pcclr} />): null}
                     </td>);
@@ -82,6 +159,20 @@ function GameBoard(props)
             myrws.push(<tr key={"rowid" + r}>{mycolsonrw}</tr>);
         }
         return myrws;
+    }
+
+    function rowColStartEndHandleChange(usestart, userow, val)
+    {
+        if (usestart)
+        {
+            if (userow) setStartRow(val);
+            else setStartCol(val);
+        }
+        else
+        {
+            if (userow) setEndRow(val);
+            else setEndCol(val);
+        }
     }
 
     function genRowColLocOrStringLocElements(userowcolloc, usestart)
@@ -104,24 +195,34 @@ function GameBoard(props)
         if (userowcolloc)
         {
             return (<>{" " + mybgwrd + ": ("}<select id={rwnm} name={rwnm}
-                onChange={null} value={0}>
+                onChange={(event) =>
+                    rowColStartEndHandleChange(usestart, true, event.target.value)}
+                value={usestart ? start_row : end_row}>
                     {cc.genOptionListFromArray([0, 1, 2, 3, 4, 5, 6, 7], null)}
                 </select>{", "}<select id={clnm} name={clnm}
-                    onChange={null} value={0}>
+                    onChange={(event) =>
+                        rowColStartEndHandleChange(usestart, false, event.target.value)}
+                    value={usestart ? start_col : end_col}>
                         {cc.genOptionListFromArray([0, 1, 2, 3, 4, 5, 6, 7], null)}
                 </select>{") "}
             </>);
         }
         else
         {
+            let mydispvalarr = null;
+            if (whitemovesdownranks) mydispvalarr = [1, 2, 3, 4, 5, 6, 7, 8];
+            else mydispvalarr = [8, 7, 6, 5, 4, 3, 2, 1];
             return (<>{" " + mybgwrd + ": "}<select id={clnm} name={clnm}
-                onChange={null} value={0}>
+                onChange={(event) =>
+                    rowColStartEndHandleChange(usestart, false, event.target.value)}
+                value={usestart ? start_col : end_col}>
                     {cc.genOptionListFromArray([0, 1, 2, 3, 4, 5, 6, 7],
                         ["A", "B", "C", "D", "E", "F", "G", "H"])}
                 </select>
-                <select id={rwnm} name={rwnm} onChange={null} value={0}>
-                    {cc.genOptionListFromArray([0, 1, 2, 3, 4, 5, 6, 7],
-                        [1, 2, 3, 4, 5, 6, 7, 8])}
+                <select id={rwnm} name={rwnm} onChange={(event) =>
+                    rowColStartEndHandleChange(usestart, true, event.target.value)}
+                    value={usestart ? start_row : end_row}>
+                    {cc.genOptionListFromArray([0, 1, 2, 3, 4, 5, 6, 7], mydispvalarr)}
                 </select>
             </>);
         }
@@ -182,8 +283,8 @@ function GameBoard(props)
         const allpctpvals = ["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE", "PAWN"];
         const allpctpdispvals = ["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE (ROOK)", "PAWN"];
         
-        const pctpsel = (<select id={"piece_type"} name="piece_type" value={"KING"}
-            onChange={null}>
+        const pctpsel = (<select id={"piece_type"} name="piece_type" value={piece_type}
+            onChange={(event) => setPieceType(event.target.value)}>
                 {cc.genOptionListFromArray(allpctpvals, allpctpdispvals)}
         </select>);
 
@@ -276,6 +377,22 @@ function GameBoard(props)
         }
     }
     
+    function displayCheckStatuses(csideinchk, dispqwarn, csdqninchk, useboldqmsg)
+    {
+        cc.letMustBeBoolean(csideinchk, "csideinchk");
+        cc.letMustBeBoolean(dispqwarn, "dispqwarn");
+        cc.letMustBeBoolean(csdqninchk, "csdqninchk");
+        cc.letMustBeBoolean(useboldqmsg, "useboldqmsg");
+        
+        return (<div>Check Status: {csideinchk ? (<b>You're in Check!</b>): "No!"}
+            {dispqwarn ? " Queen WARNING: " : null}
+            {(dispqwarn && csdqninchk && useboldqmsg) ? <b>"You're Queen is in Check!"</b> : null}
+            {(dispqwarn && csdqninchk && !useboldqmsg) ? "You're Queen is in Check!" : null}
+            {(dispqwarn && !csdqninchk) ? "No!" : null}
+        </div>);
+    }
+
+
     //let clrvalturn = ChessGame.getGameVIAGID(gid).getSideTurn();
     let iswhiteturn = false;
     //const iswhiteturn = (clrvalturn === "WHITE");
@@ -286,9 +403,6 @@ function GameBoard(props)
     let acurrentsidequeenisincheck = false;
     //let acurrentsidequeenisincheck = ChessPiece.isAtLeastOneQueenForSideInCheck(
     //    clrvalturn, gid, null, null);
-    let [useroworcollocdisp, setUseRowColLocDisplay] = useState(false);
-    let [showqnwarning, setShowQueenWarning] = useState(true);
-    let [whitemovesdownranks, setWhiteMovesDownRanks] = useState(true);
     let playertwousrnm = "tu";
     let playeroneusrnm = "me";
     let playeronecolor = "WHITE";
@@ -303,6 +417,12 @@ function GameBoard(props)
     //formik.values.end_col
     //formik.values.piece_type
     //"PROMOTION", "CREATE", "DELETE"
+
+
+    //<button style={{marginLeft: 50}}
+    //onClick={(event) => setWhiteMovesDownRanks(!whitemovesdownranks)}>
+    //White moves {whitemovesdownranks ? "down": "up"} ranks!</button>
+
     return (<div style={{marginLeft: 10,
         backgroundColor: cc.getBGColorToBeUsed(false, "GameBoard")}}>
         <h2>Play Game:</h2>
@@ -317,7 +437,8 @@ function GameBoard(props)
                     <th>5<br />F</th>
                     <th>6<br />G</th>
                     <th>7<br />H</th>
-                    <th>(COLS)<br />RANK</th>
+                    <th><button onClick={(event) => setWhiteMovesDownRanks(!whitemovesdownranks)}>
+                        (COLS)<br />RANK</button></th>
                     <th>ROW</th>
                 </tr>
             </thead>
@@ -326,14 +447,8 @@ function GameBoard(props)
             </tbody>
         </table>
         
-        <div>Check Status: {currentsideisincheck ? (<b>You're in Check!</b>): "No!"}
-            <button style={{marginLeft: 50}}
-                onClick={(event) => setWhiteMovesDownRanks(!whitemovesdownranks)}>
-                White moves {whitemovesdownranks ? "down": "up"} ranks!</button>
-        </div>
-        {showqnwarning ? (<div style={{display: "inline-block"}}>
-            Queen WARNING: {acurrentsidequeenisincheck ? "You're Queen is in Check!": "No!"}
-                </div>) : null}
+        {displayCheckStatuses(currentsideisincheck, showqnwarning, acurrentsidequeenisincheck,
+            false)}
         
         <div>
             <button onClick={(event) => setShowQueenWarning(!showqnwarning)}>

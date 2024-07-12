@@ -24,6 +24,7 @@ function App() {
     ["SignUp", "Login", "Logout", "Preferences"]);
   const { user, setUser } = useContext(UserContext);
   const [mypieces, setMyPieces] = useState([]);
+  const history = useHistory();
   console.log("mypieces = ", mypieces);
     
   function makeLoginPrefsItem(redonin, useloginredulr, typenm)
@@ -147,6 +148,12 @@ function App() {
           makeLoginPrefsItem(false, false, "Logout")} />
         <Route exact path="/signup" render={(props) =>
           makeLoginPrefsItem(true, false, "SignUp")} />
+        <Route exact path="/redirectme" render={(props) => {
+          console.log("history = ", history);
+          return history.goBack();
+          //THIS HELPS TRIGGER A RERENDER WITHOUT SETTING UNNECESSARY STATE
+          //OUTSIDE OF THE COMPONENT
+        }} />
         <Route path="*"><Redirect to="/" /></Route>
       </Switch>
       <PieceListForm addpiece={addPiece} mpcs={mypieces} />
