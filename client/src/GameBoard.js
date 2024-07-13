@@ -5,46 +5,23 @@ import ChessPiece from "./ChessPiece";
 import ChessGame from "./ChessGame";
 //import { GameContext } from "./GameProvider";
 import CommonClass from "./commonclass";
-//import logo from './logo.svg';
-//import BishopImg from './Bishop.png';
-//import CastleImg from './Castle.png';
-//import KnightImg from './Knight.png';
-//import QueenImg from './Queen.png';
-//import KingImg from './King.png';
-//import PawnImg from './Pawn.png';
 
 function GameBoard(props)
 {
     let cc = new CommonClass();
-    //const { pieces, getPieces, addPieceToList, removePieceFromList,
-    //    game, setGame } = useContext(GameContext);
     const history = useHistory();
-    let uselistfromcontext = false;
     console.log("INSIDE GAME BOARD!");
-    if (uselistfromcontext)
-    {
-        //ChessPiece.setGetPCS(getPieces);
-        //ChessPiece.setMyAddPieceToListFunc(addPieceToList);
-        //ChessPiece.setMyRemovePieceFromListFunc(removePieceFromList);
-    }
-    //else;//do nothing use ChessPiece.cps
-    
 
-    //const iserr = !(cc.isStringEmptyNullOrUndefined(errormsg));
-    //{iserr ? <p>{errormsg}</p>: null}
-    //backgroundColor: cc.getBGColorToBeUsed(false, "GameBoard")
-    //console.log("backgroundColor: " + cc.getBGColorToBeUsed(false, "GameBoard"));
-    //<img src={logo} className="App-logo" alt="logo" />
+    let gid = 1;//NEEDS TO BE MODIFIED 7-13-2024
     
-    let gid = 1;//game.getGameID();
-    //let [mygame, setGame] = useState(ChessGame.makeNewChessGameFromColor(gid, "BOTH"));
-    //useEffect(() => {
-    //    setGame(ChessGame.makeNewChessGameFromColor(gid, "BOTH"));
-    //}, []);
-    //console.log(mygame);
     let calledsetup = useRef(false);
     let [loaded, setLoaded] = useState(false);
+    let [dir, setDirString] = useState("LEFT");
     let [piece_type, setPieceType] = useState("KING");
+    let [piece_color, setPieceColor] = useState("WHITE");
+    let [piece_move_count, setPieceMoveCount] = useState(0);
+    let [wants_tie, setWantsTie] = useState(0);//not sure if this should be an integer or boolean
+    let [promo_piece_type, setPromoPieceType] = useState("QUEEN");
     let [start_row, setStartRow] = useState(0);
     let [start_col, setStartCol] = useState(0);
     let [end_row, setEndRow] = useState(0);
@@ -52,6 +29,7 @@ function GameBoard(props)
     let [useroworcollocdisp, setUseRowColLocDisplay] = useState(false);
     let [showqnwarning, setShowQueenWarning] = useState(true);
     let [whitemovesdownranks, setWhiteMovesDownRanks] = useState(true);
+    let [cmd_type, setCMDType] = useState("MOVE");
     console.log("OLD calledsetup.current = ", calledsetup.current);
     
     useEffect(() => {
@@ -60,7 +38,7 @@ function GameBoard(props)
         else
         {
             ChessPiece.setUpBoard(gid);
-            ChessGame.makeNewChessGameFromColor(gid, "BOTH");
+            ChessGame.makeNewChessGameFromColor(gid, "BOTH");//NEEDS TO BE MODIFIED 7-13-2024
             console.log("PIECE LIST AFTER SET UP BOARD CALLED:");
             //console.log("pieces = ", pieces);
             //console.log("getPieces() = ", getPieces());
@@ -72,6 +50,8 @@ function GameBoard(props)
         }
     }, [calledsetup.current]);
     
+
+
     function setSelectedLoc(rval, cval, ispcatloc)
     {
         console.log("INSIDE OF SET-SELECTED-LOC()!");
@@ -89,6 +69,7 @@ function GameBoard(props)
             cc.letMustBeDefinedAndNotNull(cp, "cp");
             //rval, cval, cp.getType() for type and location
             console.log("cp = ", cp);
+            
             setStartRow(rval);
             setStartCol(cval);
             setPieceType(cp.getType());
@@ -163,6 +144,10 @@ function GameBoard(props)
 
     function rowColStartEndHandleChange(usestart, userow, val)
     {
+        cc.letMustBeBoolean(usestart, "usestart");
+        cc.letMustBeBoolean(userow, "userow");
+        cc.letMustBeAnInteger(val, "val");
+
         if (usestart)
         {
             if (userow) setStartRow(val);
@@ -175,23 +160,20 @@ function GameBoard(props)
         }
     }
 
+    function mySelectHandleChange(mysetfunc, event)
+    {
+        mysetfunc(event.target.value);
+    }
+
     function genRowColLocOrStringLocElements(userowcolloc, usestart)
     {
-        let nmprefix = null;
-        let mybgwrd = null;
-        if (usestart)
-        {
-            nmprefix = "start";
-            mybgwrd = "AT";
-        }
-        else
-        {
-            nmprefix = "end";
-            mybgwrd = "TO";
-        }
+        cc.letMustBeBoolean(usestart, "usestart");
+        cc.letMustBeBoolean(userowcolloc, "userowcolloc");
+
+        const nmprefix = (usestart ? "start" : "end");
+        const mybgwrd = (usestart ? "AT" : "TO");
         const rwnm = nmprefix + "_row";
         const clnm = nmprefix + "_col";
-
         if (userowcolloc)
         {
             return (<>{" " + mybgwrd + ": ("}<select id={rwnm} name={rwnm}
@@ -209,9 +191,8 @@ function GameBoard(props)
         }
         else
         {
-            let mydispvalarr = null;
-            if (whitemovesdownranks) mydispvalarr = [1, 2, 3, 4, 5, 6, 7, 8];
-            else mydispvalarr = [8, 7, 6, 5, 4, 3, 2, 1];
+            const mydispvalarr = (whitemovesdownranks ? [1, 2, 3, 4, 5, 6, 7, 8] :
+                [8, 7, 6, 5, 4, 3, 2, 1]);
             return (<>{" " + mybgwrd + ": "}<select id={clnm} name={clnm}
                 onChange={(event) =>
                     rowColStartEndHandleChange(usestart, false, event.target.value)}
@@ -282,22 +263,26 @@ function GameBoard(props)
 
         const allpctpvals = ["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE", "PAWN"];
         const allpctpdispvals = ["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE (ROOK)", "PAWN"];
+        const clrturndispstr = (iswturn ? " WHITE ": " BLACK ");
         
         const pctpsel = (<select id={"piece_type"} name="piece_type" value={piece_type}
-            onChange={(event) => setPieceType(event.target.value)}>
+            onChange={mySelectHandleChange.bind(null, setPieceType)}>
                 {cc.genOptionListFromArray(allpctpvals, allpctpdispvals)}
+        </select>);
+        const pcclrsel = (<select id={"piece_color"} name="piece_color" value={piece_color}
+            onChange={mySelectHandleChange.bind(null, setPieceColor)}>
+            {cc.genOptionListFromArray(["WHITE", "BLACK"], null)}
         </select>);
 
         if (cmdtp === "COLOR HINTS")
         {
             return (<div style={{display: "inline-block", paddingLeft: 5}}>
-                {(iswturn ? " WHITE": " BLACK")} HINTS</div>);
+                {clrturndispstr + "HINTS"}</div>);
         }
         else if (cmdtp === "PIECE HINTS")
         {
             return (<div style={{display: "inline-block", paddingLeft: 5}}>
-                {(iswturn ? " WHITE ": " BLACK ")} 
-                {pctpsel}
+                {clrturndispstr}{pctpsel}
                 {genRowColLocOrStringLocElements(userowcolloc, true)}{" HINTS"}
             </div>);
         }
@@ -307,8 +292,9 @@ function GameBoard(props)
             if (cmdtp === "CASTLEING") pctp = "CASTLE";
             else pctp = "PAWN";
             return (<div style={{display: "inline-block", paddingLeft: 5}}>
-                {(iswturn ? " WHITE ": " BLACK ")} 
-                <select id={"dir"} name="dir" onChange={null} value={"LEFT"}>
+                {clrturndispstr}
+                <select id={"dir"} name="dir" value={dir}
+                    onChange={mySelectHandleChange.bind(null, setDirString)}>
                     {cc.genOptionListFromArray(["LEFT", "RIGHT"], null)}
                 </select>{" " + pctp}
                 {(cmdtp === "PAWNING") ? 
@@ -319,13 +305,14 @@ function GameBoard(props)
         else if (cmdtp === "RESIGNATION")
         {
             return (<div style={{display: "inline-block", paddingLeft: 5}}>
-                {(iswturn ? " WHITE": " BLACK")} RESIGNS</div>);
+                {clrturndispstr}RESIGNS</div>);
         }
         else if (cmdtp === "DRAW")
         {
             return (<div style={{display: "inline-block", paddingLeft: 5}}>
-                SET {(iswturn ? " WHITE": " BLACK")}{" WANTS TIE: "}
-                <select id={"wantstie"} name="wantstie" onChange={null} value={1}>
+                {"SET" + clrturndispstr + "WANTS TIE: "}
+                <select id={"wantstie"} name="wantstie" value={wants_tie}
+                    onChange={mySelectHandleChange.bind(null, setWantsTie)}>
                     {cc.genOptionListFromArray([0, 1], null)}
                 </select>
             </div>);
@@ -333,29 +320,20 @@ function GameBoard(props)
         else if (cmdtp === "CREATE" || cmdtp === "DELETE")
         {
             return (<div style={{display: "inline-block", paddingLeft: 5}}>
-                <select id={"piece_color"} name="piece_color" onChange={null} value={"WHITE"}>
-                    {cc.genOptionListFromArray(["WHITE", "BLACK"], null)}
-                </select>
-                {pctpsel}
-                {genRowColLocOrStringLocElements(userowcolloc, true)}
+                {pcclrsel}{pctpsel}{genRowColLocOrStringLocElements(userowcolloc, true)}
                 {(cmdtp === "CREATE") ? (<>{" with "}<input id={"myinitmvcnt"} type="number"
-                step={1} min={0} name="move_count" placeholder={0} onChange={null}
-                value={0} />{" move(s)"}</>): null}
+                step={1} min={0} name="move_count" placeholder={0} value={piece_move_count}
+                onChange={mySelectHandleChange.bind(null, setPieceMoveCount)} />
+                {" move(s)"}</>): null}
             </div>);
         }
         else if (cmdtp === "PROMOTION")
         {
             return (<div style={{display: "inline-block", paddingLeft: 5}}>
-                {"TURN "}<select id={"piece_color"} name="piece_color" onChange={null}
-                    value={"WHITE"}>
-                    {cc.genOptionListFromArray(["WHITE", "BLACK"], null)}
-                </select>{" "}<select id={"piece_type"} name="piece_type" onChange={null}
-                    value={"PAWN"}>
-                    {cc.genOptionListFromArray(allpctpvals, allpctpdispvals)}
-                </select>
+                {"TURN "}{pcclrsel}{" PAWN "}
                 {genRowColLocOrStringLocElements(userowcolloc, true)}{" INTO "}
-                <select id={"promo_type"} name="promo_type" onChange={null}
-                    value={"QUEEN"}>
+                <select id={"promo_type"} name="promo_type" value={promo_piece_type}
+                    onChange={mySelectHandleChange.bind(null, setPromoPieceType)}>
                     {cc.genOptionListFromArray(["QUEEN", "BISHOP", "KNIGHT", "CASTLE"],
                         ["QUEEN", "BISHOP", "KNIGHT", "CASTLE (ROOK)"])}
                 </select>
@@ -364,8 +342,7 @@ function GameBoard(props)
         else if (cmdtp === "MOVE")
         {
             return (<div style={{display: "inline-block", paddingLeft: 5}}>
-                {(iswturn ? " WHITE ": " BLACK ")}
-                {pctpsel}
+                {clrturndispstr}{pctpsel}
                 {genRowColLocOrStringLocElements(userowcolloc, true)}
                 {genRowColLocOrStringLocElements(userowcolloc, false)}
             </div>);
@@ -393,40 +370,77 @@ function GameBoard(props)
     }
 
 
-    //let clrvalturn = ChessGame.getGameVIAGID(gid).getSideTurn();
-    let iswhiteturn = false;
-    //const iswhiteturn = (clrvalturn === "WHITE");
+    let clrvalturn = null;
+    let iswhiteturn = true;
     let iscompleted = false;
-    //let iscompleted = ChessGame.getGameVIAGID(gid).isCompleted();
     let currentsideisincheck = false;
-    //let currentsideisincheck = ChessPiece.isSideInCheck(clrvalturn, gid, null, null);
     let acurrentsidequeenisincheck = false;
-    //let acurrentsidequeenisincheck = ChessPiece.isAtLeastOneQueenForSideInCheck(
-    //    clrvalturn, gid, null, null);
+    if (loaded)
+    {
+        clrvalturn = ChessGame.getGameVIAGID(gid).getSideTurn();
+        iswhiteturn = (clrvalturn === "WHITE");
+        iscompleted = ChessGame.getGameVIAGID(gid).isCompleted();
+        currentsideisincheck = ChessPiece.isSideInCheck(clrvalturn, gid, null, null);
+        acurrentsidequeenisincheck = ChessPiece.isAtLeastOneQueenForSideInCheck(
+            clrvalturn, gid, null, null);
+    }
+    //else;//defaults will be used
     let playertwousrnm = "tu";
     let playeroneusrnm = "me";
     let playeronecolor = "WHITE";
     let playertwocolor = "BLACK";
     let playeronerank = -1;
     let playertworank = -1;
-    let [cmd_type, setCMDType] = useState("COLOR HINTS");
-    //formik.handleChange
-    //formik.values.start_row
-    //formik.values.start_col
-    //formik.values.end_row
-    //formik.values.end_col
-    //formik.values.piece_type
-    //"PROMOTION", "CREATE", "DELETE"
+    
+    //"PROMOTION", "CREATE", "DELETE" are move types we might want to forbid access to
 
 
     //<button style={{marginLeft: 50}}
     //onClick={(event) => setWhiteMovesDownRanks(!whitemovesdownranks)}>
     //White moves {whitemovesdownranks ? "down": "up"} ranks!</button>
 
+    //const iserr = !(cc.isStringEmptyNullOrUndefined(errormsg));
+    //{iserr ? <p>{errormsg}</p>: null}
+    
+    //static makeLocalShortHandMove(mvcmd, gid, isuser, isundo=false,
+    //iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial=false)
+    //
+    //static makeLocalLongHandMove(mvcmd, gid, isuser, isundo=false,
+    //        iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial=false)
+    
+    // static makeLocalMove(mvcmd, gid, isuser, isshorthand=true, isundo=false, 
+    //         iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial=false)
+    
+    // static makeLocalMoveMain(mvcmd, gid, isuser, isundo=false, 
+    //         iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial=false)
+    
+    
+    // static genFullMoveCommandFromDisplayedCommand(usrcmd, gid, ptpval="QUEEN", ignorelist=null,
+    //         addpcs=null, iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, bpassimnxtmv=false)
+    
+    // static genFullMoveCommandFromDisplayedCommandMain(usrcmd, gid, ptpval="QUEEN",
+    //         iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, bpassimnxtmv=false)
+    
+    
+    // static genUndoMoveToShortHandCommand(mvcmd, redoit=false, remundo=false)
+    
+    // static genUndoMoveToLongHandCommand(mvcmd, redoit=false, remundo=false)
+    
+    // static genRedoMoveToLongHandCommand(mvcmd)
+    
+    // static genRedoMoveToShortHandCommand(mvcmd)
+    
+    
+    // CHESSGAME:
+    
+    // genCommandToUndoLastMadeMove()
+
+
+    //NEEDS MODIFIED 7-13-2024 BGCOLOR
     return (<div style={{marginLeft: 10,
         backgroundColor: cc.getBGColorToBeUsed(false, "GameBoard")}}>
         <h2>Play Game:</h2>
-        <table style={{marginLeft: 10, marginBottom: 10, marginTop: 10}}>
+        <table style={{marginLeft: 10, marginBottom: 10}}>
             <thead>
                 <tr>
                     <th>0<br />A</th>
@@ -437,8 +451,9 @@ function GameBoard(props)
                     <th>5<br />F</th>
                     <th>6<br />G</th>
                     <th>7<br />H</th>
-                    <th><button onClick={(event) => setWhiteMovesDownRanks(!whitemovesdownranks)}>
-                        (COLS)<br />RANK</button></th>
+                    <th>(COLS)<br />
+                        <button onClick={(event) => setWhiteMovesDownRanks(!whitemovesdownranks)}>
+                            RANK</button></th>
                     <th>ROW</th>
                 </tr>
             </thead>
@@ -453,9 +468,9 @@ function GameBoard(props)
         <div>
             <button onClick={(event) => setShowQueenWarning(!showqnwarning)}>
                 {(showqnwarning) ? "Hide ": "Show "} Queen Warning</button>
-            <button>{"< " + (iscompleted ? "Previous": "Undo") + " Move"}</button>
-            <button>{"> " + (iscompleted ? "Next": "Redo") + " Move"}</button>
-            <button>{(iswhiteturn ? "Black": "White") + "'s Turn!"}</button>
+            <button onClick={null}>{"< " + (iscompleted ? "Previous": "Undo") + " Move"}</button>
+            <button onClick={null}>{"> " + (iscompleted ? "Next": "Redo") + " Move"}</button>
+            <button onClick={null}>{(iswhiteturn ? "Black": "White") + "'s Turn!"}</button>
             <button onClick={(event) => setUseRowColLocDisplay(!useroworcollocdisp)}>
                 {useroworcollocdisp ? "Use string loc(s)" : "Use row-col loc(s)"}
             </button>
