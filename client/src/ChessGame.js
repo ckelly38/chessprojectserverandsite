@@ -336,7 +336,7 @@ class ChessGame {
 		else return this.OFFICIAL_MOVES.length;
 	}
 	
-	printAllMoves(mymvs, mvstp)
+	static printAllMoves(mymvs, mvstp)
 	{
 		if (ChessGame.cc.isStringEmptyNullOrUndefined(mymvs))
 		{
@@ -364,21 +364,21 @@ class ChessGame {
 			}
 		}
 	}
-	printMove(mymv, mvtp)
+	static printMove(mymv, mvtp)
 	{
-		this.printAllMoves(this.convertStringArrayToMultidim(mymv), mvtp);
+		ChessGame.printAllMoves(ChessGame.convertStringArrayToMultidim(mymv), mvtp);
 	}
 	printAllOfficialMoves()
 	{
-		this.printAllMoves(this.OFFICIAL_MOVES, "OFFICIAL");
+		ChessGame.printAllMoves(this.OFFICIAL_MOVES, "OFFICIAL");
 	}
 	printUnofficialMove()
 	{
-		this.printMove(this.UNOFFICIAL_MOVE, "UNOFFICIAL");
+		ChessGame.printMove(this.UNOFFICIAL_MOVE, "UNOFFICIAL");
 	}
 	printLastUndoneMove()
 	{
-		this.printMove(this.LAST_UNDONE_MOVE, "LAST UNDONE");
+		ChessGame.printMove(this.LAST_UNDONE_MOVE, "LAST UNDONE");
 	}
 	
 	setOfficialMoves(myoffmvs)

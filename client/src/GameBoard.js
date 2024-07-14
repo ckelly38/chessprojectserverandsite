@@ -16,6 +16,7 @@ function GameBoard(props)
     
     let calledsetup = useRef(false);
     let [loaded, setLoaded] = useState(false);
+    let [updateboard, setUpdateBoard] = useState(false);
     let [dir, setDirString] = useState("LEFT");
     let [piece_type, setPieceType] = useState("KING");
     let [piece_color, setPieceColor] = useState("WHITE");
@@ -73,6 +74,8 @@ function GameBoard(props)
             setStartRow(rval);
             setStartCol(cval);
             setPieceType(cp.getType());
+            setPieceColor(cp.getColor());
+            setPieceMoveCount(cp.getMoveCount());
         }
         else
         {
@@ -402,41 +405,179 @@ function GameBoard(props)
     //const iserr = !(cc.isStringEmptyNullOrUndefined(errormsg));
     //{iserr ? <p>{errormsg}</p>: null}
     
-    //static makeLocalShortHandMove(mvcmd, gid, isuser, isundo=false,
-    //iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial=false)
-    //
-    //static makeLocalLongHandMove(mvcmd, gid, isuser, isundo=false,
-    //        iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial=false)
     
-    // static makeLocalMove(mvcmd, gid, isuser, isshorthand=true, isundo=false, 
-    //         iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial=false)
-    
-    // static makeLocalMoveMain(mvcmd, gid, isuser, isundo=false, 
-    //         iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial=false)
-    
-    
-    // static genFullMoveCommandFromDisplayedCommand(usrcmd, gid, ptpval="QUEEN", ignorelist=null,
-    //         addpcs=null, iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, bpassimnxtmv=false)
-    
-    // static genFullMoveCommandFromDisplayedCommandMain(usrcmd, gid, ptpval="QUEEN",
-    //         iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, bpassimnxtmv=false)
-    
-    
-    // static genUndoMoveToShortHandCommand(mvcmd, redoit=false, remundo=false)
-    
-    // static genUndoMoveToLongHandCommand(mvcmd, redoit=false, remundo=false)
-    
-    // static genRedoMoveToLongHandCommand(mvcmd)
-    
-    // static genRedoMoveToShortHandCommand(mvcmd)
-    
-    
-    // CHESSGAME:
-    
-    // genCommandToUndoLastMadeMove()
+    //NOT DONE YET 7-14-2024 2:30 AM
+    function executeUserCommand()
+    {
+        //first we need to generate the command in the notation that the executor can process
+        //then we execute it
+        const isuser = true;
+        const isofficial = false;
+        const ignorelist = null;
+        const addpcs = null;
+        const bpassimnxtmv = false;
+        const useshort = true;
+        const isundo = false;
+        //whitemovesdownranks and gid comes in from state
+        //command type will dictate if we are castling or not
+        //(unless it is recognized as a special move by the King)
+        //THE ONLY TIME PIECE_COLOR STATE IS USED IS FOR COMMAND TYPES:
+        //PROMOTION, CREATE, AND DELETE
+        //OTHERWISE IT IS FROM COLOR TURN VALUE
+        
+
+        
+        // static genMoveToCommand(clr, tp, crval, ccval, nrval, ncval, gid, ignorelist=null,
+        //         addpcs=null, ptpval="QUEEN", usecslingasmv=false, bpassimnxtmv=false)
+        
+
+        // static makeLocalShortHandMove(mvcmd, gid, isuser, isundo=false,
+        //  iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial=false)
+        
+        //ONLY CONVERTS COMMANDS IN SHORTHAND NOTATION
+        // static genFullMoveCommandFromDisplayedCommandMain(usrcmd, gid, ptpval="QUEEN",
+        //         iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, bpassimnxtmv=false)
+        
+        
+        // static genUndoMoveToShortHandCommand(mvcmd, redoit=false, remundo=false)
+        
+        // static genRedoMoveToShortHandCommand(mvcmd)
+        
+        
+        // CHESSGAME:
+
+        // genCommandToUndoLastMadeMove()
 
 
-    //NEEDS MODIFIED 7-13-2024 BGCOLOR
+        let simpcmd = null;
+        let clr = null;
+        if (cmd_type === "PROMOTION" || cmd_type === "CREATE" || cmd_type === "DELETE")
+        {
+            clr = "" + piece_color;
+        }
+        else
+        {
+            if (iswhiteturn) clr = "WHITE";
+            else clr = "BLACK";
+        }
+        let r = start_row;
+        let c = start_col;
+        let nr = end_row;
+        let nc = end_col;
+        let tp = piece_type;
+        let myfullmvcmd = null;
+
+        if (cmd_type === "COLOR HINTS" || cmd_type === "PIECE HINTS")
+        {
+            const useside = (cmd_type === "COLOR HINTS");
+            let mytp = "";
+            let mycr = -1;
+            let mycc = -1;
+            if (cmd_type === "COLOR HINTS");
+            else
+            {
+                mytp = piece_type;
+                mycr = start_row;
+                mycc = start_col;
+            }
+            simpcmd = ChessPiece.genLongOrShortHandHintsCommandForPieceOrSide(clr, mytp, mycr,
+                mycc, useside, useshort);
+        }
+        else if (cmd_type === "RESIGNATION")
+        {
+            simpcmd = ChessPiece.genLongOrShortHandResignCommand(clr, useshort);
+        }
+        else if (cmd_type === "DRAW")
+        {
+            const wtval = ((wants_tie === 0) ? false: true);
+            simpcmd = ChessPiece.genLongOrShortHandTieDesireCommand(clr, wtval, useshort);
+        }
+        else if (cmd_type === "PROMOTION")
+        {
+            simpcmd = ChessPiece.genLongOrShortHandPawnPromotionCommand(clr, nr, nc,
+                promo_piece_type, useshort);
+        }
+        else if (cmd_type === "CREATE")
+        {
+            simpcmd = ChessPiece.genLongOrShortHandCreateCommand(clr, tp, r, c, piece_move_count,
+                useshort);
+        }
+        else if (cmd_type === "DELETE")
+        {
+            simpcmd = ChessPiece.genLongOrShortHandDeleteOrCreateCommand(clr, tp, r, c,
+                piece_move_count, false, useshort);
+        }
+        else if (cmd_type === "CASTLEING")//NOT DONE YET 7-14-2024 2:30 AM
+        {
+            cc.logAndThrowNewError("NOT SURE WHAT TO DO HERE TO GENERATE THE COMMAND!");
+        }
+        else if (cmd_type === "PAWNING")//NOT DONE YET 7-14-2024 2:30 AM
+        {
+            cc.logAndThrowNewError("NOT SURE WHAT TO DO HERE TO GENERATE THE COMMAND!");
+        }
+        else if (cmd_type === "MOVE")//NOT DONE YET 7-14-2024 2:30 AM
+        {
+            cc.logAndThrowNewError("NOT SURE WHAT TO DO HERE TO GENERATE THE COMMAND!");
+        }
+        else cc.logAndThrowNewError("ERROR: Command type: " + cmd_type + " not recognized!");
+
+        if (cc.isStringEmptyNullOrUndefined(simpcmd))//NOT DONE YET 7-14-2024 2:30 AM
+        {
+            cc.logAndThrowNewError("NOT SURE WHAT TO DO HERE THE SIMPLE COMMAND WAS NULL!");
+        }
+        else
+        {
+            const ptpval = ((cmd_type === "PROMOTION") ? promo_piece_type : "QUEEN");
+            myfullmvcmd = ChessPiece.genFullMoveCommandFromDisplayedCommandMain(simpcmd, gid,
+                ptpval, whitemovesdownranks, bpassimnxtmv);
+        }
+
+        ChessPiece.makeLocalShortHandMove(myfullmvcmd, gid, isuser, isundo,
+            whitemovesdownranks, isofficial);
+        setUpdateBoard(!updateboard);
+    }
+
+    function undoMoveMain(gameisover)
+    {
+        cc.letMustBeBoolean(gameisover, "gameisover");
+
+        if (gameisover) ChessGame.getGameVIAGID(gid).stepBackward();
+        else
+        {
+            let myfullmvcmd = ChessPiece.genFullMoveCommandFromDisplayedCommandMain("UNDO", gid);
+            const isundo = true;
+            const isuser = true;
+            //we do not know if the move is official or if the move is unofficial
+            //we can determine what it is though by checking the unofficial move
+            let cpunoffmv = ChessGame.getGameVIAGID(gid).genCopyOfUnofficialMove();
+            const isofficial = (cc.isStringEmptyNullOrUndefined(cpunoffmv) ? true: false);
+            ChessPiece.makeLocalShortHandMove(myfullmvcmd, gid, isuser, isundo,
+                whitemovesdownranks, isofficial);
+            setUpdateBoard(!updateboard);
+        }
+    }
+
+    //NOT DONE YET BUG REDOING DELETING A PIECE...
+    function redoMoveMain(gameisover)
+    {
+        cc.letMustBeBoolean(gameisover, "gameisover");
+
+        if (gameisover) ChessGame.getGameVIAGID(gid).stepForward();
+        else
+        {
+            let myfullmvcmd = ChessGame.getGameVIAGID(gid).genCommandToRedoLastUndoneMove();
+            const isundo = false;
+            const isuser = true;
+            const isofficial = false;
+            console.log("INSIDE REDO! myfullmvcmd = ", myfullmvcmd);
+            ChessPiece.makeLocalShortHandMove(myfullmvcmd, gid, isuser, isundo,
+                whitemovesdownranks, isofficial);
+            setUpdateBoard(!updateboard);
+        }
+    }
+
+
+    //NEEDS MODIFIED 7-13-2024 BGCOLOR TO CHANGE IF THERE ARE ERRORS
     return (<div style={{marginLeft: 10,
         backgroundColor: cc.getBGColorToBeUsed(false, "GameBoard")}}>
         <h2>Play Game:</h2>
@@ -468,8 +609,10 @@ function GameBoard(props)
         <div>
             <button onClick={(event) => setShowQueenWarning(!showqnwarning)}>
                 {(showqnwarning) ? "Hide ": "Show "} Queen Warning</button>
-            <button onClick={null}>{"< " + (iscompleted ? "Previous": "Undo") + " Move"}</button>
-            <button onClick={null}>{"> " + (iscompleted ? "Next": "Redo") + " Move"}</button>
+            <button onClick={(event) => undoMoveMain(iscompleted)}>
+                {"< " + (iscompleted ? "Previous": "Undo") + " Move"}</button>
+            <button onClick={(event) => redoMoveMain(iscompleted)}>
+                {"> " + (iscompleted ? "Next": "Redo") + " Move"}</button>
             <button onClick={null}>{(iswhiteturn ? "Black": "White") + "'s Turn!"}</button>
             <button onClick={(event) => setUseRowColLocDisplay(!useroworcollocdisp)}>
                 {useroworcollocdisp ? "Use string loc(s)" : "Use row-col loc(s)"}
@@ -483,7 +626,7 @@ function GameBoard(props)
         </select>
         
         {genCommandInterface(cmd_type, iswhiteturn, useroworcollocdisp)}
-        <button onClick={null}>Execute!</button>
+        <button onClick={(event) => executeUserCommand()}>Execute!</button>
         
         <table style={{marginLeft: 10, marginBottom: 10, marginTop: 10}}>
             <thead>
