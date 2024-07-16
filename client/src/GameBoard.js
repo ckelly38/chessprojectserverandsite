@@ -10,7 +10,7 @@ function GameBoard(props)
 {
     let cc = new CommonClass();
     const history = useHistory();
-    console.log("INSIDE GAME BOARD!");
+    //console.log("INSIDE GAME BOARD!");
 
     let gid = 1;//NEEDS TO BE MODIFIED 7-13-2024
     
@@ -31,13 +31,25 @@ function GameBoard(props)
     let [showqnwarning, setShowQueenWarning] = useState(true);
     let [whitemovesdownranks, setWhiteMovesDownRanks] = useState(true);
     let [cmd_type, setCMDType] = useState("MOVE");
-    console.log("OLD calledsetup.current = ", calledsetup.current);
+    let [pcshints, setPcsHints] = useState([]);//[][][]
+    //console.log("OLD calledsetup.current = ", calledsetup.current);
+    //console.log("pcshints = ", pcshints);
     
+    let hints = useRef(cc.fourDimArrToTwoDimArr(pcshints));
+    //console.log("hints = ", hints);
+
     useEffect(() => {
         console.log("INSIDE OF USE EFFECT!");
-        if (calledsetup.current);
+        if (calledsetup.current)
+        {
+            hints.current = cc.fourDimArrToTwoDimArr(pcshints);
+            //console.log("hints.current = ", hints.current);
+            setUpdateBoard(!updateboard);
+            setTimeout(() => setPcsHints([]), 10000);
+        }
         else
         {
+            ChessPiece.setAllPieceHintsFunc(setPcsHints);
             ChessPiece.setUpBoard(gid);
             ChessGame.makeNewChessGameFromColor(gid, "BOTH");//NEEDS TO BE MODIFIED 7-13-2024
             console.log("PIECE LIST AFTER SET UP BOARD CALLED:");
@@ -49,7 +61,7 @@ function GameBoard(props)
             console.log("NEW calledsetup.current = ", calledsetup.current);
             setLoaded(true);//needed to display the pieces, sling shot route does not work
         }
-    }, [calledsetup.current]);
+    }, [calledsetup.current, pcshints]);
     
 
 
@@ -86,10 +98,12 @@ function GameBoard(props)
         }
     }
 
-    function generateTableRows(wtmvsdwnrks, lsqrclr, dsqrclr, lpcclr, dpcclr)
+    function generateTableRows(wtmvsdwnrks, lsqrclr, dsqrclr, lpcclr, dpcclr, htsclr)
     {
         let myrws = [];
         let uselightclr = true;
+        //console.log("hints.current = ", hints.current);
+
         for (let r = 0; r < 8; r++)
         {
             let mycolsonrw = [];
@@ -97,14 +111,21 @@ function GameBoard(props)
             else uselightclr = false;
             for (let c = 0; c < 8 + 2; c++)
             {
+                const usehintsforsqr = ((c < 8) ?
+                    ChessPiece.isLocOnListOfLocs(r, c, hints.current): false);
                 let mysqrclr = null;
-                if (uselightclr) mysqrclr = "" + lsqrclr;
-                else mysqrclr = "" + dsqrclr;
+                //console.log("usehintsforsqr = " + usehintsforsqr);
+                if (usehintsforsqr) mysqrclr = "" + htsclr;
+                else
+                {
+                    if (uselightclr) mysqrclr = "" + lsqrclr;
+                    else mysqrclr = "" + dsqrclr;
+                }
                 if (c < 8)
                 {
                     //these need to come from the piece list
                     //cp is null, then type is null; otherwise cp.getType()
-                    console.log("calledsetup.current = ", calledsetup.current);
+                    //console.log("calledsetup.current = ", calledsetup.current);
                     
                     let cp = null;//needed to prevent an error of empty or null board list
                     if (calledsetup.current)
@@ -276,6 +297,11 @@ function GameBoard(props)
             onChange={mySelectHandleChange.bind(null, setPieceColor)}>
             {cc.genOptionListFromArray(["WHITE", "BLACK"], null)}
         </select>);
+        const promopctpsel = (<select id={"promo_type"} name="promo_type" value={promo_piece_type}
+            onChange={mySelectHandleChange.bind(null, setPromoPieceType)}>
+            {cc.genOptionListFromArray(["QUEEN", "BISHOP", "KNIGHT", "CASTLE"],
+                ["QUEEN", "BISHOP", "KNIGHT", "CASTLE (ROOK)"])}
+        </select>);
 
         if (cmdtp === "COLOR HINTS")
         {
@@ -335,19 +361,19 @@ function GameBoard(props)
             return (<div style={{display: "inline-block", paddingLeft: 5}}>
                 {"TURN "}{pcclrsel}{" PAWN "}
                 {genRowColLocOrStringLocElements(userowcolloc, true)}{" INTO "}
-                <select id={"promo_type"} name="promo_type" value={promo_piece_type}
-                    onChange={mySelectHandleChange.bind(null, setPromoPieceType)}>
-                    {cc.genOptionListFromArray(["QUEEN", "BISHOP", "KNIGHT", "CASTLE"],
-                        ["QUEEN", "BISHOP", "KNIGHT", "CASTLE (ROOK)"])}
-                </select>
+                {promopctpsel}
             </div>);
         }
         else if (cmdtp === "MOVE")
         {
+            const canpropwn = ChessPiece.canPawnBePromotedAt(end_row, end_col,
+              clrturndispstr.substring(1, clrturndispstr.length - 1), piece_type);
+            const myprostr = " AND TURN INTO: ";
             return (<div style={{display: "inline-block", paddingLeft: 5}}>
                 {clrturndispstr}{pctpsel}
                 {genRowColLocOrStringLocElements(userowcolloc, true)}
                 {genRowColLocOrStringLocElements(userowcolloc, false)}
+                {canpropwn ? <>{myprostr}{promopctpsel}</> : null}
             </div>);
         }
         else
@@ -425,61 +451,26 @@ function GameBoard(props)
         //PROMOTION, CREATE, AND DELETE
         //OTHERWISE IT IS FROM COLOR TURN VALUE
         
-
         
-        // static genMoveToCommand(clr, tp, crval, ccval, nrval, ncval, gid, ignorelist=null,
-        //         addpcs=null, ptpval="QUEEN", usecslingasmv=false, bpassimnxtmv=false)
-        
-
-        // static makeLocalShortHandMove(mvcmd, gid, isuser, isundo=false,
-        //  iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial=false)
-        
-        //ONLY CONVERTS COMMANDS IN SHORTHAND NOTATION
-        // static genFullMoveCommandFromDisplayedCommandMain(usrcmd, gid, ptpval="QUEEN",
-        //         iswhitedown=ChessPiece.WHITE_MOVES_DOWN_RANKS, bpassimnxtmv=false)
-        
-        
-        // static genUndoMoveToShortHandCommand(mvcmd, redoit=false, remundo=false)
-        
-        // static genRedoMoveToShortHandCommand(mvcmd)
-        
-        
-        // CHESSGAME:
-
-        // genCommandToUndoLastMadeMove()
-
-
         let simpcmd = null;
-        let clr = null;
-        if (cmd_type === "PROMOTION" || cmd_type === "CREATE" || cmd_type === "DELETE")
-        {
-            clr = "" + piece_color;
-        }
-        else
-        {
-            if (iswhiteturn) clr = "WHITE";
-            else clr = "BLACK";
-        }
+        let myfullmvcmd = null;
+        const usepcclr = (cmd_type === "PROMOTION" || cmd_type === "CREATE" ||
+            cmd_type === "DELETE");
+        const tp = ((cmd_type === "CASTLEING") ? "CASTLE" : ((cmd_type === "PAWNING") ? "PAWN" :
+            "" + piece_type));
+        const clr = (usepcclr ? "" + piece_color : (iswhiteturn ? "WHITE" : "BLACK"));
+        const usedir = (cmd_type === "CASTLEING" || cmd_type === "PAWNING");
+        const useleft = (usedir ? (dir.charAt(0) === "L") : false);
         let r = start_row;
         let c = start_col;
         let nr = end_row;
         let nc = end_col;
-        let tp = piece_type;
-        let myfullmvcmd = null;
-
         if (cmd_type === "COLOR HINTS" || cmd_type === "PIECE HINTS")
         {
             const useside = (cmd_type === "COLOR HINTS");
-            let mytp = "";
-            let mycr = -1;
-            let mycc = -1;
-            if (cmd_type === "COLOR HINTS");
-            else
-            {
-                mytp = piece_type;
-                mycr = start_row;
-                mycc = start_col;
-            }
+            const mytp = (useside ? "" : piece_type);
+            const mycr = (useside ? -1 : start_row);
+            const mycc = (useside ? -1 : start_col);
             simpcmd = ChessPiece.genLongOrShortHandHintsCommandForPieceOrSide(clr, mytp, mycr,
                 mycc, useside, useshort);
         }
@@ -507,33 +498,50 @@ function GameBoard(props)
             simpcmd = ChessPiece.genLongOrShortHandDeleteOrCreateCommand(clr, tp, r, c,
                 piece_move_count, false, useshort);
         }
-        else if (cmd_type === "CASTLEING")//NOT DONE YET 7-14-2024 2:30 AM
+        else if (cmd_type === "CASTLEING")
         {
-            cc.logAndThrowNewError("NOT SURE WHAT TO DO HERE TO GENERATE THE COMMAND!");
+            simpcmd = ChessPiece.genLongOrShortHandCastelingCommand(clr, useleft, useshort);
         }
-        else if (cmd_type === "PAWNING")//NOT DONE YET 7-14-2024 2:30 AM
+        else if (cmd_type === "PAWNING")
         {
-            cc.logAndThrowNewError("NOT SURE WHAT TO DO HERE TO GENERATE THE COMMAND!");
+            if (r === nr && c === nc)
+            {
+                cc.logAndThrowNewError("NO MOVE WAS MADE!");
+            }
+            //else;//do nothing safe to proceed
+
+            simpcmd = ChessPiece.genLongOrShortHandPawningCommand(clr, r, c, nr, nc,
+                useleft, useshort);
         }
-        else if (cmd_type === "MOVE")//NOT DONE YET 7-14-2024 2:30 AM
+        else if (cmd_type === "MOVE")
         {
-            cc.logAndThrowNewError("NOT SURE WHAT TO DO HERE TO GENERATE THE COMMAND!");
+            if (r === nr && c === nc)
+            {
+                cc.logAndThrowNewError("NO MOVE WAS MADE!");
+            }
+            //else;//do nothing safe to proceed
+
+            //option a: generate just the simple move
+            simpcmd = ChessPiece.genLongOrShortHandMoveCommandOnlyString(clr, tp, r, c,
+                nr, nc, usedir, useleft, useshort);
+            //option b: generate the full move command
         }
         else cc.logAndThrowNewError("ERROR: Command type: " + cmd_type + " not recognized!");
 
-        if (cc.isStringEmptyNullOrUndefined(simpcmd))//NOT DONE YET 7-14-2024 2:30 AM
+        if (cc.isStringEmptyNullOrUndefined(simpcmd))
         {
-            cc.logAndThrowNewError("NOT SURE WHAT TO DO HERE THE SIMPLE COMMAND WAS NULL!");
+            cc.logAndThrowNewError("THE SIMPLE COMMAND MUST NOT BE NULL!");
         }
         else
         {
-            const ptpval = ((cmd_type === "PROMOTION") ? promo_piece_type : "QUEEN");
+            const ptpval = ((cmd_type === "PROMOTION" || cmd_type === "MOVE") ?
+                promo_piece_type : "QUEEN");
             myfullmvcmd = ChessPiece.genFullMoveCommandFromDisplayedCommandMain(simpcmd, gid,
-                ptpval, whitemovesdownranks, bpassimnxtmv);
+                ptpval, ChessPiece.WHITE_MOVES_DOWN_RANKS, bpassimnxtmv);
         }
 
         ChessPiece.makeLocalShortHandMove(myfullmvcmd, gid, isuser, isundo,
-            whitemovesdownranks, isofficial);
+            ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial);
         setUpdateBoard(!updateboard);
     }
 
@@ -552,9 +560,9 @@ function GameBoard(props)
             let cpunoffmv = ChessGame.getGameVIAGID(gid).genCopyOfUnofficialMove();
             const isofficial = (cc.isStringEmptyNullOrUndefined(cpunoffmv) ? true: false);
             ChessPiece.makeLocalShortHandMove(myfullmvcmd, gid, isuser, isundo,
-                whitemovesdownranks, isofficial);
-            setUpdateBoard(!updateboard);
+                ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial);
         }
+        setUpdateBoard(!updateboard);
     }
 
     //NOT DONE YET BUG REDOING DELETING A PIECE...
@@ -571,9 +579,9 @@ function GameBoard(props)
             const isofficial = false;
             console.log("INSIDE REDO! myfullmvcmd = ", myfullmvcmd);
             ChessPiece.makeLocalShortHandMove(myfullmvcmd, gid, isuser, isundo,
-                whitemovesdownranks, isofficial);
-            setUpdateBoard(!updateboard);
+                ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial);
         }
+        setUpdateBoard(!updateboard);
     }
 
 
@@ -599,7 +607,7 @@ function GameBoard(props)
                 </tr>
             </thead>
             <tbody>
-                {generateTableRows(whitemovesdownranks, "white", "orange", "grey", "black")}
+                {generateTableRows(whitemovesdownranks, "white", "orange", "grey", "black", "lime")}
             </tbody>
         </table>
         

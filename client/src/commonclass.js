@@ -1,3 +1,5 @@
+import reactRouterDom from "react-router-dom";
+
 class CommonClass{
     isItemNullOrUndefined(val)
     {
@@ -336,6 +338,32 @@ class CommonClass{
             }
         }
         return myretwd;
+    }
+
+    fourDimArrToTwoDimArr(myarr)
+    {
+        let retarr = null;
+        if (this.isItemNullOrUndefined(myarr)) return null;
+        else if (myarr.length < 1) return [];
+        else
+        {
+            retarr = [];
+            for (let x = 0; x < myarr.length; x++)
+            {
+                //console.log("myarr[" + x + "] = ", myarr[x]);//[][][]
+                if (this.isStringEmptyNullOrUndefined(myarr[x]));
+                else
+                {
+                    for (let i = 0; i < myarr[x].length; i++)
+                    {
+                        //console.log("myarr[" + x + "][" + i + "] = ", myarr[x][i]);//[][]
+                        if (this.isStringEmptyNullOrUndefined(myarr[x][i]));
+                        else retarr.push(myarr[x][i]);
+                    }
+                }
+            }
+        }
+        return retarr;
     }
 
     //PROBABLY WILL NEVER USE ANYTHING BELOW THIS LINE

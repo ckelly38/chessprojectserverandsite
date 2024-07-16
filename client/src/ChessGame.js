@@ -186,7 +186,7 @@ class ChessGame {
 		let clrs = ChessPiece.getSideColorsForMoves(myoffmvs);
 		let tps = ChessPiece.getSideTypesForMoves(myoffmvs);
 		ChessGame.cc.letMustBeDefinedAndNotNull(myoffmvs, "myoffmvs")
-		if (ChessGame.cc.isItemNullOrUndefined(clrs) || clrs.length != myoffmvs.length)
+		if (ChessGame.cc.isItemNullOrUndefined(clrs) || clrs.length !== myoffmvs.length)
 		{
 			ChessGame.cc.logAndThrowNewError("myoffmvs must be the same size as the colors!");
 		}
@@ -307,7 +307,7 @@ class ChessGame {
 		{
 			return "WHITE";
 		}
-		else if (clrs.length != myoffmvs.length)
+		else if (clrs.length !== myoffmvs.length)
 		{
 			ChessGame.cc.logAndThrowNewError("myoffmvs must be the same size as the colors!");
 		}
@@ -429,19 +429,24 @@ class ChessGame {
 	
 	setUnofficialMove(mymvcmd)
 	{
+		//console.log("mymvcmd = ", mymvcmd);
 		if (ChessGame.cc.isStringEmptyNullOrUndefined(mymvcmd)) this.UNOFFICIAL_MOVE = null;
 		else
 		{
-			if (ChessGame.cc.isStringEmptyNullOrUndefined(this.UNOFFICIAL_MOVE))
-			{
-				this.UNOFFICIAL_MOVE = mymvcmd.map((mitem) => "" + mitem);
-			}
+			if (ChessPiece.getOverallTypeOfCommand(mymvcmd) === "HINTS");//do nothing
 			else
 			{
-				this.printAllOfficialMoves();
-				this.printUnofficialMove();
-				ChessGame.cc.logAndThrowNewError("YOU NEED TO MAKE THE MOVE OFFICIAL " +
-					"FIRST OR CLEAR THE UNOFFICIAL MOVE!");
+				if (ChessGame.cc.isStringEmptyNullOrUndefined(this.UNOFFICIAL_MOVE))
+				{
+					this.UNOFFICIAL_MOVE = mymvcmd.map((mitem) => "" + mitem);
+				}
+				else
+				{
+					this.printAllOfficialMoves();
+					this.printUnofficialMove();
+					ChessGame.cc.logAndThrowNewError("YOU NEED TO MAKE THE MOVE OFFICIAL " +
+						"FIRST OR CLEAR THE UNOFFICIAL MOVE!");
+				}
 			}
 		}
 	}

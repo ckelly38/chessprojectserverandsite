@@ -9,9 +9,10 @@ class ChessPiece {
 	static WHITE_MOVES_DOWN_RANKS = false;
 	static clrs = ChessPiece.getSquareColors();
 	static cps = [];
-	static remPC = null;
-	static addPC = null;
-	static getPCS = null;
+	//static remPC = null;
+	//static addPC = null;
+	//static getPCS = null;
+	static setPCSHints = null;
 	//only one copy so will cause a problem with multiple games
 	constructor(tp="", clr="", r=-1, c=-1, gid=-1, initmvcnt=0, addit=true)
 	{
@@ -88,20 +89,26 @@ class ChessPiece {
 		return ChessPiece.makeNewChessPieceMain(tp, clr, [r, c], gid, addit);
 	}
 	
-	static setMyAddPieceToListFunc(myfunc)
+	//static setMyAddPieceToListFunc(myfunc)
+	//{
+	//	ChessPiece.addPC = myfunc;
+	//}
+	//
+	//static setMyRemovePieceFromListFunc(myfunc)
+	//{
+	//	ChessPiece.remPC = myfunc;
+	//}
+	//
+	//static setGetPCS(myfunc)
+	//{
+	//	ChessPiece.getPCS = myfunc;
+	//}
+
+	static setAllPieceHintsFunc(myfunc)
 	{
-		ChessPiece.addPC = myfunc;
+		ChessPiece.setPCSHints = myfunc;
 	}
 
-	static setMyRemovePieceFromListFunc(myfunc)
-	{
-		ChessPiece.remPC = myfunc;
-	}
-
-	static setGetPCS(myfunc)
-	{
-		ChessPiece.getPCS = myfunc;
-	}
 
 	getGameID()
 	{
@@ -6542,7 +6549,7 @@ class ChessPiece {
 		}
 	}
 	
-	//COLOR TYPE at: START_LOC_STRING to: END_LOC_STRING
+	//COLOR OPTIONAL_DIR TYPE at: START_LOC_STRING to: END_LOC_STRING
 	static genLongOrShortHandMoveCommandOnlyString(clr, tp, cr, mcc, nr, nc, usedir,
 		useleft, useshort)
 	{
@@ -6596,6 +6603,42 @@ class ChessPiece {
 		}
 	}
 	
+	//COLOR DIR PAWN at: START_LOC_STRING to: END_LOC_STRING
+	static genLongOrShortHandPawningCommand(clr, cr, mcc, nr, nc, useleft, useshort)
+	{
+		return ChessPiece.genLongOrShortHandMoveCommandOnlyString(clr, "PAWN", cr, mcc, nr, nc,
+			true, useleft, useshort);
+	}
+	static genLongOrShortHandPawningCommandMain(cp, nr, nc, useleft, errmsg, throwerr, useshort)
+	{
+		ChessPiece.cc.letMustBeAnInteger(nr, "nr");
+		ChessPiece.cc.letMustBeAnInteger(nc, "nc");
+		ChessPiece.cc.letMustBeBoolean(useleft, "useleft");
+		ChessPiece.cc.letMustBeBoolean(useshort, "useshort");
+		ChessPiece.cc.letMustBeBoolean(throwerr, "throwerr");
+
+		if (ChessPiece.cc.isItemNullOrUndefined(cp));//error found
+		else
+		{
+			if (cp.getType() === "PAWN")
+			{
+				return ChessPiece.genLongOrShortHandPawningCommand(cp.getColor(), cp.getRow(),
+					cp.getCol(), nr, nc, useleft, useshort);
+			}
+			//else;//do nothing error found
+		}
+
+		if (throwerr)
+		{
+			if (ChessPiece.cc.isStringEmptyNullOrUndefined(errmsg))
+			{
+				ChessPiece.cc.logAndThrowNewError("the chess piece must be a PAWN!");
+			}
+			else ChessPiece.cc.logAndThrowNewError(errmsg);
+		}
+		else return null;
+	}
+
 	//TURN PAWN at: LOC_STRING into: NEW_TYPE
 	static genLongOrShortHandPawnPromotionCommand(clr, nr, nc, ptpval, useshort)
 	{
@@ -6627,6 +6670,19 @@ class ChessPiece {
 		return propwncmd;
 	}
 	
+	//COLOR DIR CASTLE:
+	static genLongOrShortHandCastelingCommand(clr, useleft, useshort)
+	{
+		ChessPiece.cc.letMustBeDefinedAndNotNull(clr, "clr");
+		ChessPiece.cc.letMustBeBoolean(useshort, "useshort");
+		ChessPiece.cc.letMustBeBoolean(useleft, "useleft");
+
+		const myclr = ((useshort) ? ChessPiece.getShortHandColor(clr) : "" + clr + " ");
+		const mytp = ((useshort) ? ChessPiece.getShortHandType("CASTLE") : "CASTLE");
+		const dirstr = ((useleft) ? ((useshort) ? "L" : "LEFT ") : ((useshort) ? "R" : "RIGHT "));
+		return "" + myclr + dirstr + mytp + ":";
+	}
+
 	//COLOR HINTS
 	//COLOR TYPE at: LOC_STRING HINTS
 	static genLongOrShortHandHintsCommandForPieceOrSide(clr, tp, cr, cc, useside, useshort)
@@ -7720,6 +7776,8 @@ class ChessPiece {
 		ChessPiece.cc.letMustBeDefinedAndNotNull(ptpval, "ptpval");
 		ChessPiece.cc.letMustBeBoolean(iswhitedown, "iswhitedown");
 		ChessPiece.cc.letMustBeBoolean(bpassimnxtmv, "bpassimnxtmv");
+		console.log("iswhitedown = " + iswhitedown);
+		console.log("ChessPiece.WHITE_MOVES_DOWN_RANKS = " + ChessPiece.WHITE_MOVES_DOWN_RANKS);
 		
 		//CASTLING NOTATION:
 		//WLCE:
@@ -8065,6 +8123,7 @@ class ChessPiece {
 				}
 				else
 				{
+					console.log("cp = ", cp);
 					ChessPiece.cc.logAndThrowNewError("the current piece was not of the " +
 						"correct type and color!");
 				}
@@ -9283,7 +9342,7 @@ class ChessPiece {
 						"SAME TYPE AND COLOR!");
 				}
 			}
-			else if (tpcmds[x] === "HINTS")//NEEDS MODIFIED 7-1-2024
+			else if (tpcmds[x] === "HINTS")
 			{
 				if (usehintsforside)
 				{
@@ -9299,6 +9358,7 @@ class ChessPiece {
 					else
 					{
 						console.log("ALL THE HINTS ARE:");
+						let mypcshints = [];
 						for (let p = 0; p < numpcs; p++)
 						{
 							let mypcmvlocs = mycpcs[p].getPieceCanMoveToLocs();
@@ -9308,9 +9368,12 @@ class ChessPiece {
 							ChessPiece.printLocsArray(mypcmvlocs, "mypcmvlocs", mycpcs[p]);
 							console.log("DONE SHOWING HINTS FOR THE PIECE # " + (p + 1) + "/" +
 								numpcs + "!");
+							mypcshints.push(mypcmvlocs);
 						}
 						console.log("DONE SHOWING ALL THE HINTS!");
 						console.log("");
+						if (ChessPiece.cc.isItemNullOrUndefined(ChessPiece.setPCSHints));
+						else ChessPiece.setPCSHints(mypcshints);
 					}
 				}
 				else
@@ -9332,6 +9395,8 @@ class ChessPiece {
 						ChessPiece.printLocsArray(mvlocs, "mvlocs", cp);
 						console.log("DONE SHOWING THE HINTS!");
 						console.log("");
+						if (ChessPiece.cc.isItemNullOrUndefined(ChessPiece.setPCSHints));
+						else ChessPiece.setPCSHints([mvlocs]);
 					}
 					else
 					{
