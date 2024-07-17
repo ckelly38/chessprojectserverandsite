@@ -23,9 +23,7 @@ function App() {
   const loginprefsetctypenmerrmsg = cc.getTypeErrorMsgFromList(
     ["SignUp", "Login", "Logout", "Preferences"]);
   const { user, setUser } = useContext(UserContext);
-  const [mypieces, setMyPieces] = useState([]);
   const history = useHistory();
-  console.log("mypieces = ", mypieces);
     
   function makeLoginPrefsItem(redonin, useloginredulr, typenm)
   {
@@ -51,6 +49,9 @@ function App() {
     else return (<>{nvbar}{(typenm === "Logout") ? lgoutitem: sprefsitem}</>);
   }
 
+  const [mypieces, setMyPieces] = useState([]);
+  console.log("mypieces = ", mypieces);
+  
   function getPcs()
   {
       console.log("GETPCS: mypieces = ", mypieces);
@@ -81,14 +82,17 @@ function App() {
       
       setMyPieces(mynwpcs);
   }
-
+  
+  /*
   function addPiece()
   {
       //let mynwpcs = [...mypieces];
       let lenpcs = mypieces.length;
       console.log("ADDPC: OLD mypieces = ", mypieces);
       
-      //formik={formik} 
+      //formik={formik} //DO NOT STORE REACT ELEMENTS IN STATE, REACT DOES NOT LIKE THIS!!!
+      //IT WILL BITE YOU IN THE BUTT WHEN YOU GO TO REMOVE THEM BECAUSE THE FIRST ONE WILL NOT
+      //IT WILL ALSO CAUSE UNSTABLE OR INCONSISTENT STATE AND WILL ALWAYS CLEAR IT
       let mpc = (<NewPiece key={"pid" + lenpcs} id={"pid" + lenpcs} mid={"pid" + lenpcs}
       arrindx={lenpcs}
       rempiece={remPiece} />);//.bind(this, "pid" + lenpcs)
@@ -103,6 +107,23 @@ function App() {
       //    return mynwpcs;
       //});
       //console.log("ADDPC: NEW mypieces = ", mypieces);
+  }
+  */
+
+  function addPiece()
+  {
+    const mpclen = (cc.isStringEmptyNullOrUndefined(mypieces) ? 0 : mypieces.length);
+    const genidstr = "pid" + mpclen;
+    let mynwpc = {row: -1,
+      col: -1,
+      color: "WHITE",
+      type: "KING",
+      move_count: 0,
+      arrindx: mpclen,
+      id: genidstr
+    };
+
+    setMyPieces([...mypieces, mynwpc]);
   }
   
   //className="App", className="App-header", className="App-logo", className="App-link"
@@ -156,7 +177,8 @@ function App() {
         }} />
         <Route path="*"><Redirect to="/" /></Route>
       </Switch>
-      <PieceListForm addpiece={addPiece} mpcs={mypieces} />
+      <PieceListForm addpiece={addPiece} mpcs={mypieces} rempiece={remPiece}
+        getpcs={getPcs} setpcs={setMyPieces} />
     </div>);
 }
 
