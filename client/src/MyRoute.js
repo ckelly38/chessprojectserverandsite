@@ -26,7 +26,7 @@ function getRoutesList(path, paths, children)
     if (cc.isStringEmptyNullOrUndefined(orts));
     else for (let n = 0; n < orts.length; n++) myrts.push(orts[n]);
     myrts.push(<Route key={path} exact path={path}>{children}</Route>);
-    console.log("myrts = ", myrts);
+    //console.log("myrts = ", myrts);
     return myrts;
 }
 

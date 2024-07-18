@@ -3,6 +3,7 @@ import { useHistory } from "react-router-dom";
 import MyImageComponent from "./MyImageComponent";
 import ChessPiece from "./ChessPiece";
 import ChessGame from "./ChessGame";
+import Cmdinterface from "./Cmdinterface";
 //import { GameContext } from "./GameProvider";
 import CommonClass from "./commonclass";
 
@@ -17,20 +18,27 @@ function GameBoard(props)
     let calledsetup = useRef(false);
     let [loaded, setLoaded] = useState(false);
     let [updateboard, setUpdateBoard] = useState(false);
-    let [dir, setDirString] = useState("LEFT");
-    let [piece_type, setPieceType] = useState("KING");
-    let [piece_color, setPieceColor] = useState("WHITE");
-    let [piece_move_count, setPieceMoveCount] = useState(0);
-    let [wants_tie, setWantsTie] = useState(0);//not sure if this should be an integer or boolean
-    let [promo_piece_type, setPromoPieceType] = useState("QUEEN");
-    let [start_row, setStartRow] = useState(0);
-    let [start_col, setStartCol] = useState(0);
-    let [end_row, setEndRow] = useState(0);
-    let [end_col, setEndCol] = useState(0);
+    
+    const [mvslist, setMovesList] = useState([{
+        dir: "LEFT",
+        piece_type: "KING",
+        piece_color: "WHITE",
+        piece_move_count: 0,
+        wants_tie: 0,
+        promo_piece_type: "QUEEN",
+        start_row: 0,
+        end_row: 0,
+        start_col: 0,
+        end_col: 0,
+        cmd_type: "MOVE",
+        arrindx: 0,
+        id: "mv0"
+    }]);
+    const mv = mvslist[0];
+    
     let [useroworcollocdisp, setUseRowColLocDisplay] = useState(false);
     let [showqnwarning, setShowQueenWarning] = useState(true);
     let [whitemovesdownranks, setWhiteMovesDownRanks] = useState(true);
-    let [cmd_type, setCMDType] = useState("MOVE");
     let [pcshints, setPcsHints] = useState([]);//[][][]
     //console.log("OLD calledsetup.current = ", calledsetup.current);
     //console.log("pcshints = ", pcshints);
@@ -61,10 +69,8 @@ function GameBoard(props)
             console.log("NEW calledsetup.current = ", calledsetup.current);
             setLoaded(true);//needed to display the pieces, sling shot route does not work
         }
-    }, [calledsetup.current, pcshints]);
+    }, [calledsetup.current, pcshints, gid]);
     
-
-
     function setSelectedLoc(rval, cval, ispcatloc)
     {
         console.log("INSIDE OF SET-SELECTED-LOC()!");
@@ -75,6 +81,7 @@ function GameBoard(props)
         cc.letMustBeAnInteger(rval, "rval");
         cc.letMustBeAnInteger(cval, "cval");
         
+        let mynwmvs = null;
         if (ispcatloc)
         {
             //we can get the ChessPiece here
@@ -83,19 +90,36 @@ function GameBoard(props)
             //rval, cval, cp.getType() for type and location
             console.log("cp = ", cp);
             
-            setStartRow(rval);
-            setStartCol(cval);
-            setPieceType(cp.getType());
-            setPieceColor(cp.getColor());
-            setPieceMoveCount(cp.getMoveCount());
+            mynwmvs = mvslist.map(mitem => {
+                if (mitem.id === mv.id)
+                {
+                    let mynwmv = {...mv};
+                    mynwmv.start_row = 0 + rval;
+                    mynwmv.start_col = 0 + cval;
+                    mynwmv.piece_type = cp.getType();
+                    mynwmv.piece_move_count = cp.getMoveCount();
+                    mynwmv.color = cp.getColor();
+                    return mynwmv;
+                }
+                else return mitem;
+            });
         }
         else
         {
             //the location is empty piece type is blank or null
             //we can set the rval and cval as a location to move to
-            setEndRow(rval);
-            setEndCol(cval);
+            mynwmvs = mvslist.map(mitem => {
+                if (mitem.id === mv.id)
+                {
+                    let mynwmv = {...mv};
+                    mynwmv.end_row = 0 + rval;
+                    mynwmv.end_col = 0 + cval;
+                    return mynwmv;
+                }
+                else return mitem;
+            });
         }
+        setMovesList(mynwmvs);
     }
 
     function generateTableRows(wtmvsdwnrks, lsqrclr, dsqrclr, lpcclr, dpcclr, htsclr)
@@ -166,223 +190,6 @@ function GameBoard(props)
         return myrws;
     }
 
-    function rowColStartEndHandleChange(usestart, userow, val)
-    {
-        cc.letMustBeBoolean(usestart, "usestart");
-        cc.letMustBeBoolean(userow, "userow");
-        cc.letMustBeAnInteger(val, "val");
-
-        if (usestart)
-        {
-            if (userow) setStartRow(val);
-            else setStartCol(val);
-        }
-        else
-        {
-            if (userow) setEndRow(val);
-            else setEndCol(val);
-        }
-    }
-
-    function mySelectHandleChange(mysetfunc, event)
-    {
-        mysetfunc(event.target.value);
-    }
-
-    function genRowColLocOrStringLocElements(userowcolloc, usestart)
-    {
-        cc.letMustBeBoolean(usestart, "usestart");
-        cc.letMustBeBoolean(userowcolloc, "userowcolloc");
-
-        const nmprefix = (usestart ? "start" : "end");
-        const mybgwrd = (usestart ? "AT" : "TO");
-        const rwnm = nmprefix + "_row";
-        const clnm = nmprefix + "_col";
-        if (userowcolloc)
-        {
-            return (<>{" " + mybgwrd + ": ("}<select id={rwnm} name={rwnm}
-                onChange={(event) =>
-                    rowColStartEndHandleChange(usestart, true, event.target.value)}
-                value={usestart ? start_row : end_row}>
-                    {cc.genOptionListFromArray([0, 1, 2, 3, 4, 5, 6, 7], null)}
-                </select>{", "}<select id={clnm} name={clnm}
-                    onChange={(event) =>
-                        rowColStartEndHandleChange(usestart, false, event.target.value)}
-                    value={usestart ? start_col : end_col}>
-                        {cc.genOptionListFromArray([0, 1, 2, 3, 4, 5, 6, 7], null)}
-                </select>{") "}
-            </>);
-        }
-        else
-        {
-            const mydispvalarr = (whitemovesdownranks ? [1, 2, 3, 4, 5, 6, 7, 8] :
-                [8, 7, 6, 5, 4, 3, 2, 1]);
-            return (<>{" " + mybgwrd + ": "}<select id={clnm} name={clnm}
-                onChange={(event) =>
-                    rowColStartEndHandleChange(usestart, false, event.target.value)}
-                value={usestart ? start_col : end_col}>
-                    {cc.genOptionListFromArray([0, 1, 2, 3, 4, 5, 6, 7],
-                        ["A", "B", "C", "D", "E", "F", "G", "H"])}
-                </select>
-                <select id={rwnm} name={rwnm} onChange={(event) =>
-                    rowColStartEndHandleChange(usestart, true, event.target.value)}
-                    value={usestart ? start_row : end_row}>
-                    {cc.genOptionListFromArray([0, 1, 2, 3, 4, 5, 6, 7], mydispvalarr)}
-                </select>
-            </>);
-        }
-    }
-
-    function genCommandInterface(cmdtp, iswturn, userowcolloc)
-    {
-        //CASTLING NOTATION
-        //WHITE LEFT CASTLE *** USE THIS NOTATION BECAUSE WE CAN GENERATE THE OTHERS
-        //WLCE: (DISPLAY TO USER ONLY)
-        //WCEA8TOD8
-        //WKGE8TOC8
-        //
-        //RESIGNATION NOTATION:
-        //WHITE RESIGNS
-        //WRESIGNS
-        //
-        //TIE DESIRE NOTATION:
-        //SET WHITE WANTS TIE: 1
-        //
-        //HINTS NOTATION:
-        //WHITE HINTS
-        //WHINTS
-        //WHITE TYPE at: current_loc HINTS
-        //WHITE PAWN at: A4 HINTS
-        //WPNA4HINTS
-        //
-        //PAWNING NOTATION
-        //WHITE LEFT PAWN at: current_loc to: next_loc
-        //-BPN??W?MS (CAN BE DONE AFTER, BUT SHOULD NOT BE)
-        //WLPNB4TOA3 (DISPLAY TO THE USER)
-        //0123456789
-        //
-        //PROMOTION NOTATION:
-        //TURN COLOR PAWN at: STRINGLOC into: OTHERTYPE
-        //TURN BLACK PAWN at: H8 into: QUEEN
-        //TBPNH8INTOQN
-        //012345678901
-        //0         1
-        //
-        //SHORT HAND MOVE TO EXAMPLES
-        //WHITE PAWN at: A5 to: A6
-        //WPNA5TOA6
-        //WCEA5TOA6
-        //WQNA5TOA6
-        //WKGA5TOA6
-        //WKTA5TOA6 (NOT LEGAL, BUT EXAMPLE ONLY)
-        //WBPA5TOA6 (NOT LEGAL, BUT EXAMPLE ONLY)
-        //012345678
-        //
-        //SUPPOSE A CAPTURE WERE TO BE MADE LET US SAY A BLACK PAWN IS AT A6 AND WE CAN KILL IT
-        //SHORT HAND EXAMPLES
-        //-BPNA6W2MS (MUST BE DONE FIRST)
-        //WCEA5TOA6 (DISPLAY TO THE USER)
-        //
-        //, "CREATE", "DELETE"
-
-        const allpctpvals = ["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE", "PAWN"];
-        const allpctpdispvals = ["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE (ROOK)", "PAWN"];
-        const clrturndispstr = (iswturn ? " WHITE ": " BLACK ");
-        
-        const pctpsel = (<select id={"piece_type"} name="piece_type" value={piece_type}
-            onChange={mySelectHandleChange.bind(null, setPieceType)}>
-                {cc.genOptionListFromArray(allpctpvals, allpctpdispvals)}
-        </select>);
-        const pcclrsel = (<select id={"piece_color"} name="piece_color" value={piece_color}
-            onChange={mySelectHandleChange.bind(null, setPieceColor)}>
-            {cc.genOptionListFromArray(["WHITE", "BLACK"], null)}
-        </select>);
-        const promopctpsel = (<select id={"promo_type"} name="promo_type" value={promo_piece_type}
-            onChange={mySelectHandleChange.bind(null, setPromoPieceType)}>
-            {cc.genOptionListFromArray(["QUEEN", "BISHOP", "KNIGHT", "CASTLE"],
-                ["QUEEN", "BISHOP", "KNIGHT", "CASTLE (ROOK)"])}
-        </select>);
-
-        if (cmdtp === "COLOR HINTS")
-        {
-            return (<div style={{display: "inline-block", paddingLeft: 5}}>
-                {clrturndispstr + "HINTS"}</div>);
-        }
-        else if (cmdtp === "PIECE HINTS")
-        {
-            return (<div style={{display: "inline-block", paddingLeft: 5}}>
-                {clrturndispstr}{pctpsel}
-                {genRowColLocOrStringLocElements(userowcolloc, true)}{" HINTS"}
-            </div>);
-        }
-        else if (cmdtp === "CASTLEING" || cmdtp === "PAWNING")
-        {
-            let pctp = null;
-            if (cmdtp === "CASTLEING") pctp = "CASTLE";
-            else pctp = "PAWN";
-            return (<div style={{display: "inline-block", paddingLeft: 5}}>
-                {clrturndispstr}
-                <select id={"dir"} name="dir" value={dir}
-                    onChange={mySelectHandleChange.bind(null, setDirString)}>
-                    {cc.genOptionListFromArray(["LEFT", "RIGHT"], null)}
-                </select>{" " + pctp}
-                {(cmdtp === "PAWNING") ? 
-                    (<>{genRowColLocOrStringLocElements(userowcolloc, true)}
-                    {genRowColLocOrStringLocElements(userowcolloc, false)}</>): null}
-            </div>);
-        }
-        else if (cmdtp === "RESIGNATION")
-        {
-            return (<div style={{display: "inline-block", paddingLeft: 5}}>
-                {clrturndispstr}RESIGNS</div>);
-        }
-        else if (cmdtp === "DRAW")
-        {
-            return (<div style={{display: "inline-block", paddingLeft: 5}}>
-                {"SET" + clrturndispstr + "WANTS TIE: "}
-                <select id={"wantstie"} name="wantstie" value={wants_tie}
-                    onChange={mySelectHandleChange.bind(null, setWantsTie)}>
-                    {cc.genOptionListFromArray([0, 1], null)}
-                </select>
-            </div>);
-        }
-        else if (cmdtp === "CREATE" || cmdtp === "DELETE")
-        {
-            return (<div style={{display: "inline-block", paddingLeft: 5}}>
-                {pcclrsel}{pctpsel}{genRowColLocOrStringLocElements(userowcolloc, true)}
-                {(cmdtp === "CREATE") ? (<>{" with "}<input id={"myinitmvcnt"} type="number"
-                step={1} min={0} name="move_count" placeholder={0} value={piece_move_count}
-                onChange={mySelectHandleChange.bind(null, setPieceMoveCount)} />
-                {" move(s)"}</>): null}
-            </div>);
-        }
-        else if (cmdtp === "PROMOTION")
-        {
-            return (<div style={{display: "inline-block", paddingLeft: 5}}>
-                {"TURN "}{pcclrsel}{" PAWN "}
-                {genRowColLocOrStringLocElements(userowcolloc, true)}{" INTO "}
-                {promopctpsel}
-            </div>);
-        }
-        else if (cmdtp === "MOVE")
-        {
-            const canpropwn = ChessPiece.canPawnBePromotedAt(end_row, end_col,
-              clrturndispstr.substring(1, clrturndispstr.length - 1), piece_type);
-            const myprostr = " AND TURN INTO: ";
-            return (<div style={{display: "inline-block", paddingLeft: 5}}>
-                {clrturndispstr}{pctpsel}
-                {genRowColLocOrStringLocElements(userowcolloc, true)}
-                {genRowColLocOrStringLocElements(userowcolloc, false)}
-                {canpropwn ? <>{myprostr}{promopctpsel}</> : null}
-            </div>);
-        }
-        else
-        {
-            return (<div className="errorcoloronly">
-                ERROR: Command type: {cmdtp} not recognized!</div>);
-        }
-    }
-    
     function displayCheckStatuses(csideinchk, dispqwarn, csdqninchk, useboldqmsg)
     {
         cc.letMustBeBoolean(csideinchk, "csideinchk");
@@ -439,8 +246,8 @@ function GameBoard(props)
         //then we execute it
         const isuser = true;
         const isofficial = false;
-        const ignorelist = null;
-        const addpcs = null;
+        //const ignorelist = null;
+        //const addpcs = null;
         const bpassimnxtmv = false;
         const useshort = true;
         const isundo = false;
@@ -454,55 +261,55 @@ function GameBoard(props)
         
         let simpcmd = null;
         let myfullmvcmd = null;
-        const usepcclr = (cmd_type === "PROMOTION" || cmd_type === "CREATE" ||
-            cmd_type === "DELETE");
-        const tp = ((cmd_type === "CASTLEING") ? "CASTLE" : ((cmd_type === "PAWNING") ? "PAWN" :
-            "" + piece_type));
-        const clr = (usepcclr ? "" + piece_color : (iswhiteturn ? "WHITE" : "BLACK"));
-        const usedir = (cmd_type === "CASTLEING" || cmd_type === "PAWNING");
-        const useleft = (usedir ? (dir.charAt(0) === "L") : false);
-        let r = start_row;
-        let c = start_col;
-        let nr = end_row;
-        let nc = end_col;
-        if (cmd_type === "COLOR HINTS" || cmd_type === "PIECE HINTS")
+        const usepcclr = (mv.cmd_type === "PROMOTION" || mv.cmd_type === "CREATE" ||
+            mv.cmd_type === "DELETE");
+        const tp = ((mv.cmd_type === "CASTLEING") ? "CASTLE" :
+            ((mv.cmd_type === "PAWNING") ? "PAWN" : "" + mv.piece_type));
+        const clr = (usepcclr ? "" + mv.piece_color : (iswhiteturn ? "WHITE" : "BLACK"));
+        const usedir = (mv.cmd_type === "CASTLEING" || mv.cmd_type === "PAWNING");
+        const useleft = (usedir ? (mv.dir.charAt(0) === "L") : false);
+        let r = mv.start_row;
+        let c = mv.start_col;
+        let nr = mv.end_row;
+        let nc = mv.end_col;
+        if (mv.cmd_type === "COLOR HINTS" || mv.cmd_type === "PIECE HINTS")
         {
-            const useside = (cmd_type === "COLOR HINTS");
-            const mytp = (useside ? "" : piece_type);
-            const mycr = (useside ? -1 : start_row);
-            const mycc = (useside ? -1 : start_col);
+            const useside = (mv.cmd_type === "COLOR HINTS");
+            const mytp = (useside ? "" : mv.piece_type);
+            const mycr = (useside ? -1 : mv.start_row);
+            const mycc = (useside ? -1 : mv.start_col);
             simpcmd = ChessPiece.genLongOrShortHandHintsCommandForPieceOrSide(clr, mytp, mycr,
                 mycc, useside, useshort);
         }
-        else if (cmd_type === "RESIGNATION")
+        else if (mv.cmd_type === "RESIGNATION")
         {
             simpcmd = ChessPiece.genLongOrShortHandResignCommand(clr, useshort);
         }
-        else if (cmd_type === "DRAW")
+        else if (mv.cmd_type === "DRAW")
         {
-            const wtval = ((wants_tie === 0) ? false: true);
+            const wtval = ((mv.wants_tie === 0) ? false: true);
             simpcmd = ChessPiece.genLongOrShortHandTieDesireCommand(clr, wtval, useshort);
         }
-        else if (cmd_type === "PROMOTION")
+        else if (mv.cmd_type === "PROMOTION")
         {
             simpcmd = ChessPiece.genLongOrShortHandPawnPromotionCommand(clr, nr, nc,
-                promo_piece_type, useshort);
+                mv.promo_piece_type, useshort);
         }
-        else if (cmd_type === "CREATE")
+        else if (mv.cmd_type === "CREATE")
         {
-            simpcmd = ChessPiece.genLongOrShortHandCreateCommand(clr, tp, r, c, piece_move_count,
-                useshort);
+            simpcmd = ChessPiece.genLongOrShortHandCreateCommand(clr, tp, r, c,
+                mv.piece_move_count, useshort);
         }
-        else if (cmd_type === "DELETE")
+        else if (mv.cmd_type === "DELETE")
         {
             simpcmd = ChessPiece.genLongOrShortHandDeleteOrCreateCommand(clr, tp, r, c,
-                piece_move_count, false, useshort);
+                mv.piece_move_count, false, useshort);
         }
-        else if (cmd_type === "CASTLEING")
+        else if (mv.cmd_type === "CASTLEING")
         {
             simpcmd = ChessPiece.genLongOrShortHandCastelingCommand(clr, useleft, useshort);
         }
-        else if (cmd_type === "PAWNING")
+        else if (mv.cmd_type === "PAWNING")
         {
             if (r === nr && c === nc)
             {
@@ -513,7 +320,7 @@ function GameBoard(props)
             simpcmd = ChessPiece.genLongOrShortHandPawningCommand(clr, r, c, nr, nc,
                 useleft, useshort);
         }
-        else if (cmd_type === "MOVE")
+        else if (mv.cmd_type === "MOVE")
         {
             if (r === nr && c === nc)
             {
@@ -526,7 +333,7 @@ function GameBoard(props)
                 nr, nc, usedir, useleft, useshort);
             //option b: generate the full move command
         }
-        else cc.logAndThrowNewError("ERROR: Command type: " + cmd_type + " not recognized!");
+        else cc.logAndThrowNewError("ERROR: Command type: " + mv.cmd_type + " not recognized!");
 
         if (cc.isStringEmptyNullOrUndefined(simpcmd))
         {
@@ -534,8 +341,8 @@ function GameBoard(props)
         }
         else
         {
-            const ptpval = ((cmd_type === "PROMOTION" || cmd_type === "MOVE") ?
-                promo_piece_type : "QUEEN");
+            const ptpval = ((mv.cmd_type === "PROMOTION" || mv.cmd_type === "MOVE") ?
+                mv.promo_piece_type : "QUEEN");
             myfullmvcmd = ChessPiece.genFullMoveCommandFromDisplayedCommandMain(simpcmd, gid,
                 ptpval, ChessPiece.WHITE_MOVES_DOWN_RANKS, bpassimnxtmv);
         }
@@ -627,13 +434,9 @@ function GameBoard(props)
             </button>
         </div>
 
-        <select id={"cmd_type"} name="cmd_type" value={cmd_type}
-            onChange={(event) => setCMDType(event.target.value)}>
-            {cc.genOptionListFromArray(["COLOR HINTS", "PIECE HINTS", "CASTLEING", "PAWNING",
-                "RESIGNATION", "DRAW", "MOVE", "PROMOTION", "CREATE", "DELETE"], null)}
-        </select>
-        
-        {genCommandInterface(cmd_type, iswhiteturn, useroworcollocdisp)}
+        <Cmdinterface whitemovesdownranks={whitemovesdownranks} iswhiteturn={iswhiteturn}
+            useroworcollocdisp={useroworcollocdisp} arrindx={0} mvs={mvslist}
+            setmvs={setMovesList} />
         <button onClick={(event) => executeUserCommand()}>Execute!</button>
         
         <table style={{marginLeft: 10, marginBottom: 10, marginTop: 10}}>

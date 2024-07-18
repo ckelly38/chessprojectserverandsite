@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import CommonClass from "./commonclass";
 import ChessPiece from "./ChessPiece";
 
@@ -33,6 +33,8 @@ function NewPiece({setpcs, mid, arrindx, rempiece, getpcs})
     const mpc = mympcs[arrindx];
     cc.letMustBeDefinedAndNotNull(mpc, "mpc");
 
+    let [errmsg, setErrorMessage] = useState(null);
+
     function mySelectHandleChange(tpstr, event)
     {
         //first we want to create the new object
@@ -40,6 +42,18 @@ function NewPiece({setpcs, mid, arrindx, rempiece, getpcs})
         //then we want to set the changes
         console.log("tpstr = ", tpstr);
         cc.letMustBeDefinedAndNotNull(tpstr, "tpstr");
+
+        if (1 < arrindx);
+        else
+        {
+            if (tpstr === "color" || tpstr === "type")
+            {
+                setErrorMessage("ERROR: the type and color for these pieces are fixed!");
+                console.error("the type and color for these pieces are fixed!");
+                return;
+            }
+            //else;//do nothing
+        }
 
         const mpckeys = Object.keys(mpc);
         if (ChessPiece.itemIsOnGivenList(tpstr, mpckeys));
@@ -49,7 +63,8 @@ function NewPiece({setpcs, mid, arrindx, rempiece, getpcs})
             if (mitem.id === mpc.id)
             {
                 let mynwpc = {...mpc};
-                mynwpc[tpstr] = event.target.value;
+                if (tpstr === "row" || tpstr === "col") mynwpc[tpstr] = Number(event.target.value);
+                else mynwpc[tpstr] = event.target.value;
                 return mynwpc;
             }
             else return mitem;
@@ -58,17 +73,20 @@ function NewPiece({setpcs, mid, arrindx, rempiece, getpcs})
         setpcs(mynwpcs);
     }
 
+    const iserr = !(cc.isStringEmptyNullOrUndefined(errmsg));
     return (<div id={mid}>
-        <label id={"playercolorlbl" + arrindx} htmlFor={"color" + arrindx}>Color: </label>
-        <select id={"color" + arrindx} name="color" value={mpc.color} 
-            onChange={mySelectHandleChange.bind(null, "color")}>
-            {cc.genOptionListFromArray(["WHITE", "BLACK"], null)}
-        </select>
-        <select id={"type" + arrindx} name="type" value={mpc.type}
-            onChange={mySelectHandleChange.bind(null, "type")}>
-            {cc.genOptionListFromArray(["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE", "PAWN"],
-                ["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE (ROOK)", "PAWN"])}
-        </select>
+        {(1 < arrindx) ? (<>
+            <label id={"playercolorlbl" + arrindx} htmlFor={"color" + arrindx}>Color: </label>
+            <select id={"color" + arrindx} name="color" value={mpc.color} 
+                onChange={mySelectHandleChange.bind(null, "color")}>
+                {cc.genOptionListFromArray(["WHITE", "BLACK"], null)}
+            </select>
+            <select id={"type" + arrindx} name="type" value={mpc.type}
+                onChange={mySelectHandleChange.bind(null, "type")}>
+                {cc.genOptionListFromArray(["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE", "PAWN"],
+                    ["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE (ROOK)", "PAWN"])}
+            </select>
+        </>) : "Color: " + mpc.color + " " + mpc.type}
         {" LOC: ("}<select id={"row" + arrindx} name="row" value={mpc.row}
             onChange={mySelectHandleChange.bind(null, "row")}>
             {cc.genOptionListFromArray([0, 1, 2, 3, 4, 5, 6, 7], null)}
@@ -82,7 +100,10 @@ function NewPiece({setpcs, mid, arrindx, rempiece, getpcs})
         <input id={"myinitmvcnt" + arrindx} type="number" step={1} min={0}
             name="move_count" placeholder={0} value={mpc.move_count}
             onChange={mySelectHandleChange.bind(null, "move_count")} />
-        <button type="button" onClick={(event) => rempiece(mid)}>Remove Piece</button>
+        {(1 < arrindx) ?
+        (<button type="button" onClick={(event) => rempiece(mid)}>Remove Piece</button>): null}
+        {(iserr) ? (<p>{errmsg}
+            <button onClick={(event) => setErrorMessage(null)}>Hide Error</button></p>) : null}
     </div>);
 }
 

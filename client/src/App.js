@@ -49,8 +49,41 @@ function App() {
     else return (<>{nvbar}{(typenm === "Logout") ? lgoutitem: sprefsitem}</>);
   }
 
-  const [mypieces, setMyPieces] = useState([]);
+  const [mypieces, setMyPieces] = useState([{row: 0,
+    col: 0,
+    color: "WHITE",
+    type: "KING",
+    move_count: 0,
+    arrindx: 0,
+    id: "pid0"
+  }, {row: 0,
+    col: 0,
+    color: "BLACK",
+    type: "KING",
+    move_count: 0,
+    arrindx: 1,
+    id: "pid1"
+  }]);
   console.log("mypieces = ", mypieces);
+
+  const [mvslist, setMovesList] = useState([
+  {
+    dir: "LEFT",
+    piece_type: "KING",
+    piece_color: "WHITE",
+    piece_move_count: 0,
+    wants_tie: 0,
+    promo_piece_type: "QUEEN",
+    start_row: 0,
+    end_row: 0,
+    start_col: 0,
+    end_col: 0,
+    cmd_type: "MOVE",
+    arrindx: 0,
+    id: "mv0"
+  }
+  ]);
+  
   
   function getPcs()
   {
@@ -114,10 +147,10 @@ function App() {
   {
     const mpclen = (cc.isStringEmptyNullOrUndefined(mypieces) ? 0 : mypieces.length);
     const genidstr = "pid" + mpclen;
-    let mynwpc = {row: -1,
-      col: -1,
+    let mynwpc = {row: 0,
+      col: 0,
       color: "WHITE",
-      type: "KING",
+      type: "QUEEN",
       move_count: 0,
       arrindx: mpclen,
       id: genidstr
