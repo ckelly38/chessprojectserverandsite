@@ -66,8 +66,7 @@ function App() {
   }]);
   console.log("mypieces = ", mypieces);
 
-  const [mvslist, setMovesList] = useState([
-  {
+  const [mvslist, setMovesList] = useState([{
     dir: "LEFT",
     piece_type: "KING",
     piece_color: "WHITE",
@@ -81,10 +80,63 @@ function App() {
     cmd_type: "MOVE",
     arrindx: 0,
     id: "mv0"
+  }]);
+  
+  function addMove()
+  {
+    const mvslen = (cc.isStringEmptyNullOrUndefined(mvslist) ? 0 : mvslist.length);
+    const genidstr = "mv" + mvslen;
+
+    let nwmv = {
+      dir: "LEFT",
+      piece_type: "QUEEN",
+      piece_color: "WHITE",
+      piece_move_count: 0,
+      wants_tie: 0,
+      promo_piece_type: "QUEEN",
+      start_row: 0,
+      end_row: 0,
+      start_col: 0,
+      end_col: 0,
+      cmd_type: "MOVE",
+      arrindx: mvslen,
+      id: genidstr
+    };
+
+    setMovesList([...mvslist, nwmv]);
   }
-  ]);
   
-  
+  function removeMove(mid)
+  {
+    console.log("INSIDE removeMove()!");
+    console.log("mid = " + mid);
+    
+    //mvslist === null || mvslist === undefined || mvslist.length < 1 
+    if (cc.isStringEmptyNullOrUndefined(mvslist))
+      {
+          this.cc.logAndThrowNewError("either illegal id (" + mid +
+              ") or array was empty when not supposed to!");
+      }
+      //else;//do nothing
+    
+    //generate the new list with the item removed
+    
+    //A: remove the end move each time... and disable all of the other remove buttons
+    //after each remove one must be enabled unless there are none OR
+    //B: we would remove this one except when we remove this one, we need to make sure the
+    //colors alternate
+    //REMOVE FROM BOTTOM WILL BE BEST
+
+    let nwmvs = mvslist.filter((mpc) => {
+        if (mpc.id === mid) return false;
+        else return true;
+    });
+    console.log("REMPC: nwmvs = ", nwmvs);
+
+    //then set it
+    setMovesList(nwmvs);
+  }
+
   function getPcs()
   {
       console.log("GETPCS: mypieces = ", mypieces);
@@ -211,7 +263,8 @@ function App() {
         <Route path="*"><Redirect to="/" /></Route>
       </Switch>
       <PieceListForm addpiece={addPiece} mpcs={mypieces} rempiece={remPiece}
-        getpcs={getPcs} setpcs={setMyPieces} />
+        getpcs={getPcs} setpcs={setMyPieces} mvs={mvslist} setmvs={setMovesList}
+        addmv={addMove} remmv={removeMove} />
     </div>);
 }
 

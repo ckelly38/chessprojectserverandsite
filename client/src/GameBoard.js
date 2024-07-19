@@ -433,11 +433,14 @@ function GameBoard(props)
                 {useroworcollocdisp ? "Use string loc(s)" : "Use row-col loc(s)"}
             </button>
         </div>
-
-        <Cmdinterface whitemovesdownranks={whitemovesdownranks} iswhiteturn={iswhiteturn}
-            useroworcollocdisp={useroworcollocdisp} arrindx={0} mvs={mvslist}
-            setmvs={setMovesList} />
-        <button onClick={(event) => executeUserCommand()}>Execute!</button>
+        
+        <div>
+            <Cmdinterface style={{display: "inline-block"}}
+                whitemovesdownranks={whitemovesdownranks} iswhiteturn={iswhiteturn}
+                useroworcollocdisp={useroworcollocdisp} arrindx={0} mvs={mvslist}
+                setmvs={setMovesList} userem={false} remmv={null} remitem={false} />
+            <button onClick={(event) => executeUserCommand()}>Execute!</button>
+        </div>
         
         <table style={{marginLeft: 10, marginBottom: 10, marginTop: 10}}>
             <thead>

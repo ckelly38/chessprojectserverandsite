@@ -2,15 +2,21 @@ import React from "react";
 import ChessPiece from "./ChessPiece";
 import CommonClass from "./commonclass";
 
-function Cmdinterface({whitemovesdownranks, iswhiteturn, useroworcollocdisp, arrindx, mvs, setmvs})
+function Cmdinterface({whitemovesdownranks, iswhiteturn, useroworcollocdisp, arrindx,
+    mvs, setmvs, usefullmvset=true, remitem=true, remmv=null, userem=true, style=null})
 {
     let cc = new CommonClass();
     cc.letMustBeBoolean(whitemovesdownranks, "whitemovesdownranks");
-    cc.letMustBeBoolean(iswhiteturn, "iswhiteturn");
     cc.letMustBeBoolean(useroworcollocdisp, "useroworcollocdisp");
+    cc.letMustBeBoolean(iswhiteturn, "iswhiteturn");
+    cc.letMustBeBoolean(usefullmvset, "usefullmvset");
+    cc.letMustBeBoolean(userem, "userem");
+    cc.letMustBeBoolean(remitem, "remitem");
     cc.letMustBeAnInteger(arrindx, "arrindx");
     cc.letMustBeDefinedAndNotNull(mvs, "mvs");
     cc.letMustBeDefinedAndNotNull(setmvs, "setmvs");
+    if (userem) cc.letMustBeDefinedAndNotNull(remmv, "remmv");
+    //else;//do nothing
 
     const mv = mvs[arrindx];
 
@@ -240,13 +246,20 @@ function Cmdinterface({whitemovesdownranks, iswhiteturn, useroworcollocdisp, arr
         }
     }
     
-    return (<div><select id={"cmd_type"} name="cmd_type" value={mv.cmd_type}
-        onChange={mySelectHandleChange.bind(null, "cmd_type")}>
-        {cc.genOptionListFromArray(["COLOR HINTS", "PIECE HINTS", "CASTLEING", "PAWNING",
-            "RESIGNATION", "DRAW", "MOVE", "PROMOTION", "CREATE", "DELETE"], null)}
-    </select>
+    const basemvs = ["CASTLEING", "PAWNING", "RESIGNATION", "DRAW", "MOVE"];
+    const fullmvs = ["COLOR HINTS", "PIECE HINTS", "CASTLEING", "PAWNING",
+        "RESIGNATION", "DRAW", "MOVE", "PROMOTION", "CREATE", "DELETE"];
+    const movevalsarr = (usefullmvset ? fullmvs : basemvs);
+    return (<div style={style}>
+        <select id={"cmd_type"} name="cmd_type" value={mv.cmd_type}
+            onChange={mySelectHandleChange.bind(null, "cmd_type")}>
+            {cc.genOptionListFromArray(movevalsarr, null)}
+        </select>
 
-    {genCommandInterface(mv.cmd_type, iswhiteturn, useroworcollocdisp)}
+        {genCommandInterface(mv.cmd_type, iswhiteturn, useroworcollocdisp)}
+
+        {userem ? (<button type="button" disabled={!remitem} onClick={remmv.bind(null, mv.id)}>
+            Remove Move</button>): null}
     </div>);
 }
 

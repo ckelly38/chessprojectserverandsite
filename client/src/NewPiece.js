@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import CommonClass from "./commonclass";
 import ChessPiece from "./ChessPiece";
 
-function NewPiece({setpcs, mid, arrindx, rempiece, getpcs})
+function NewPiece({setpcs, mid, arrindx, rempiece, getpcs, usercloc, wmvsdwnrnks})
 {
     //select color
     //select type
@@ -23,6 +23,8 @@ function NewPiece({setpcs, mid, arrindx, rempiece, getpcs})
     cc.letMustBeDefinedAndNotNull(rempiece, "rempiece");
     cc.letMustBeDefinedAndNotNull(mid, "mid");
     cc.letMustBeAnInteger(arrindx, "arrindx");
+    cc.letMustBeBoolean(usercloc, "usercloc");
+    cc.letMustBeBoolean(wmvsdwnrnks, "wmvsdwnrnks");
     
     const mympcs = getpcs();
     cc.letMustBeDefinedAndNotNull(mympcs, "pcs");
@@ -73,6 +75,53 @@ function NewPiece({setpcs, mid, arrindx, rempiece, getpcs})
         setpcs(mynwpcs);
     }
 
+    function genRowColLocOrStringLocElements(userowcolloc, whitemovesdownranks)
+    {
+        cc.letMustBeBoolean(userowcolloc, "userowcolloc");
+        cc.letMustBeBoolean(whitemovesdownranks, "whitemovesdownranks");
+
+        const rwnm = "row";
+        const clnm = "col"; 
+        //console.log("rwnm = " + rwnm);
+        //console.log("clnm = " + clnm);
+
+        if (userowcolloc)
+        {
+            return (<>{" AT: ("}<select id={rwnm} name={rwnm} value={mpc.row}
+                onChange={mySelectHandleChange.bind(null, rwnm)}>
+                    {cc.genOptionListFromArray([0, 1, 2, 3, 4, 5, 6, 7], null)}
+                </select>{", "}<select id={clnm} name={clnm} value={mpc.col}
+                    onChange={mySelectHandleChange.bind(null, clnm)}>
+                        {cc.genOptionListFromArray([0, 1, 2, 3, 4, 5, 6, 7], null)}
+                </select>{") "}
+            </>);
+        }
+        else
+        {
+            const mydispvalarr = (whitemovesdownranks ? [1, 2, 3, 4, 5, 6, 7, 8] :
+                [8, 7, 6, 5, 4, 3, 2, 1]);
+            return (<>{" AT: "}<select id={clnm} name={clnm} value={mpc.col}
+                onChange={mySelectHandleChange.bind(null, clnm)}>
+                    {cc.genOptionListFromArray([0, 1, 2, 3, 4, 5, 6, 7],
+                        ["A", "B", "C", "D", "E", "F", "G", "H"])}
+                </select>
+                <select id={rwnm} name={rwnm} value={mpc.row}
+                    onChange={mySelectHandleChange.bind(null, rwnm)}>
+                    {cc.genOptionListFromArray([0, 1, 2, 3, 4, 5, 6, 7], mydispvalarr)}
+                </select>{" "}
+            </>);
+        }
+    }
+
+    // {" LOC: ("}<select id={"row" + arrindx} name="row" value={mpc.row}
+    //     onChange={mySelectHandleChange.bind(null, "row")}>
+    //     {cc.genOptionListFromArray([0, 1, 2, 3, 4, 5, 6, 7], null)}
+    // </select>{", "}
+    // <select id={"col" + arrindx} name="col" value={mpc.col}
+    //     onChange={mySelectHandleChange.bind(null, "col")}>
+    //     {cc.genOptionListFromArray([0, 1, 2, 3, 4, 5, 6, 7], null)}
+    // </select>{") "}
+
     const iserr = !(cc.isStringEmptyNullOrUndefined(errmsg));
     return (<div id={mid}>
         {(1 < arrindx) ? (<>
@@ -87,14 +136,9 @@ function NewPiece({setpcs, mid, arrindx, rempiece, getpcs})
                     ["KING", "QUEEN", "BISHOP", "KNIGHT", "CASTLE (ROOK)", "PAWN"])}
             </select>
         </>) : "Color: " + mpc.color + " " + mpc.type}
-        {" LOC: ("}<select id={"row" + arrindx} name="row" value={mpc.row}
-            onChange={mySelectHandleChange.bind(null, "row")}>
-            {cc.genOptionListFromArray([0, 1, 2, 3, 4, 5, 6, 7], null)}
-        </select>{", "}
-        <select id={"col" + arrindx} name="col" value={mpc.col}
-            onChange={mySelectHandleChange.bind(null, "col")}>
-            {cc.genOptionListFromArray([0, 1, 2, 3, 4, 5, 6, 7], null)}
-        </select>{") "}
+        
+        {genRowColLocOrStringLocElements(usercloc, wmvsdwnrnks)}
+
         <label id={"myinitmvcntlbl" + arrindx} htmlFor={"myinitmvcnt" + arrindx}>
             Move Count: </label>
         <input id={"myinitmvcnt" + arrindx} type="number" step={1} min={0}
