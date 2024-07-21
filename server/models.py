@@ -215,6 +215,10 @@ class User(db.Model, SerializerMixin):
 
 
     #other stuff after that
+    userplayers = db.relationship("UserPlayers", back_populates="player",
+                                cascade="all, delete-orphan");
+    players = db.relationship("Players", secondary="user_players", back_populates="player");
+
     episodes = db.relationship("Episode", secondary="user_episodes", back_populates="users");
     toys = db.relationship("Toy", secondary="user_toys", back_populates="users");
     user_toys = db.relationship("UserToy", back_populates="user",
@@ -264,8 +268,10 @@ class Players(db.Model, SerializerMixin):
     defers = db.Column(db.Boolean, nullable=False, default=False);
     game_id = db.Column(db.Integer, db.ForeignKey("games.id"), primary_key=True);
 
-    #game = ?;
-    #user = ?;
+    game = db.relationship("Games");
+    userplayers = db.relationship("UserPlayers", back_populates="player",
+                                cascade="all, delete-orphan");
+    user = db.relationship("User", secondary="user_players", back_populates="user");
 
     safeserializelist = genlists.getUnOrSafeListForClassName("Players", True);
     unsafelist = genlists.getUnOrSafeListForClassName("Players", False);
@@ -273,36 +279,57 @@ class Players(db.Model, SerializerMixin):
 
     serialize_only = tuple(safeserializelist);
 
+    def __repr__(self):
+        mystr = f"<Player id={self.id}, color={self.color}, defers={self.defers}, ";
+        mystr += f"game_id={self.game_id}>";
+        return mystr;
+
 class UserPlayers(db.Model, SerializerMixin):
-    __tablename__ = "players";
+    __tablename__ = "user_players";
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True);
     player_id = db.Column(db.Integer, db.ForeignKey("players.id"), primary_key=True);
     
-    #user = ?;
-    #player = ?;
+    user = db.relationship("User");
+    player = db.relationship("Players");
 
     safeserializelist = genlists.getUnOrSafeListForClassName("UserPlayers", True);
     unsafelist = genlists.getUnOrSafeListForClassName("UserPlayers", False);
     full_list = genlists.combineLists(safeserializelist, unsafelist);
 
+    serialize_only = tuple(safeserializelist);
+
+    def __repr__(self):
+        mystr = f"<UserPlayer user_id={self.user_id}, player_id={self.player_id}>";
+        return mystr;
 
 class Moves(db.Model, SerializerMixin):
     __tablename__ = "moves";
 
-    #__table_args__ = (db.CheckConstraint("length(name) >= 1"),);
+    __table_args__ = (db.CheckConstraint("length(text) >= 3"),);
     #db.CheckConstraint("access_level == 1 OR access_level == 2")
 
     id = db.Column(db.Integer, primary_key=True);
     text = db.Column(db.String, primary_key=True, nullable=False);
 
-    #games = ?;
+    gamemoves = db.relationship("GameMoves", back_populates="game",
+                                cascade="all, delete-orphan");
+    games = db.relationship("Games", secondary="game_moves", back_populates="moves");
+    
 
     safeserializelist = genlists.getUnOrSafeListForClassName("Moves", True);
     unsafelist = genlists.getUnOrSafeListForClassName("Moves", False);
     full_list = genlists.combineLists(safeserializelist, unsafelist);
 
     serialize_only = tuple(safeserializelist);
+
+    @validates("text")
+    def ismovetextvalid(self, key, val):
+        return mv.stringHasAtMinimumXChars(val, 3);
+
+    def __repr__(self):
+        mystr = f"<Move id={self.id}, text={self.text}>";
+        return mystr;
 
 class Games(db.Model, SerializerMixin):
     __tablename__ = "games";
@@ -321,9 +348,11 @@ class Games(db.Model, SerializerMixin):
     playera_id = db.Column(db.Integer, db.ForeignKey("players.id"), default=0);
     playerb_id = db.Column(db.Integer, db.ForeignKey("players.id"), default=0);
 
-    #playera = ?;
-    #playerb = ?;
-    #moves = ?;
+    playera = Players.query.get(playera_id);#not sure if this is what I want
+    playerb = Players.query.get(playerb_id);
+    gamemoves = db.relationship("GameMoves", back_populates="game",
+                                cascade="all, delete-orphan");
+    moves = db.relationship("Moves", secondary="game_moves", back_populates="games");
 
     #does not need to be serialized
     can_be_started = not(playera_id < 1 or playerb_id < 1);
@@ -340,6 +369,11 @@ class Games(db.Model, SerializerMixin):
 
     serialize_only = tuple(safeserializelist);
 
+    def __repr__(self):
+        mystr = f"<Player id={self.id}, color={self.color}, defers={self.defers}, ";
+        mystr += f"game_id={self.game_id}>";
+        return mystr;
+
 class GameMoves(db.Model, SerializerMixin):
     __tablename__ = "game_moves";
 
@@ -350,12 +384,19 @@ class GameMoves(db.Model, SerializerMixin):
     move_id = db.Column(db.Integer, db.ForeignKey("move.id"), primary_key=True);
     number = db.Column(db.Integer, default=0);
 
-    #game = ?;
-    #move = ?;
+    game = db.relationship("Games");
+    move = db.relationship("Moves");
 
     safeserializelist = genlists.getUnOrSafeListForClassName("GameMoves", True);
     unsafelist = genlists.getUnOrSafeListForClassName("GameMoves", False);
     full_list = genlists.combineLists(safeserializelist, unsafelist);
+
+    serialize_only = tuple(safeserializelist);
+
+    def __repr__(self):
+        mystr = f"<GameMoves game_id={self.game_id}, move_id={self.move_id}, ";
+        mystr += f"number={self.number}>";
+        return mystr;
 
 #NOT NEEDED BELOW THIS POINT 7-20-2024
 
