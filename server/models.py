@@ -286,9 +286,10 @@ class User(db.Model, SerializerMixin):
     #    return [ep.id for ep in self.episodes];
 
     def __repr__(self):
-        mystr = f"<User id={self.id}, name={self.name}, ";
-        #mystr += f"access-level={self.access_level}, ";
-        mystr += f"episode_ids={self.getEpisodeIds()}>";
+        mystr = f"<User id={self.id}, name={self.name}";
+        #mystr += f", access-level={self.access_level}, ";
+        #mystr += f"episode_ids={self.getEpisodeIds()}";
+        mystr += ">";
         return mystr;
 
 class Players(db.Model, SerializerMixin):
@@ -394,12 +395,10 @@ class Games(db.Model, SerializerMixin):
         return not((self.playera_id < 1) or (self.playerb_id < 1));
 
     def playerb_won(self):
-        b_won = False;
-        if (self.playera_won or self.playerb_resigned or self.tied): pass;
+        if (self.playera_won or self.playerb_resigned or self.tied): return False;
         else:
-            if (self.playera_resigned or self.completed): b_won = True;
-            #else: pass;
-        return b_won;
+            if (self.playera_resigned or self.completed): return True;
+            else: return False;
 
     safeserializelist = genlists.getUnOrSafeListForClassName("Games", True);
     unsafelist = genlists.getUnOrSafeListForClassName("Games", False);
@@ -408,8 +407,11 @@ class Games(db.Model, SerializerMixin):
     serialize_only = tuple(safeserializelist);
 
     def __repr__(self):
-        mystr = f"<Player id={self.id}, color={self.color}, defers={self.defers}, ";
-        mystr += f"game_id={self.game_id}>";
+        mystr = f"<Games id={self.id}, playera_won={self.playera_won}, ";
+        mystr += f"playera_resigned={self.playera_resigned}, ";
+        mystr += f"playerb_resigned={self.playerb_resigned}, ";
+        mystr += f"tied={self.tied}, completed={self.completed}, ";
+        mystr += f"playerb_won={self.playerb_won()}, can_be_started={self.can_be_started()}>";
         return mystr;
 
 class GameMoves(db.Model, SerializerMixin):
