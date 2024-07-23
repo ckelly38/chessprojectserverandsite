@@ -4,11 +4,11 @@
 from random import randint, choice as rc
 
 # Remote library imports
-from faker import Faker
+#from faker import Faker
 
 # Local imports
 from app import app
-from models import db, User, Show, Episode, Toy, UserToy, UserEpisodes
+from models import db, User, Show, Episode, Toy, UserToy, UserEpisodes, Games, GameMoves, UserPlayers, Moves
 
 def bulkPrintAndCommitToDB(mlst, printit=True):
     for mobj in mlst:
@@ -17,29 +17,49 @@ def bulkPrintAndCommitToDB(mlst, printit=True):
         db.session.commit();
 
 if __name__ == '__main__':
-    fake = Faker()
+    #fake = Faker()
+    #Players(id, color, defers, game_id);
+    #UserPlayers(user_id, player_id);
+    #Moves(id, text);
+    #Games(id, playera_won, playera_resigned, playerb_resigned, tied, completed,
+    # playera_id, playerb_id);
+    #GameMoves(game_id, move_id, number);
     with app.app_context():
         print("Starting seed...");
         # Seed code goes here!
         print("BEGIN CLEARING DATABASE OF EXISTING DATA:");
-        clrdb = True;
+        clrdb = False;
+        useaccslv = True;
         if (clrdb):
-            mycls = [User, Show, Episode, Toy, UserToy, UserEpisodes];
+            mycls = [User, Show, Episode, Toy, UserToy, UserEpisodes, Games, GameMoves,
+                UserPlayers, Moves];
             for mcls in mycls:
                 mcls.query.delete();
         print("DATABASE CLEARED BEGIN CREATING DUMMY DATA!");
         User.getValidator().enableValidator();
-        cn = User(id=1, name="CN", access_level=2);
+        cn = None;
+        if (useaccslv):
+            cn = User(id=1, name="CN", access_level=2);
+        else:
+            cn = User(id=1, name="CN");
         cn.password_hash = "cnrocks";
         print(cn);
         db.session.add(cn);
         db.session.commit();
-        kdone = User(id=2, name="Me", access_level=1);
+        kdone = None;
+        if (useaccslv):
+            kdone = User(id=2, name="Me", access_level=1);
+        else:
+            kdone = User(id=2, name="Me");
         kdone.password_hash = "dummyfan";
         print(kdone);
         db.session.add(kdone);
         db.session.commit();
-        kdtwo = User(id=3, name="MewTwo", access_level=1);
+        kdtwo = None;
+        if (useaccslv):
+            kdtwo = User(id=3, name="MewTwo", access_level=1);
+        else:
+            kdtwo = User(id=3, name="MewTwo");
         kdtwo.password_hash = "dummyfantwo";
         print(kdtwo);
         db.session.add(kdtwo);
@@ -194,7 +214,11 @@ if __name__ == '__main__':
             
             unitstfailed = True;
             try:
-                ocn = User(id=4, name="CN", access_level=2);
+                ocn = None;
+                if (useaccslv):
+                    ocn = User(id=4, name="CN", access_level=2);
+                else:
+                    ocn = User(id=4, name="CN");
                 ocn.password_hash = "cnrocks";
                 print(ocn);
                 db.session.add(ocn);
@@ -209,7 +233,11 @@ if __name__ == '__main__':
 
             unitstfailed = True;
             try:
-                okdfr = User(id=4, name="", access_level=2);
+                okdfr = None;
+                if (useaccslv):
+                    okdfr = User(id=4, name="", access_level=2);
+                else:
+                    okdfr = User(id=4, name="");
                 okdfr.password_hash = "cnrocks";
                 print(okdfr);
                 db.session.add(okdfr);
@@ -221,16 +249,18 @@ if __name__ == '__main__':
             if (unitstfailed): raise Exception("username must not be blank test failed!");
 
             unitstfailed = True;
-            try:
-                okdfv = User(id=4, name="otheruser", access_level=0);
-                okdfv.password_hash = "cnrocks";
-                print(okdfv);
-                db.session.add(okdfv);
-                db.session.commit();
-            except:
-                print("USER SITE ACCESS LEVEL MUST BE ONE OR TWO ONLY: TEST PAST!");
-                unitstfailed = False;
-                db.session.rollback();
+            if (useaccslv):
+                try:
+                    okdfv = User(id=4, name="otheruser", access_level=0);
+                    okdfv.password_hash = "cnrocks";
+                    print(okdfv);
+                    db.session.add(okdfv);
+                    db.session.commit();
+                except:
+                    print("USER SITE ACCESS LEVEL MUST BE ONE OR TWO ONLY: TEST PAST!");
+                    unitstfailed = False;
+                    db.session.rollback();
+            else: unitstfailed = False;
             if (unitstfailed):
                 raise Exception("user site access level must be one or two only test failed!");
 

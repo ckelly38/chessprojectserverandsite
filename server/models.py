@@ -217,6 +217,7 @@ class User(db.Model, SerializerMixin):
     __table_args__ = (db.CheckConstraint("length(name) >= 1"),);
     #db.CheckConstraint("access_level == 1 OR access_level == 2")
     
+    class_name_string = "User";
 
     #if I want to use postgressql and deploy using render change this to SERIAL
     id = db.Column(db.Integer, primary_key=True);
@@ -295,6 +296,8 @@ class User(db.Model, SerializerMixin):
 class Players(db.Model, SerializerMixin):
     __tablename__ = "players";
 
+    class_name_string = "Players";
+
     id = db.Column(db.Integer, primary_key=True);
     color = db.Column(db.String, nullable=False);
     defers = db.Column(db.Boolean, nullable=False, default=False);
@@ -319,6 +322,8 @@ class Players(db.Model, SerializerMixin):
 class UserPlayers(db.Model, SerializerMixin):
     __tablename__ = "user_players";
 
+    class_name_string = "UserPlayers";
+
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True);
     player_id = db.Column(db.Integer, db.ForeignKey("players.id"), primary_key=True);
     
@@ -341,6 +346,8 @@ class Moves(db.Model, SerializerMixin):
     __table_args__ = (db.CheckConstraint("length(text) >= 3"),);
     #db.CheckConstraint("access_level == 1 OR access_level == 2")
 
+    class_name_string = "Moves";
+
     id = db.Column(db.Integer, primary_key=True);
     text = db.Column(db.String, primary_key=True, nullable=False);
 
@@ -355,6 +362,10 @@ class Moves(db.Model, SerializerMixin):
 
     serialize_only = tuple(safeserializelist);
 
+    #validation code
+    @classmethod
+    def getValidator(cls): return mv;
+    
     @validates("text")
     def ismovetextvalid(self, key, val):
         return mv.stringHasAtMinimumXChars(val, 3);
@@ -369,6 +380,8 @@ class Games(db.Model, SerializerMixin):
     #__table_args__ = (db.CheckConstraint("length(name) >= 1"),);
     #db.CheckConstraint("access_level == 1 OR access_level == 2")
 
+    class_name_string = "Games";
+
     id = db.Column(db.Integer, primary_key=True);
     playera_won = db.Column(db.Boolean, nullable=False, default=False);
     playera_resigned = db.Column(db.Boolean, nullable=False, default=False);
@@ -376,14 +389,10 @@ class Games(db.Model, SerializerMixin):
     tied = db.Column(db.Boolean, nullable=False, default=False);
     completed = db.Column(db.Boolean, nullable=False, default=False);
     
-    #unsafelist stuff below
     playera_id = db.Column(db.Integer, db.ForeignKey("players.id"), default=0);
     playerb_id = db.Column(db.Integer, db.ForeignKey("players.id"), default=0);
-
-    #playera = Players.query.get(playera_id);#not sure if this is what I want
-    #playerb = Players.query.get(playerb_id);
-    #playera = Players.query.filter_by(id=playera_id).first();
-    #playerb = Players.query.filter_by(id=playerb_id).first();
+    
+    #unsafelist stuff below
     playera = db.relationship("Players", foreign_keys=[playera_id]);
     playerb = db.relationship("Players", foreign_keys=[playerb_id]);
     gamemoves = db.relationship("GameMoves", back_populates="game",
@@ -420,6 +429,8 @@ class GameMoves(db.Model, SerializerMixin):
     #__table_args__ = (db.CheckConstraint("length(name) >= 1"),);
     #db.CheckConstraint("access_level == 1 OR access_level == 2")
 
+    class_name_string = "GameMoves";
+
     game_id = db.Column(db.Integer, db.ForeignKey("games.id"), primary_key=True);
     move_id = db.Column(db.Integer, db.ForeignKey("moves.id"), primary_key=True);
     number = db.Column(db.Integer, default=0);
@@ -447,6 +458,8 @@ class Show(db.Model, SerializerMixin):
     #constraints go inside the tableargs
     __table_args__ = (db.CheckConstraint("length(description) >= 1"),
                      db.CheckConstraint("length(name) >= 1"));
+
+    class_name_string = "Show";
 
     #if I want to use postgressql and deploy using render change this to SERIAL
     id = db.Column(db.Integer, primary_key=True);
@@ -507,6 +520,8 @@ class Episode(db.Model, SerializerMixin):
                      db.CheckConstraint("episode_number >= 1"),
                      db.UniqueConstraint("episode_number", "season_number", "show_id",
                                          name="unique_showid_epnumsnnumcombo"));
+    
+    class_name_string = "Episode";
 
     #if I want to use postgressql and deploy using render change this to SERIAL
     id = db.Column(db.Integer, primary_key=True);
@@ -575,6 +590,8 @@ class Toy(db.Model, SerializerMixin):
                      db.UniqueConstraint("toy_number", "show_id",
                                          name="unique_showid_toynumcombo"));
 
+    class_name_string = "Toy";
+
     #if I want to use postgressql and deploy using render change this to SERIAL
     #https://stackoverflow.com/questions/10059345/sqlalchemy-unique-across-multiple-columns
     #above link is for UniqueConstraint method call
@@ -641,6 +658,8 @@ class Toy(db.Model, SerializerMixin):
 class UserEpisodes(db.Model, SerializerMixin):
     __tablename__ = "user_episodes";
 
+    class_name_string = "UserEpisodes";
+
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True);
     episode_id = db.Column(db.Integer, db.ForeignKey("episodes.id"), primary_key=True);
     
@@ -673,6 +692,8 @@ class UserToy(db.Model, SerializerMixin):
 
     #constraints go inside the tableargs
     __table_args__ = (db.CheckConstraint("quantity >= 0"),);
+
+    class_name_string = "UserToy";
 
     #if I want to use postgressql and deploy using render change this to SERIAL
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True);

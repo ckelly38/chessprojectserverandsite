@@ -30,7 +30,8 @@ from models import User, Show, Episode, Toy, UserToy, UserEpisodes, Games, GameM
 
 class Commonalities:
     def getValidClassList(self):
-        return [User, Show, Episode, Toy, UserToy, UserEpisodes];
+        return [User, Show, Episode, Toy, UserToy, UserEpisodes, Games, GameMoves,
+                UserPlayers, Moves];
 
     def isClsValid(self, cls):
         if (cls == None): return False;
@@ -38,14 +39,10 @@ class Commonalities:
 
     def getTypeStringForClass(self, cls):
         if (cls == None): raise ValueError("the class must not be null and None!");
-        elif (cls == User): return "User";
-        elif (cls == Show): return "Show";
-        elif (cls == Episode): return "Episode";
-        elif (cls == Toy): return "Toy";
-        elif (cls == UserToy): return "UserToy";
-        elif (cls == UserEpisodes): return "UserEpisodes";
         else:
-            raise ValueError("the class must be one of the following: " +
+            if (self.isClsValid(cls)): return "" + cls.class_name_string;
+            else:
+                raise ValueError("the class must be one of the following: " +
                              f"{self.getValidClassList()}!");
 
     def getAllOfTypeFromDB(self, cls, retall=True, usrid=0):
@@ -53,7 +50,7 @@ class Commonalities:
         else: raise ValueError("retall must be a booleanv value for the variable!");
         if (self.isClsValid(cls)):
             if (retall): return cls.query.all();
-            if (cls == UserToy or cls == UserEpisodes):
+            if (cls == UserToy or cls == UserEpisodes or UserPlayers):
                 if (usrid == None or type(usrid) != int):
                     raise ValueError("usrid must be a number!");
                 else: return cls.query.filter_by(user_id=usrid).all();
@@ -95,13 +92,15 @@ class Commonalities:
         elif (type(id) != int): raise ValueError("id must be an integer!");
         elif (type(usrid) != int): raise ValueError("usrid must be an integer!");
         elif (self.isClsValid(cls)):
-            if (cls == UserToy or cls == UserEpisodes):
+            if (cls == UserToy or cls == UserEpisodes or UserPlayers):
                 if (cls == UserToy):
                     print(f"usrid = {usrid}");
                     print(f"toy_id = {id}");
                     return cls.query.filter_by(user_id=usrid, toy_id=id).first();
                 elif (cls == UserEpisodes):
                     return cls.query.filter_by(user_id=usrid, episode_id=id).first();
+                elif (cls == UserPlayers):
+                    return cls.query.filter_by(user_id=usrid, player_id=id).first();
                 else:
                     raise ValueError("the class was UserToy or UserEpisdes, but now it " +
                                      "is not!");
@@ -542,6 +541,16 @@ api.add_resource(Unsubscribe, "/unsubscribe");
 class GetStats(Resource):
     def get(self):
         #userid: 1, username: "me", wins: 3, losses: 1, forfeits: 0, ties: 6
+        #allcompletegames = Games.query.filter_by(completed=True).all();
+        #all completed games gives me access to which player lost or won or if it is a tie
+        #or which player resigned
+        #it does not give me access to the username or id
+        #we are doing this for all users
+        #User has players, players has a list of games...
+        allusers = User.query.all();
+        allcompletedgamesforallusers = [usr.players.games.filter_by(completed=True).all()
+                                        for usr in allusers];
+        print(allcompletedgamesforallusers);
         pass;
 
 api.add_resource(GetStats, "/stats");
