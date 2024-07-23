@@ -24,10 +24,11 @@ class GenerateSerializableRulesClass:
         elif (clsnm == "Moves"): return ["id", "text"];
         elif (clsnm == "Games"):
             return ["id", "playera_won", "playera_resigned", "playerb_resigned", "tied",
-                    "completed", "can_be_started", "playerb_won"];
-        elif (clsnm == "GameMoves"): return ["number", "game_id"];
+                    "completed", "can_be_started", "playerb_won", "playera_id", "playerb_id"];
+        elif (clsnm == "GameMoves"): return ["number", "game_id", "move_id"];
         elif (clsnm == "Players"): return ["id", "color", "defers", "game_id"];
-        elif (clsnm == "UserPlayers"): return [];
+        elif (clsnm == "UserPlayers"): return ["user_id", "player_id"];
+        #not needed below
         elif (clsnm == "Show"): return ["id", "name", "description", "owner_id"];
         elif (clsnm == "Episode"):
             return ["id", "name", "description", "season_number", "episode_number", "show_id"];
@@ -44,7 +45,24 @@ class GenerateSerializableRulesClass:
         tsafelist = self.getSafeListForClassName("Toy");
         swsafelist = self.getSafeListForClassName("Show");
         usrsafelist = self.getSafeListForClassName("User");
+        gmssafelist = self.getSafeListForClassName("Games");
+        mvssafelist = self.getSafeListForClassName("Moves");
+        plyrssafelist = self.getSafeListForClassName("Players");
         #unsafe lists
+        #games unsafe list
+        gmsunsafelistwiths = self.prependStringToListItems("games.", gmssafelist);
+        gmsunsafelistnos = self.prependStringToListItems("game.", gmssafelist);
+        #moves unsafe list
+        mvsunsafelistwiths = self.prependStringToListItems("moves.", mvssafelist);
+        mvsunsafelistnos = self.prependStringToListItems("moves.", mvssafelist);
+        #players unsafe list
+        plyrsunsafelistwiths = self.prependStringToListItems("players.", plyrssafelist);
+        plyrsunsafelistnos = self.prependStringToListItems("player.", plyrssafelist);
+        #user unsafe lists
+        usrunsafelistwiths = self.prependStringToListItems("users.", usrsafelist);
+        usrunsafelistnos = self.prependStringToListItems("user.", usrsafelist);
+        
+        #not needed below
         #show unsafe lists
         swunsafelist = self.prependStringToListItems("show.", swsafelist);
         #episode unsafe lists
@@ -53,14 +71,27 @@ class GenerateSerializableRulesClass:
         #toy unsafe lists
         tunsafelistwiths = self.prependStringToListItems("toys.", tsafelist);
         tunsafelistnos = self.prependStringToListItems("toy.", tsafelist);
-        #user unsafe lists
-        usrunsafelistwiths = self.prependStringToListItems("users.", usrsafelist);
-        usrunsafelistnos = self.prependStringToListItems("user.", usrsafelist);
+        
         #get the return list here
         if (clsnm == "User"):
             swlist = self.prependStringToListItems("episodes.", swunsafelist);
             return self.combineThreeLists(epunsafelistwiths, swlist, tunsafelistwiths);
-        elif (clsnm == "Moves"): return [];
+        elif (clsnm == "Moves"):
+            return gmsunsafelistwiths;#games
+        elif (clsnm == "Players"):
+            return self.combineLists(usrunsafelistnos, gmsunsafelistnos);#user, game
+        elif (clsnm == "GameMoves"):
+            return self.combineLists(gmsunsafelistnos, mvsunsafelistnos);#game, move
+        elif (clsnm == "UserPlayers"):
+            return self.combineLists(usrunsafelistnos, plyrsunsafelistnos);#user, player
+        elif (clsnm == "Games"):
+            plyraunsafelist = self.prependStringToListItems("playera.", plyrssafelist);
+            plyrbunsafelist = self.prependStringToListItems("playerb.", plyrssafelist);
+            return self.combineThreeLists(plyraunsafelist, plyrbunsafelist, mvsunsafelistwiths);
+            #playera, playerb, moves
+        #elif (clsnm == ?):
+        #    return self.combineLists(?, ?);#?
+        #not needed below
         elif (clsnm == "Show"):
             usrlist = self.prependStringToListItems("owner.", usrsafelist);
             return self.combineThreeLists(epunsafelistwiths, tunsafelistwiths, usrlist);
@@ -215,9 +246,9 @@ class User(db.Model, SerializerMixin):
 
 
     #other stuff after that
-    userplayers = db.relationship("UserPlayers", back_populates="player",
+    userplayers = db.relationship("UserPlayers", back_populates="user",
                                 cascade="all, delete-orphan");
-    players = db.relationship("Players", secondary="user_players", back_populates="player");
+    players = db.relationship("Players", secondary="user_players", back_populates="user");
 
     episodes = db.relationship("Episode", secondary="user_episodes", back_populates="users");
     toys = db.relationship("Toy", secondary="user_toys", back_populates="users");
@@ -268,10 +299,10 @@ class Players(db.Model, SerializerMixin):
     defers = db.Column(db.Boolean, nullable=False, default=False);
     game_id = db.Column(db.Integer, db.ForeignKey("games.id"), primary_key=True);
 
-    game = db.relationship("Games");
+    game = db.relationship("Games", foreign_keys=[game_id]);
     userplayers = db.relationship("UserPlayers", back_populates="player",
                                 cascade="all, delete-orphan");
-    user = db.relationship("User", secondary="user_players", back_populates="user");
+    user = db.relationship("User", secondary="user_players", back_populates="players");
 
     safeserializelist = genlists.getUnOrSafeListForClassName("Players", True);
     unsafelist = genlists.getUnOrSafeListForClassName("Players", False);
@@ -312,7 +343,7 @@ class Moves(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True);
     text = db.Column(db.String, primary_key=True, nullable=False);
 
-    gamemoves = db.relationship("GameMoves", back_populates="game",
+    gamemoves = db.relationship("GameMoves", back_populates="move",
                                 cascade="all, delete-orphan");
     games = db.relationship("Games", secondary="game_moves", back_populates="moves");
     
@@ -348,20 +379,27 @@ class Games(db.Model, SerializerMixin):
     playera_id = db.Column(db.Integer, db.ForeignKey("players.id"), default=0);
     playerb_id = db.Column(db.Integer, db.ForeignKey("players.id"), default=0);
 
-    playera = Players.query.get(playera_id);#not sure if this is what I want
-    playerb = Players.query.get(playerb_id);
+    #playera = Players.query.get(playera_id);#not sure if this is what I want
+    #playerb = Players.query.get(playerb_id);
+    #playera = Players.query.filter_by(id=playera_id).first();
+    #playerb = Players.query.filter_by(id=playerb_id).first();
+    playera = db.relationship("Players", foreign_keys=[playera_id]);
+    playerb = db.relationship("Players", foreign_keys=[playerb_id]);
     gamemoves = db.relationship("GameMoves", back_populates="game",
                                 cascade="all, delete-orphan");
     moves = db.relationship("Moves", secondary="game_moves", back_populates="games");
 
     #does not need to be serialized
-    can_be_started = not(playera_id < 1 or playerb_id < 1);
+    def can_be_started(self):
+        return not((self.playera_id < 1) or (self.playerb_id < 1));
 
-    playerb_won = False;
-    if (playera_won or playerb_resigned or tied): pass;
-    else:
-        if (playera_resigned or completed): playerb_won = True;
-        #else: pass;
+    def playerb_won(self):
+        b_won = False;
+        if (self.playera_won or self.playerb_resigned or self.tied): pass;
+        else:
+            if (self.playera_resigned or self.completed): b_won = True;
+            #else: pass;
+        return b_won;
 
     safeserializelist = genlists.getUnOrSafeListForClassName("Games", True);
     unsafelist = genlists.getUnOrSafeListForClassName("Games", False);
@@ -381,7 +419,7 @@ class GameMoves(db.Model, SerializerMixin):
     #db.CheckConstraint("access_level == 1 OR access_level == 2")
 
     game_id = db.Column(db.Integer, db.ForeignKey("games.id"), primary_key=True);
-    move_id = db.Column(db.Integer, db.ForeignKey("move.id"), primary_key=True);
+    move_id = db.Column(db.Integer, db.ForeignKey("moves.id"), primary_key=True);
     number = db.Column(db.Integer, default=0);
 
     game = db.relationship("Games");

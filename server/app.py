@@ -9,7 +9,7 @@ from flask_restful import Resource
 # Local imports
 from config import app, db, api
 # Add your model imports
-from models import User, Show, Episode, Toy, UserToy, UserEpisodes
+from models import User, Show, Episode, Toy, UserToy, UserEpisodes, Games, GameMoves, UserPlayers, Moves
 
 # Views go here!
 #anyone (not just users, not needed to be logged in) needs to know what:
