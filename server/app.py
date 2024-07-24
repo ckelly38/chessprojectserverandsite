@@ -9,7 +9,7 @@ from flask_restful import Resource
 # Local imports
 from config import app, db, api
 # Add your model imports
-from models import User, Show, Episode, Toy, UserToy, UserEpisodes, Games, GameMoves, UserPlayers, Moves
+from models import User, Show, Episode, Toy, UserToy, UserEpisodes, Players, Games, GameMoves, UserPlayers, Moves
 
 # Views go here!
 #anyone (not just users, not needed to be logged in) needs to know what:
@@ -29,8 +29,10 @@ from models import User, Show, Episode, Toy, UserToy, UserEpisodes, Games, GameM
 #a user should be able to get rid of purchased toys (sell, donate, or throw them out)
 
 class Commonalities:
+    useaccslv = True;
+
     def getValidClassList(self):
-        return [User, Show, Episode, Toy, UserToy, UserEpisodes, Games, GameMoves,
+        return [User, Show, Episode, Toy, UserToy, UserEpisodes, Players, Games, GameMoves,
                 UserPlayers, Moves];
 
     def isClsValid(self, cls):
@@ -288,9 +290,28 @@ class Commonalities:
                 if (useadd):
                     print("DOING POST HERE!");
                     if (cls == User):
-                        item = cls(name=dataobj["username"],
-                                   access_level=dataobj["access_level"]);
+                        if (self.useaccslv):
+                            item = cls(name=dataobj["username"],
+                                    access_level=dataobj["access_level"]);
+                        else: item = cls(name=dataobj["username"]);
                         item.password_hash = dataobj["password"];
+                    elif (cls == Players):
+                        item = cls(color=dataobj["color"], defers=dataobj["defers"],
+                                   game_id=dataobj["game_id"]);
+                    elif (cls == UserPlayers):
+                        item = cls(user_id=msess["user_id"], player_id=dataobj["player_id"]);
+                    elif (cls == Moves):
+                        item = cls(text=dataobj["text"]);
+                    elif (cls == Games):
+                        item = cls(playera_won=dataobj["playera_won"],
+                                   playera_resigned=dataobj["playera_resigned"],
+                                   playerb_resigned=dataobj["playerb_resigned"],
+                                   tied=dataobj["tied"], completed=dataobj["completed"],
+                                   playera_id=dataobj["playera_id"],
+                                   playerb_id=dataobj["playerb_id"]);
+                    elif (cls == GameMoves):
+                        item = cls(game_id=dataobj["game_id"], move_id=dataobj["move_id"],
+                                   number=dataobj["number"]);
                     elif (cls == Show):
                         item = cls(name=dataobj["name"], description=dataobj["description"],
                                 owner_id=msess["user_id"]);
@@ -536,24 +557,39 @@ class Unsubscribe(Resource):
 
 api.add_resource(Unsubscribe, "/unsubscribe");
 
+
 #NEED TO BE ABLE TO CREATE A NEW GAME, GET A GAME, UPDATE THE GAME, PLAY THE GAME, GET STATISTICS
 
 class GetStats(Resource):
     def get(self):
         #userid: 1, username: "me", wins: 3, losses: 1, forfeits: 0, ties: 6
+        # USER INFO               | COMPLETED GAMES COMPRESSED INTO THIS STUFF
         #allcompletegames = Games.query.filter_by(completed=True).all();
         #all completed games gives me access to which player lost or won or if it is a tie
         #or which player resigned
         #it does not give me access to the username or id
         #we are doing this for all users
         #User has players, players has a list of games...
-        allusers = User.query.all();
-        allcompletedgamesforallusers = [usr.players.games.filter_by(completed=True).all()
-                                        for usr in allusers];
+        
+        allusers = User.query.all();#[{username, password, id, players...}]
+        #players = [{id, color, defers, game_id, game}]
+        allplayersforusers = [usr.players for usr in allusers];
+        gamesforusrplayers = [p.game for p in allplayersforusers];
+        #games [{id, playera_won, playera_resigned, playerb_resigned, tied, completed,
+        # playera_id, playerb_id}]
+        allcompletedgamesforallusers = [p.game for p in allplayersforusers if p.game.completed];
         print(allcompletedgamesforallusers);
+        #from the list above, we know the user has one of its players in the game
+        #we do not know which one it is one or both
+        #from the player IDs we can figure it out
+        #if game.playera_id === usr.players.id THIS PLAYER IS THE USER
+        #if game.playerb_id === usr.players.id THIS PLAYER IS THE USER
+        #for each game, we need to know if the playera_id IS THE USER and playerb_id IS THE USER
+        #? NOT SURE WHAT TO DO HERE...
         pass;
 
 api.add_resource(GetStats, "/stats");
+
 
 #STUFF BELOW THIS LINE NOT NEEDED 7-19-2024
 
