@@ -571,21 +571,162 @@ class GetStats(Resource):
         #we are doing this for all users
         #User has players, players has a list of games...
         
-        allusers = User.query.all();#[{username, password, id, players...}]
+        gameone = {"id": 1, "playera_won": True, "playera_resigned": False,
+                   "playerb_resigned": False, "tied": False, "completed": True,
+                   "playera_id": 1, "playerb_id": 2};
+        gametwo = {"id": 2, "playera_won": False, "playera_resigned": True,
+                   "playerb_resigned": False, "tied": False, "completed": True,
+                   "playera_id": 5, "playerb_id": 4};
+        gamefour = {"id": 4, "playera_won": False, "playera_resigned": False,
+                   "playerb_resigned": False, "tied": False, "completed": True,
+                   "playera_id": 7, "playerb_id": 3};
+        gamefive = {"id": 5, "playera_won": True, "playera_resigned": False,
+                   "playerb_resigned": False, "tied": False, "completed": True,
+                   "playera_id": 9, "playerb_id": 6};
+        gamethree = {"id": 3, "playera_won": True, "playera_resigned": False,
+                   "playerb_resigned": True, "tied": False, "completed": True,
+                   "playera_id": 8, "playerb_id": 10};
+        meplayers = [{"id": 1, "color": "WHITE", "defers": False, "game_id": 1, "game": gameone},
+                     {"id": 4, "color": "BLACK", "defers": False, "game_id": 2, "game": gametwo},
+                     {"id": 7, "color": "WHITE", "defers": True, "game_id": 4, "game": gamefour}];
+        tuplayers = [{"id": 2, "color": "BLACK", "defers": False, "game_id": 1, "game": gameone},
+                     {"id": 5, "color": "WHITE", "defers": False, "game_id": 2, "game": gametwo},
+                     {"id": 9, "color": "WHITE", "defers": True, "game_id": 5, "game": gamefive}];
+        otherplayers = [{"id": 3, "color": "BLACK", "defers": False, "game_id": 4,
+                         "game": gamefour},
+                        {"id": 6, "color": "BLACK", "defers": True, "game_id": 5, "game": gamefive},
+                        {"id": 8, "color": "WHITE", "defers": False, "game_id": 3,
+                         "game": gamethree},
+                        {"id": 10, "color": "BLACK", "defers": False, "game_id": 3,
+                         "game": gamethree}];
+        myusrs = [{"username": "me", "password": "iRock", "id": 1, "players": meplayers},
+                  {"username": "tu", "password": "isuck", "id": 2, "players": tuplayers},
+                  {"username": "other", "password": "isucktoo", "id": 3, "players": otherplayers}];
+        
+        
+        
+        #allusers = User.query.all();#[{username, password, id, players...}]
+        
         #players = [{id, color, defers, game_id, game}]
-        allplayersforusers = [usr.players for usr in allusers];
-        gamesforusrplayers = [p.game for p in allplayersforusers];
+        
+        #allplayersforusers = [usr.players for usr in allusers];
+        
+        #[[playerobj, ...], [playerobj, ...], ...]
+        
+        #allplayeridsforusers = [p.id for p in allplayersforusers];#[[0, 1, ...], [4, ...], ...]
+        #gamesforusrplayers = [p.game for p in allplayersforusers];#[[gameobj, ...], ...]
+        
         #games [{id, playera_won, playera_resigned, playerb_resigned, tied, completed,
         # playera_id, playerb_id}]
-        allcompletedgamesforallusers = [p.game for p in allplayersforusers if p.game.completed];
-        print(allcompletedgamesforallusers);
+        
+        #allcompletedgamesforallusers = [p.game for p in allplayersforusers if p.game.completed];
+        #print(allcompletedgamesforallusers);
+        
         #from the list above, we know the user has one of its players in the game
         #we do not know which one it is one or both
         #from the player IDs we can figure it out
         #if game.playera_id === usr.players.id THIS PLAYER IS THE USER
         #if game.playerb_id === usr.players.id THIS PLAYER IS THE USER
         #for each game, we need to know if the playera_id IS THE USER and playerb_id IS THE USER
-        #? NOT SURE WHAT TO DO HERE...
+        for usr in myusrs:#allusers
+            #cusrplayers = usr.players;
+            cusrplayers = usr["players"];
+            cusrplyrids = [p["id"] for p in cusrplayers];
+            cgamesusrplyers = [p["game"] for p in cusrplayers];
+            #usrisplyraingames = [(g["playera_id"] == mid) for g in cgamesusrplyers
+            #                     for mid in cusrplyrids];
+            #usrisplyrbingames = [(g["playerb_id"] == mid) for g in cgamesusrplyers
+            #                     for mid in cusrplyrids];
+            usrisplyraingames = [];
+            usrisplyrbingames = [];
+            useallgames = True;
+            for n in range(0, 2):
+                plridkeystr = ("playera_id" if (n == 0) else "playerb_id");
+                print(f"plridkeystr = {plridkeystr}");
+                for g in cgamesusrplyers:
+                    if (useallgames or g["completed"]):
+                        playerisusr = False;
+                        for mid in cusrplyrids:
+                            print(f"mid = {mid}");
+                            print(g[plridkeystr]);
+                            if (g[plridkeystr] == mid):
+                                print("FOUND IT");
+                                playerisusr = True;
+                                break;
+                        print(f"playerisusr = {playerisusr}");
+                        if (n == 0): usrisplyraingames.append(playerisusr);
+                        else: usrisplyrbingames.append(playerisusr);
+            
+            #usrisplyraincompletedgames = [(g["playera_id"] == mid) for g in cgamesusrplyers
+            #                     for mid in cusrplyrids if g["completed"]];
+            #usrisplyrbincompletedgames = [(g["playerb_id"] == mid) for g in cgamesusrplyers
+            #                     for mid in cusrplyrids if g["completed"]];
+            #print(f"cusrplayers = {cusrplayers}");
+            print(f"cusrplyrids = {cusrplyrids}");
+            print(f"cgamesusrplyers = {cgamesusrplyers}");
+            print(f"usrisplyraingames = {usrisplyraingames}");
+            print(f"usrisplyrbingames = {usrisplyrbingames}");
+            #print(f"usrisplyraincompletedgames = {usrisplyraincompletedgames}");
+            #print(f"usrisplyrbincompletedgames = {usrisplyrbincompletedgames}");
+            
+            #stalemate or draw (tie)
+            #checkmate or got put in checkmate (win or loss)
+            #do the resignings count as a win for other side or not?
+
+            awins = 0;
+            afts = 0;
+            aties = 0;
+            aloss = 0;
+            bwins = 0;
+            bfts = 0;
+            bties = 0;
+            bloss = 0;
+            usrfts = 0;
+            usrwins = 0;
+            usrties = 0;
+            for n in range(0, len(cgamesusrplyers)):
+                g = cgamesusrplyers[n];
+                if (g["completed"]):
+                    if (g["tied"]):
+                        aties += 1;
+                        bties += 1;
+                        usrties += 1;
+                    
+                    if (g["playera_won"] or g["playerb_resigned"]):
+                        awins += 1;
+                        bloss += 1;
+
+                    if (g["playera_resigned"]): afts += 1;
+                    if (g["playerb_resigned"]): bfts += 1;
+
+                    if (g["playera_resigned"] or
+                        (not(g["tied"]) and not(g["playerb_resigned"]))):
+                        aloss += 1;
+                        bwins += 1;
+
+                    if usrisplyraingames[n]:
+                        if (g["playera_resigned"]): usrfts += 1;
+                        if (g["playera_won"] or g["playerb_resigned"]): usrwins += 1;
+                        if (g["playera_resigned"] or
+                            (not(g["tied"]) and not(g["playerb_resigned"]))):
+                            usrloss += 1;
+                    else:
+                        if (g["playerb_resigned"]): usrfts += 1;
+                        if (g["playera_won"] or g["playerb_resigned"]): pass;
+                        
+            print(f"awins = {awins}");
+            print(f"afts = {afts}");
+            print(f"aties = {aties}");
+            print(f"aloss = {aloss}");
+            print(f"bwins = {bwins}");
+            print(f"bfts = {bfts}");
+            print(f"bties = {bties}");
+            print(f"bloss = {bloss}");
+
+            if (bwins == aloss and aties == bties and bloss == awins): pass;
+            else:
+                raise ValueError("the bwins must be the same as aloss and vise-versus " +
+                                 "and the number or ties should be the same, but were not!");
         pass;
 
 api.add_resource(GetStats, "/stats");
