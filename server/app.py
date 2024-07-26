@@ -562,8 +562,9 @@ api.add_resource(Unsubscribe, "/unsubscribe");
 
 class GetStats(Resource):
     def get(self):
-        #userid: 1, username: "me", wins: 3, losses: 1, forfeits: 0, ties: 6
-        # USER INFO               | COMPLETED GAMES COMPRESSED INTO THIS STUFF
+        #[{userid: 1, username: "me", wins: 3, losses: 1, forfeits: 0, ties: 6},
+        #{userid: 1, username: "me", wins: 3, losses: 1, forfeits: 0, ties: 6}]
+        # USER INFO                | COMPLETED GAMES COMPRESSED INTO THIS STUFF
         #allcompletegames = Games.query.filter_by(completed=True).all();
         #all completed games gives me access to which player lost or won or if it is a tie
         #or which player resigned
@@ -586,19 +587,22 @@ class GetStats(Resource):
         gamethree = {"id": 3, "playera_won": True, "playera_resigned": False,
                    "playerb_resigned": True, "tied": False, "completed": True,
                    "playera_id": 8, "playerb_id": 10};
+        #wins gameone, wins gametwo ff, loses gamefour
         meplayers = [{"id": 1, "color": "WHITE", "defers": False, "game_id": 1, "game": gameone},
                      {"id": 4, "color": "BLACK", "defers": False, "game_id": 2, "game": gametwo},
                      {"id": 7, "color": "WHITE", "defers": True, "game_id": 4, "game": gamefour}];
+        #loses gameone, forfeits gametwo, wins gamefive
         tuplayers = [{"id": 2, "color": "BLACK", "defers": False, "game_id": 1, "game": gameone},
                      {"id": 5, "color": "WHITE", "defers": False, "game_id": 2, "game": gametwo},
                      {"id": 9, "color": "WHITE", "defers": True, "game_id": 5, "game": gamefive}];
         otherplayers = [{"id": 3, "color": "BLACK", "defers": False, "game_id": 4,
-                         "game": gamefour},
-                        {"id": 6, "color": "BLACK", "defers": True, "game_id": 5, "game": gamefive},
+                         "game": gamefour},#wins gamefour
+                        {"id": 6, "color": "BLACK", "defers": True, "game_id": 5,
+                         "game": gamefive},#loses gamefive,
                         {"id": 8, "color": "WHITE", "defers": False, "game_id": 3,
                          "game": gamethree},
                         {"id": 10, "color": "BLACK", "defers": False, "game_id": 3,
-                         "game": gamethree}];
+                         "game": gamethree}];#wins and loses gamethree,
         myusrs = [{"username": "me", "password": "iRock", "id": 1, "players": meplayers},
                   {"username": "tu", "password": "isuck", "id": 2, "players": tuplayers},
                   {"username": "other", "password": "isucktoo", "id": 3, "players": otherplayers}];
@@ -628,9 +632,18 @@ class GetStats(Resource):
         #if game.playera_id === usr.players.id THIS PLAYER IS THE USER
         #if game.playerb_id === usr.players.id THIS PLAYER IS THE USER
         #for each game, we need to know if the playera_id IS THE USER and playerb_id IS THE USER
+        
+
+        #USERNAME    | ID NUMBERS | GAME IDS  |Wins|Loss|Forfeits|Ties|
+        #otherplayers| 3, 6, 8, 10| 3, 3, 4, 5| 2  | 1  |   1    |  0 |
+        #tuplayers   | 2, 5, 9    | 1, 2, 5   | 1  | 1  |   1    |  0 |
+        #meplayers   | 1, 4, 7    | 1, 2, 4   | 2  | 1  |   0    |  0 |
+        
+        statsarr = [];
         for usr in myusrs:#allusers
-            #cusrplayers = usr.players;
-            cusrplayers = usr["players"];
+            print(f"usr = {usr}");
+
+            cusrplayers = usr["players"];#cusrplayers = usr.players;
             cusrplyrids = [p["id"] for p in cusrplayers];
             cgamesusrplyers = [p["game"] for p in cusrplayers];
             #usrisplyraingames = [(g["playera_id"] == mid) for g in cgamesusrplyers
@@ -684,36 +697,66 @@ class GetStats(Resource):
             usrfts = 0;
             usrwins = 0;
             usrties = 0;
+            usrloss = 0;
+            usedgids = [];
             for n in range(0, len(cgamesusrplyers)):
                 g = cgamesusrplyers[n];
+                print(f"GAME ID = {g['id']}");
+                print(f"usedgids = {usedgids}");
+                if (g['id'] in usedgids):
+                    print("ALREADY COUNTED THIS GAME!");
+                    continue;
+                else: usedgids.append(g['id']);
+                print(g);
                 if (g["completed"]):
                     if (g["tied"]):
                         aties += 1;
                         bties += 1;
                         usrties += 1;
                     
-                    if (g["playera_won"] or g["playerb_resigned"]):
+                    if (g["playera_won"] and not(g["playera_resigned"])):
                         awins += 1;
                         bloss += 1;
 
                     if (g["playera_resigned"]): afts += 1;
                     if (g["playerb_resigned"]): bfts += 1;
 
-                    if (g["playera_resigned"] or
-                        (not(g["tied"]) and not(g["playerb_resigned"]))):
+                    if (not(g["tied"]) and not(g["playerb_resigned"]) and
+                        not(g["playera_resigned"])):
                         aloss += 1;
                         bwins += 1;
 
                     if usrisplyraingames[n]:
-                        if (g["playera_resigned"]): usrfts += 1;
-                        if (g["playera_won"] or g["playerb_resigned"]): usrwins += 1;
-                        if (g["playera_resigned"] or
-                            (not(g["tied"]) and not(g["playerb_resigned"]))):
-                            usrloss += 1;
-                    else:
-                        if (g["playerb_resigned"]): usrfts += 1;
-                        if (g["playera_won"] or g["playerb_resigned"]): pass;
+                        print("USER IS PLAYER A!");
+                        if (g["playera_resigned"]):
+                            print("USER FORFEITED!");
+                            usrfts += 1;
                         
+                        if (g["playera_won"] and not(g["playera_resigned"])):
+                            print("USER WON!");
+                            usrwins += 1;
+
+                        if (not(g["tied"]) and not(g["playera_resigned"]) and
+                            not(g["playera_won"])):
+                            print("USER LOST!");
+                            usrloss += 1;#g["playera_resigned"] or
+                    
+                    if usrisplyrbingames[n]:
+                        print("USER IS PLAYER B!");
+                        if (g["playerb_resigned"]):
+                            print("USER FORFEITED!");
+                            usrfts += 1;
+                        
+                        if (g["playera_won"] and not(g["playerb_resigned"])):
+                            print("USER LOST!");
+                            usrloss += 1;
+
+                        if (not(g["tied"]) and not(g["playerb_resigned"]) and
+                            not(g["playera_won"])):
+                            print("USER WON!");
+                            usrwins += 1;
+                        
+
             print(f"awins = {awins}");
             print(f"afts = {afts}");
             print(f"aties = {aties}");
@@ -723,11 +766,27 @@ class GetStats(Resource):
             print(f"bties = {bties}");
             print(f"bloss = {bloss}");
 
+            print(f"usrties = {usrties}");
+            print(f"usrfts = {usrfts}");
+            print(f"usrwins = {usrwins}");
+            print(f"usrloss = {usrloss}");
+
             if (bwins == aloss and aties == bties and bloss == awins): pass;
             else:
                 raise ValueError("the bwins must be the same as aloss and vise-versus " +
                                  "and the number or ties should be the same, but were not!");
-        pass;
+            
+            print(f"len(cgamesusrplyers) = {len(cgamesusrplyers)}");
+            if (usrties + usrfts + usrwins + usrloss == len(cgamesusrplyers)): pass;
+            else:
+                raise ValueError("the total must add up to the number of non-unique games, " +
+                    "but it did not!");
+            
+            resobj = {"userid": usr["id"], "username": usr["username"], "wins": usrwins,
+                "losses": usrloss, "forfeits": usrfts, "ties": usrties};
+            statsarr.append(resobj);
+        print(f"statsarr = {statsarr}");
+        return statsarr, 200;
 
 api.add_resource(GetStats, "/stats");
 
