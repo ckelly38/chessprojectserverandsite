@@ -608,8 +608,10 @@ class GetStats(Resource):
                   {"username": "other", "password": "isucktoo", "id": 3, "players": otherplayers}];
         
         
-        
-        #allusers = User.query.all();#[{username, password, id, players...}]
+        usedummydata = True;
+        allusers = None;
+        if (usedummydata): pass;
+        else: allusers = User.query.all();#[{username, password, id, players...}]
         
         #players = [{id, color, defers, game_id, game}]
         
@@ -640,8 +642,11 @@ class GetStats(Resource):
         #meplayers   | 1, 4, 7    | 1, 2, 4   | 2  | 1  |   0    |  0 |
         
         statsarr = [];
-        for usr in myusrs:#allusers
-            print(f"usr = {usr}");
+        myusrsarr = None;
+        if (usedummydata): myusrsarr = myusrs;
+        else: myusrsarr = allusers;
+        for usr in myusrsarr:
+            #print(f"usr = {usr}");
 
             cusrplayers = usr["players"];#cusrplayers = usr.players;
             cusrplyrids = [p["id"] for p in cusrplayers];
@@ -655,18 +660,18 @@ class GetStats(Resource):
             useallgames = True;
             for n in range(0, 2):
                 plridkeystr = ("playera_id" if (n == 0) else "playerb_id");
-                print(f"plridkeystr = {plridkeystr}");
+                #print(f"plridkeystr = {plridkeystr}");
                 for g in cgamesusrplyers:
                     if (useallgames or g["completed"]):
                         playerisusr = False;
                         for mid in cusrplyrids:
-                            print(f"mid = {mid}");
-                            print(g[plridkeystr]);
+                            #print(f"mid = {mid}");
+                            #print(g[plridkeystr]);
                             if (g[plridkeystr] == mid):
-                                print("FOUND IT");
+                                #print("FOUND IT");
                                 playerisusr = True;
                                 break;
-                        print(f"playerisusr = {playerisusr}");
+                        #print(f"playerisusr = {playerisusr}");
                         if (n == 0): usrisplyraingames.append(playerisusr);
                         else: usrisplyrbingames.append(playerisusr);
             
@@ -675,10 +680,10 @@ class GetStats(Resource):
             #usrisplyrbincompletedgames = [(g["playerb_id"] == mid) for g in cgamesusrplyers
             #                     for mid in cusrplyrids if g["completed"]];
             #print(f"cusrplayers = {cusrplayers}");
-            print(f"cusrplyrids = {cusrplyrids}");
-            print(f"cgamesusrplyers = {cgamesusrplyers}");
-            print(f"usrisplyraingames = {usrisplyraingames}");
-            print(f"usrisplyrbingames = {usrisplyrbingames}");
+            #print(f"cusrplyrids = {cusrplyrids}");
+            #print(f"cgamesusrplyers = {cgamesusrplyers}");
+            #print(f"usrisplyraingames = {usrisplyraingames}");
+            #print(f"usrisplyrbingames = {usrisplyrbingames}");
             #print(f"usrisplyraincompletedgames = {usrisplyraincompletedgames}");
             #print(f"usrisplyrbincompletedgames = {usrisplyrbincompletedgames}");
             
@@ -701,13 +706,13 @@ class GetStats(Resource):
             usedgids = [];
             for n in range(0, len(cgamesusrplyers)):
                 g = cgamesusrplyers[n];
-                print(f"GAME ID = {g['id']}");
-                print(f"usedgids = {usedgids}");
+                #print(f"GAME ID = {g['id']}");
+                #print(f"usedgids = {usedgids}");
                 if (g['id'] in usedgids):
-                    print("ALREADY COUNTED THIS GAME!");
+                    #print("ALREADY COUNTED THIS GAME!");
                     continue;
                 else: usedgids.append(g['id']);
-                print(g);
+                #print(g);
                 if (g["completed"]):
                     if (g["tied"]):
                         aties += 1;
@@ -727,56 +732,56 @@ class GetStats(Resource):
                         bwins += 1;
 
                     if usrisplyraingames[n]:
-                        print("USER IS PLAYER A!");
+                        #print("USER IS PLAYER A!");
                         if (g["playera_resigned"]):
-                            print("USER FORFEITED!");
+                            #print("USER FORFEITED!");
                             usrfts += 1;
                         
                         if (g["playera_won"] and not(g["playera_resigned"])):
-                            print("USER WON!");
+                            #print("USER WON!");
                             usrwins += 1;
 
                         if (not(g["tied"]) and not(g["playera_resigned"]) and
                             not(g["playera_won"])):
-                            print("USER LOST!");
+                            #print("USER LOST!");
                             usrloss += 1;#g["playera_resigned"] or
                     
                     if usrisplyrbingames[n]:
-                        print("USER IS PLAYER B!");
+                        #print("USER IS PLAYER B!");
                         if (g["playerb_resigned"]):
-                            print("USER FORFEITED!");
+                            #print("USER FORFEITED!");
                             usrfts += 1;
                         
                         if (g["playera_won"] and not(g["playerb_resigned"])):
-                            print("USER LOST!");
+                            #print("USER LOST!");
                             usrloss += 1;
 
                         if (not(g["tied"]) and not(g["playerb_resigned"]) and
                             not(g["playera_won"])):
-                            print("USER WON!");
+                            #print("USER WON!");
                             usrwins += 1;
                         
 
-            print(f"awins = {awins}");
-            print(f"afts = {afts}");
-            print(f"aties = {aties}");
-            print(f"aloss = {aloss}");
-            print(f"bwins = {bwins}");
-            print(f"bfts = {bfts}");
-            print(f"bties = {bties}");
-            print(f"bloss = {bloss}");
+            #print(f"awins = {awins}");
+            #print(f"afts = {afts}");
+            #print(f"aties = {aties}");
+            #print(f"aloss = {aloss}");
+            #print(f"bwins = {bwins}");
+            #print(f"bfts = {bfts}");
+            #print(f"bties = {bties}");
+            #print(f"bloss = {bloss}");
 
-            print(f"usrties = {usrties}");
-            print(f"usrfts = {usrfts}");
-            print(f"usrwins = {usrwins}");
-            print(f"usrloss = {usrloss}");
+            #print(f"usrties = {usrties}");
+            #print(f"usrfts = {usrfts}");
+            #print(f"usrwins = {usrwins}");
+            #print(f"usrloss = {usrloss}");
 
             if (bwins == aloss and aties == bties and bloss == awins): pass;
             else:
                 raise ValueError("the bwins must be the same as aloss and vise-versus " +
                                  "and the number or ties should be the same, but were not!");
             
-            print(f"len(cgamesusrplyers) = {len(cgamesusrplyers)}");
+            #print(f"len(cgamesusrplyers) = {len(cgamesusrplyers)}");
             if (usrties + usrfts + usrwins + usrloss == len(cgamesusrplyers)): pass;
             else:
                 raise ValueError("the total must add up to the number of non-unique games, " +
@@ -785,7 +790,14 @@ class GetStats(Resource):
             resobj = {"userid": usr["id"], "username": usr["username"], "wins": usrwins,
                 "losses": usrloss, "forfeits": usrfts, "ties": usrties};
             statsarr.append(resobj);
-        print(f"statsarr = {statsarr}");
+        
+        #print(f"statsarr = {statsarr}");
+
+        if (len(statsarr) == len(myusrsarr)): pass;
+        else:
+            raise ValueError("the resultant array must be the same size as the " +
+                "users array, but it was not!");
+
         return statsarr, 200;
 
 api.add_resource(GetStats, "/stats");
