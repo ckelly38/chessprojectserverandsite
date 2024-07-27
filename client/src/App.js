@@ -64,7 +64,7 @@ function App() {
     arrindx: 1,
     id: "pid1"
   }]);
-  console.log("mypieces = ", mypieces);
+  //console.log("mypieces = ", mypieces);
 
   const [mvslist, setMovesList] = useState([{
     dir: "LEFT",
@@ -219,7 +219,7 @@ function App() {
   //-THE REST OF YOUR ROUTING WILL BE IGNORED!
   //NOTE: THE SWITCH COMPONENT WILL ONLY RENDER ROUTE COMPONENTS AND ANYTHING THAT EXTENDS IT ONLY
   //simpusrobj={cc.getSimplifiedUserObj(user)}
-  console.log("mypieces = ", mypieces);
+  //console.log("mypieces = ", mypieces);
 
   //TestDriver.main(null);
   //let gid = 1;
@@ -254,6 +254,12 @@ function App() {
           makeLoginPrefsItem(false, false, "Logout")} />
         <Route exact path="/signup" render={(props) =>
           makeLoginPrefsItem(true, false, "SignUp")} />
+        <Route exact path="/custom">
+          <Navbar />
+          <PieceListForm addpiece={addPiece} mpcs={mypieces} rempiece={remPiece}
+          getpcs={getPcs} setpcs={setMyPieces} mvs={mvslist} setmvs={setMovesList}
+          addmv={addMove} remmv={removeMove} />
+        </Route>
         <Route exact path="/redirectme" render={(props) => {
           console.log("history = ", history);
           return history.goBack();
@@ -262,9 +268,6 @@ function App() {
         }} />
         <Route path="*"><Redirect to="/" /></Route>
       </Switch>
-      <PieceListForm addpiece={addPiece} mpcs={mypieces} rempiece={remPiece}
-        getpcs={getPcs} setpcs={setMyPieces} mvs={mvslist} setmvs={setMovesList}
-        addmv={addMove} remmv={removeMove} />
     </div>);
 }
 

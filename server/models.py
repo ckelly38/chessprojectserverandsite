@@ -2,6 +2,7 @@ from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import validates
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.sql import expression
 
 from config import db, bcrypt, metadata
 
@@ -300,7 +301,7 @@ class Players(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True);
     color = db.Column(db.String, nullable=False);
-    defers = db.Column(db.Boolean, nullable=False, default=False);
+    defers = db.Column(db.Boolean, default=False, nullable=False);
     game_id = db.Column(db.Integer, db.ForeignKey("games.id"), primary_key=True);
 
     game = db.relationship("Games", foreign_keys=[game_id]);
@@ -313,6 +314,12 @@ class Players(db.Model, SerializerMixin):
     full_list = genlists.combineLists(safeserializelist, unsafelist);
 
     serialize_only = tuple(safeserializelist);
+
+    def setGameID(self, val):
+        if (type(val) == int):
+            if (val < 0): raise ValueError("value must be at least zero (0), but it was not!");
+            else: self.game_id = val;
+        else: raise ValueError("GameID must be an integer!");
 
     def __repr__(self):
         mystr = f"<Player id={self.id}, color={self.color}, defers={self.defers}, ";
@@ -383,15 +390,31 @@ class Games(db.Model, SerializerMixin):
     class_name_string = "Games";
 
     id = db.Column(db.Integer, primary_key=True);
-    playera_won = db.Column(db.Boolean, nullable=False, default=False);
-    playera_resigned = db.Column(db.Boolean, nullable=False, default=False);
-    playerb_resigned = db.Column(db.Boolean, nullable=False, default=False);
-    tied = db.Column(db.Boolean, nullable=False, default=False);
-    completed = db.Column(db.Boolean, nullable=False, default=False);
+    playera_won = db.Column(db.Boolean, default=False, nullable=False);
+    playera_resigned = db.Column(db.Boolean, default=False, nullable=False);
+    playerb_resigned = db.Column(db.Boolean, default=False, nullable=False);
+    tied = db.Column(db.Boolean, default=False, nullable=False);
+    completed = db.Column(db.Boolean, default=False, nullable=False);
     
     playera_id = db.Column(db.Integer, db.ForeignKey("players.id"), default=0);
     playerb_id = db.Column(db.Integer, db.ForeignKey("players.id"), default=0);
     
+    def setPlayerID(self, val, usea):
+        if (type(usea) == bool): pass;
+        else: raise ValueError("usea must be a boolean value, but it was not!");
+        if (type(val) == int):
+            if (val < 0): raise ValueError("value must be at least zero (0), but it was not!");
+            else:
+                if (usea): self.playera_id = val;
+                else: self.playerb_id = val;
+        else: raise ValueError("PlayerID must be an integer!");
+
+    def setPlayerAID(self, val):
+        self.setPlayerID(val, True);
+    
+    def setPlayerBID(self, val):
+        self.setPlayerID(val, False);
+
     #unsafelist stuff below
     playera = db.relationship("Players", foreign_keys=[playera_id]);
     playerb = db.relationship("Players", foreign_keys=[playerb_id]);

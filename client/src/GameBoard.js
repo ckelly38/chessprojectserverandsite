@@ -393,7 +393,7 @@ function GameBoard(props)
 
 
     //NEEDS MODIFIED 7-13-2024 BGCOLOR TO CHANGE IF THERE ARE ERRORS
-    return (<div style={{marginLeft: 10,
+    return (<div style={{marginLeft: 10, paddingTop: 1,
         backgroundColor: cc.getBGColorToBeUsed(false, "GameBoard")}}>
         <h2>Play Game:</h2>
         <table style={{marginLeft: 10, marginBottom: 10}}>

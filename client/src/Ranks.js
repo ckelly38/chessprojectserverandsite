@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CommonClass from "./commonclass";
+import ChessPiece from "./ChessPiece";
 
 function Ranks(props)
 {
@@ -114,7 +115,7 @@ function Ranks(props)
     }
 
 
-    let usedummydata = true;
+    let usedummydata = false;
     let [errormsg, setErrorMessage] = useState(null);
     let [loaded, setLoaded] = useState(false);
     let [initdata, setInitData] = useState(null);
@@ -212,8 +213,11 @@ function Ranks(props)
             mts += muser.ties;
             mfs += muser.forfeits;
             mtt += mtotal;
+            //console.log(Object.keys(muser));
+            let useid = (ChessPiece.itemIsOnGivenList("id", Object.keys(muser)));
+            let idkey = (useid ? "id": "userid");
             return {
-                id: muser.id,
+                id: muser[idkey],
                 username: muser.username,
                 wins: muser.wins,
                 losses: muser.losses,
@@ -308,11 +312,12 @@ function Ranks(props)
 
     //we will only sort by one column, click the button off -> most -> least -> off
     //when no sorting original data ordering will be used (server returns in order of most wins).
-
+    //, marginTop: 10
     const iserr = !(cc.isStringEmptyNullOrUndefined(errormsg));
-    return (<div style={{marginLeft: 10, backgroundColor: cc.getBGColorToBeUsed(iserr, "Ranks")}}>
+    return (<div style={{marginLeft: 10, paddingTop: 1,
+        backgroundColor: cc.getBGColorToBeUsed(iserr, "Ranks")}}>
         <h2>Ranks Page:</h2>
-        <table style={{marginLeft: 10, marginBottom: 10, marginTop: 10}}>
+        <table style={{marginLeft: 10, marginBottom: 10}}>
             <thead>
                 <tr>
                     <th>#</th>
@@ -339,7 +344,7 @@ function Ranks(props)
                 {myrws}
             </tbody>
         </table>
-        <p>Total Games Played: {mtt - (mts / 2)}</p>
+        <p>Total Games Played: {(mtt / 2)}</p>
         {iserr ? <p>{errormsg}</p>: null}
         <p>NOTE: FORFEITS count as a {fftscntaswn ? "win" : "loss"}!</p>
     </div>);

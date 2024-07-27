@@ -8,8 +8,8 @@ import CommonClass from "./commonclass";
 function GameList(props)
 {
     //need to get the list of games
-    let games = null;
     let usedummydata = false;
+    let useips = false;
     let cc = new CommonClass();
     const { user, setUser } = useContext(UserContext);
     const simpusrobj = cc.getSimplifiedUserObj(user);
@@ -19,17 +19,31 @@ function GameList(props)
     let [showcreategameform, setShowCreateGameForm] = useState(false);
     const history = useHistory();
 
+    function genDummyData(usemyips, usetwosameids)
+    {
+        let myitema = {id: 1, username: "me", color: null, defers: true};
+        if (usemyips) myitema["ipaddress"] = "127.0.0.1";
+        let myitemb = {id: 2, username: "op", color: "WHITE", defers: false};
+        if (usemyips) myitemb["ipaddress"] = "127.0.0.1";
+        let myitemc = null;
+        if (usetwosameids)
+        {
+            myitemc = {id: 2, username: "op", color: "WHITE", defers: false};
+        }
+        else
+        {
+            myitemc = {id: 3, username: "me", color: "BLACK", defers: false};
+        }
+        if (usemyips) myitemc["ipaddress"] = "127.0.0.1";
+        return [myitema, myitemb, myitemc];
+    }
+
+    let dummydata = genDummyData(useips, true);
+
     useEffect(() => {
         if (usedummydata)
         {
-            games = [];
-            games.push({id: 1, username: "me", color: null, defers: true,
-                ipaddress: "127.0.0.1"});
-            games.push({id: 2, username: "op", color: "WHITE", defers: false,
-                ipaddress: "127.0.0.1"});
-            games.push({id: 3, username: "me", color: "BLACK", defers: false,
-                ipaddress: "127.0.0.1"});
-            setInitData(games);
+            setInitData([...dummydata]);
             setLoaded(true);
         }
         else
@@ -45,16 +59,10 @@ function GameList(props)
             }).catch((merr) => {
                 console.error("There was a problem getting the data from the server!");
                 console.error(merr);
-                let usemyasyncdataset = true;
-                if (usemyasyncdataset)
+                let usesrvrdummydata = false;
+                if (usesrvrdummydata)
                 {
-                    let data = [];
-                    data.push({id: 1, username: "me", color: null, defers: true,
-                        ipaddress: "127.0.0.1"});
-                    data.push({id: 2, username: "op", color: "WHITE", defers: false,
-                        ipaddress: "127.0.0.1"});
-                    data.push({id: 3, username: "me", color: "BLACK", defers: false,
-                        ipaddress: "127.0.0.1"});
+                    let data = genDummyData(useips, false);
                     //console.log("data = ", data);
                     setInitData(data);
                     setErrorMessage("");
@@ -92,7 +100,7 @@ function GameList(props)
         player_color: yup.string().required("You must enter a color or if you defer!"),
     });
 
-    let tstmode = true;
+    let tstmode = false;
 
     const formik = useFormik({
         initialValues: {
@@ -123,9 +131,10 @@ function GameList(props)
             let mynwvalsobj = {id: mxgid,
                 username: "" + values.username,
                 color: ((values.player_color === "DEFER") ? "": "" + values.player_color),
-                defers: (values.player_color === "DEFER"),
-                ipaddress: "127.0.0.1"
+                defers: (values.player_color === "DEFER")
             };
+            if (useips) mynwvalsobj["ipaddress"] = "127.0.0.1";
+            //else;//do nothing
             console.log("mynwvalsobj = ", mynwvalsobj);
 
             //need to post the new data to the server
@@ -174,15 +183,20 @@ function GameList(props)
                 <td key={"game" + game.id + "username"}>{game.username}</td>
                 <td key={"game" + game.id + "color"}>{game.color}</td>
                 <td key={"game" + game.id + "defers"}>{game.defers ? "Yes": "No"}</td>
-                <td key={"game" + game.id + "ipaddress"}>{game.ipaddress}</td>
+                {useips ? <td key={"game" + game.id + "ipaddress"}>{game.ipaddress}</td>: null}
                 <td key={"game" + game.id + "join"}>
-                    <button type="button" onClick={null}>Join</button></td>
+                    {(simpusrobj.instatus || tstmode) ?
+                        <button type="button" onClick={null}>Join</button>:
+                    (<button onClick={(event) => (<Redirect to="/login" />)}>
+            You Need To Login To Join A Game</button>)}
+                </td>
             </tr>);
         });
     }
 
     const iserr = !cc.isStringEmptyNullOrUndefined(errormsg);
-    return (<div style={{backgroundColor: cc.getBGColorToBeUsed(iserr, "GameList")}}>
+    return (<div style={{paddingTop: 1,
+        backgroundColor: cc.getBGColorToBeUsed(iserr, "GameList")}}>
         <h2>Join A Game Page:</h2>
         {showcreategameform ? (<form onSubmit={formik.handleSubmit} style={{marginLeft: 10}}>
             <h3>Create A Game Here:</h3>
@@ -222,16 +236,16 @@ function GameList(props)
             {(typenm === "Preferences") ?
                 <button onClick={unsubscribeMe} style={{marginLeft: "50px"}}>
                     Remove My Account</button>: null}
-        </form>*/}
+        </form>, marginTop: 10*/}
         <h3>Games To Join:</h3>
-        <table style={{marginLeft: 10, marginBottom: 10, marginTop: 10}}>
+        <table style={{marginLeft: 10, marginBottom: 10}}>
             <thead>
                 <tr>
                     <th>GAME ID #</th>
                     <th>PlAYER 1: USERNAME</th>
                     <th>COLOR</th>
                     <th>DEFERS</th>
-                    <th>IP Address</th>
+                    {useips ? <th>IP Address</th>: null}
                     <th>Join</th>
                 </tr>
             </thead>
@@ -241,8 +255,10 @@ function GameList(props)
         </table>
         {iserr ? <p>{errormsg}</p>: null}
         {(simpusrobj.instatus || tstmode) ? (
-            <button onClick={(event) => setShowCreateGameForm(!showcreategameform)}>
-            Create A Game</button>): (<button onClick={(event) => (<Redirect to="/login" />)}>
+            <><button onClick={(event) => setShowCreateGameForm(!showcreategameform)}>
+            Create A Game</button>
+            <button onClick={(event) => history.push("/custom")}>Custom Game</button>
+            </>): (<button onClick={(event) => (<Redirect to="/login" />)}>
             You Need To Login To Create A Game</button>)}
         <button onClick={(event) => history.push("/")}>Back</button>
     </div>);

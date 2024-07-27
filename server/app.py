@@ -560,6 +560,17 @@ api.add_resource(Unsubscribe, "/unsubscribe");
 
 #NEED TO BE ABLE TO CREATE A NEW GAME, GET A GAME, UPDATE THE GAME, PLAY THE GAME, GET STATISTICS
 
+class GamesToJoin(Resource):
+    def get(self):
+        gmsazero = Games.query.filter_by(playera_id=0).all();
+        gmsbzero = Games.query.filter_by(playerb_id=0).all();
+        allgms = [g for g in gmsazero];
+        for g in gmsbzero:
+            allgms.append(g);
+        return [cm.getSerializedItemOnly(item, 3) for item in allgms], 200;
+
+api.add_resource(GamesToJoin, "/games_to_join");
+
 class GetStats(Resource):
     def get(self):
         #[{userid: 1, username: "me", wins: 3, losses: 1, forfeits: 0, ties: 6},

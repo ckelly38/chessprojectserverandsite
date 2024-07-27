@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useHistory, Redirect } from "react-router-dom";
 import NewPiece from "./NewPiece";
 import Cmdinterface from "./Cmdinterface";
 import ChessPiece from "./ChessPiece";
@@ -7,6 +8,7 @@ import CommonClass from "./commonclass";
 function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, addmv, remmv})
 {
     let cc = new CommonClass();
+    const history = useHistory();
     let [whitemovesdownranks, setWhiteMovesDownRanks] = useState(true);
     let [useroworcollocdisp, setUseRowColLocDisplay] = useState(true);
     let [whitestarts, setWhiteStarts] = useState(true);
@@ -74,7 +76,7 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
 
     //NOT DONE YET WITH THE SUBMIT... 7-12-2024
     const iserr = !(cc.isStringEmptyNullOrUndefined(errmsg));//New Piece List
-    return (<div style={{ backgroundColor: "cyan" }}><h1>New Custom Game Form:</h1>
+    return (<div style={{ backgroundColor: "cyan", paddingTop: 1 }}><h1>New Custom Game Form:</h1>
     <form onSubmit={(event) => {
         event.preventDefault();
         console.log("INSIDE ONSUBMIT!");
@@ -99,6 +101,7 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
             {iserr ? (<p>Error: {errmsg}</p>): null}
         </div>): null}
     </form>
+    <button onClick={(event) => history.push("/join")}>Join A Game</button>
     </div>);
 }
 
