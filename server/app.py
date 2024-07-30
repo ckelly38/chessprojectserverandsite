@@ -103,6 +103,8 @@ class Commonalities:
                     return cls.query.filter_by(user_id=usrid, episode_id=id).first();
                 elif (cls == UserPlayers):
                     return cls.query.filter_by(user_id=usrid, player_id=id).first();
+                elif (cls == GameMoves):
+                    return cls.query.filter_by(game_id=id).all();
                 else:
                     raise ValueError("the class was UserToy or UserEpisdes, but now it " +
                                      "is not!");
@@ -111,15 +113,21 @@ class Commonalities:
             raise ValueError("the class must be one of the following: " +
                              f"{self.getValidClassList()}!");
 
-    def getItemByIDAndReturnResponse(self, id, cls, numlisttype=3, usrid=0):
-        item = self.getItemByID(id, cls, usrid);
+    def takeItemAndReturnResponse(self, item, cls, numlisttype=3, id=0):
         if (numlisttype == None or type(numlisttype) != int):
             raise ValueError("numlisttype must be a number!");
+        if (id == None or type(id) != int):
+            raise ValueError("id must be a number!");
         if (item == None):
             errmsg = f"404 error item of type {self.getTypeStringForClass(cls)}";
-            errmsg += f", with id {id} not found!";
+            if (cls == GameMoves): errmsg += " not found!";
+            else: errmsg += f", with id {id} not found!";
             return {"error": errmsg}, 404;
         else: return self.getSerializedItem(cls, item, numlisttype), 200;
+
+    def getItemByIDAndReturnResponse(self, id, cls, numlisttype=3, usrid=0):
+        item = self.getItemByID(id, cls, usrid);
+        return self.takeItemAndReturnResponse(id, item, cls, numlisttype);
 
     def isLoggedIn(self, msess):
         if (msess == None): raise ValueError("the session object must be defined!");
@@ -240,6 +248,12 @@ class Commonalities:
             else: notdata = True;
         return param;
 
+    def getGameMovesItem(self, rqst):
+        dataobj = self.getDataObjectFromRequest(rqst);
+        print(dataobj);
+        return GameMoves.query.filter_by(game_id=dataobj["game_id"], move_id=dataobj["move_id"],
+                                         number=dataobj["number"]).first();
+
     def addOrUpdateItemOnDBAndReturnResponse(self, id, cls, rqst, msess, useadd, showid=0,
                                              numlisttype=3, usrid=0):
         #for the generic post
@@ -275,7 +289,8 @@ class Commonalities:
             else: itemusrid = usrid;
             print(f"itemusrid = {itemusrid}");
             
-            item = self.getItemByID(id, cls, itemusrid);
+            if (cls == GameMoves): item = self.getGameMovesItem(rqst);
+            else: item = self.getItemByID(id, cls, itemusrid);
             print(item);
             
             if (item == None):
@@ -431,7 +446,8 @@ class Commonalities:
         #print(item);
         if (item == None):
             errmsg = f"404 error item of type {self.getTypeStringForClass(cls)}";
-            errmsg += f", with id {id} not found!";
+            if (cls == GameMoves): errmsg += " not found!";
+            else: errmsg += f", with id {id} not found!";
             return {"error": errmsg}, 404;
         else:
             resobj = self.userIsShowOwner(cls, msess, item);
@@ -439,8 +455,9 @@ class Commonalities:
             else: return resobj;
         db.session.delete(item);
         db.session.commit();
-        msg = f"200 successfully deleted item of type {self.getTypeStringForClass(cls)} ";
-        msg += f"with id {id}!";
+        msg = f"200 successfully deleted item of type {self.getTypeStringForClass(cls)}";
+        if (cls == GameMoves): msg += "!";
+        else: msg += f" with id {id}!";
         return {"message": msg}, 200;
 
     def removeItemGivenItemOnlyFromDBAndReturnResponse(self, item, msess):
@@ -571,6 +588,153 @@ class GamesToJoin(Resource):
 
 api.add_resource(GamesToJoin, "/games_to_join");
 
+
+class AllPlayers(Resource):
+    def get(self):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else: return cm.getAllOfTypeAndSerializeThem(Players, 3, False, usr.id);
+
+    def post(self):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else: return cm.addItemToDBAndReturnResponse(Players, request, session, 0, 3, usr.id);
+
+api.add_resource(AllPlayers, "/players");
+
+class AllPlayersByID(Resource):
+    def get(self, id):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else: return cm.getItemByIDAndReturnResponse(id, Players, 3, usr.id);
+
+    def patch(self, id):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else:
+            return cm.updateItemOnDBAndReturnResponse(id, Players, request, session, 0, 3, usr.id);
+
+    def delete(self, id):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else: return cm.removeItemFromDBAndReturnResponse(id, Players, session, usr.id);
+
+api.add_resource(AllPlayersByID, "/players/<int:id>");
+
+class AllMoves(Resource):
+    def get(self):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else: return cm.getAllOfTypeAndSerializeThem(Moves, 3, False, usr.id);
+
+    def post(self):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else: return cm.addItemToDBAndReturnResponse(Moves, request, session, 0, 3, usr.id);
+
+api.add_resource(AllMoves, "/moves");
+
+class AllMovesByID(Resource):
+    def get(self, id):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else: return cm.getItemByIDAndReturnResponse(id, Moves, 3, usr.id);
+
+    def patch(self, id):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else:
+            return cm.updateItemOnDBAndReturnResponse(id, Moves, request, session, 0, 3, usr.id);
+
+    def delete(self, id):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else: return cm.removeItemFromDBAndReturnResponse(id, Moves, session, usr.id);
+
+api.add_resource(AllMovesByID, "/moves/<int:id>");
+
+
+class AllGameMoves(Resource):
+    def get(self):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else: return cm.getAllOfTypeAndSerializeThem(GameMoves, 3, False, usr.id);
+
+    def post(self):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else: return cm.addItemToDBAndReturnResponse(GameMoves, request, session, 0, 3, usr.id);
+
+api.add_resource(AllGameMoves, "/game-moves");
+
+class GetAllMovesForAGame(Resource):
+    def get(self, id):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else: return cm.getItemByIDAndReturnResponse(id, GameMoves, 3, usr.id);
+
+api.add_resource(GetAllMovesForAGame, "/all-moves-for-game/<int:id>");#id is gameid
+
+#HOW TO UPDATE, GET OR REMOVE A GAME MOVE?
+#IN ORDER TO GET JUST ONE: WE NEED THE GAME ID, THE MOVE ID, AND THE NUMBER IN THE GAME
+class AllGameMovesByID(Resource):
+    def get(self):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else:
+            item = cm.getGameMovesItem(request);
+            return cm.takeItemAndReturnResponse(item, GameMoves, 3, 0);
+
+    def patch(self):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else:
+            return cm.updateItemOnDBAndReturnResponse(0, GameMoves, request, session, 0, 3,
+                                                      usr.id);
+
+    def delete(self):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else:
+            item = cm.getGameMovesItem(request);
+            return cm.removeItemGivenItemFromDBAndReturnResponse(0, GameMoves, item, session);
+
+api.add_resource(AllGameMovesByID, "/update-game-moves");
+
+
+class AllGames(Resource):
+    def get(self):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else: return cm.getAllOfTypeAndSerializeThem(Games, 3, False, usr.id);
+
+    def post(self):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else: return cm.addItemToDBAndReturnResponse(Games, request, session, 0, 3, usr.id);
+
+api.add_resource(AllGames, "/games");
+
+class AllGamesByID(Resource):
+    def get(self, id):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else: return cm.getItemByIDAndReturnResponse(id, Games, 3, usr.id);
+
+    def patch(self, id):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else:
+            return cm.updateItemOnDBAndReturnResponse(id, Games, request, session, 0, 3, usr.id);
+
+    def delete(self, id):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else: return cm.removeItemFromDBAndReturnResponse(id, Games, session, usr.id);
+
+api.add_resource(AllGamesByID, "/games/<int:id>");
+
+
 class GetStats(Resource):
     def get(self):
         #[{userid: 1, username: "me", wins: 3, losses: 1, forfeits: 0, ties: 6},
@@ -619,7 +783,7 @@ class GetStats(Resource):
                   {"username": "other", "password": "isucktoo", "id": 3, "players": otherplayers}];
         
         
-        usedummydata = True;
+        usedummydata = False;
         allusers = None;
         if (usedummydata): pass;
         else: allusers = User.query.all();#[{username, password, id, players...}]
@@ -659,9 +823,17 @@ class GetStats(Resource):
         for usr in myusrsarr:
             #print(f"usr = {usr}");
 
-            cusrplayers = usr["players"];#cusrplayers = usr.players;
-            cusrplyrids = [p["id"] for p in cusrplayers];
-            cgamesusrplyers = [p["game"] for p in cusrplayers];
+            cusrplayers = None;
+            cusrplyrids = None;
+            cgamesusrplyers = None;
+            if (usedummydata):
+                cusrplayers = usr["players"];#cusrplayers = usr.players;
+                cusrplyrids = [p["id"] for p in cusrplayers];
+                cgamesusrplyers = [p["game"] for p in cusrplayers];
+            else:
+                cusrplayers = usr.players;
+                cusrplyrids = [p.id for p in cusrplayers];
+                cgamesusrplyers = [p.game for p in cusrplayers];
             #usrisplyraingames = [(g["playera_id"] == mid) for g in cgamesusrplyers
             #                     for mid in cusrplyrids];
             #usrisplyrbingames = [(g["playerb_id"] == mid) for g in cgamesusrplyers
@@ -673,12 +845,25 @@ class GetStats(Resource):
                 plridkeystr = ("playera_id" if (n == 0) else "playerb_id");
                 #print(f"plridkeystr = {plridkeystr}");
                 for g in cgamesusrplyers:
-                    if (useallgames or g["completed"]):
+                    gdone = False;
+                    if (usedummydata): gdone = g["completed"];
+                    else: gdone = g.completed;
+
+                    if (useallgames or gdone):
                         playerisusr = False;
                         for mid in cusrplyrids:
                             #print(f"mid = {mid}");
-                            #print(g[plridkeystr]);
-                            if (g[plridkeystr] == mid):
+                            gplyrid = -1;
+                            if (usedummydata):
+                                #print(g[plridkeystr]);
+                                gplyrid = g[plridkeystr];
+                            else:
+                                if (plridkeystr == "playera_id"): gplyrid = g.playera_id;
+                                elif (plridkeystr == "playerb_id"): gplyrid = g.playerb_id;
+                                else:
+                                    raise ValueError("invalid value for the PLAYER ID " +
+                                                     "KEY STRING!");
+                            if (gplyrid == mid):
                                 #print("FOUND IT");
                                 playerisusr = True;
                                 break;
@@ -686,17 +871,11 @@ class GetStats(Resource):
                         if (n == 0): usrisplyraingames.append(playerisusr);
                         else: usrisplyrbingames.append(playerisusr);
             
-            #usrisplyraincompletedgames = [(g["playera_id"] == mid) for g in cgamesusrplyers
-            #                     for mid in cusrplyrids if g["completed"]];
-            #usrisplyrbincompletedgames = [(g["playerb_id"] == mid) for g in cgamesusrplyers
-            #                     for mid in cusrplyrids if g["completed"]];
             #print(f"cusrplayers = {cusrplayers}");
             #print(f"cusrplyrids = {cusrplyrids}");
             #print(f"cgamesusrplyers = {cgamesusrplyers}");
             #print(f"usrisplyraingames = {usrisplyraingames}");
             #print(f"usrisplyrbingames = {usrisplyrbingames}");
-            #print(f"usrisplyraincompletedgames = {usrisplyraincompletedgames}");
-            #print(f"usrisplyrbincompletedgames = {usrisplyrbincompletedgames}");
             
             #stalemate or draw (tie)
             #checkmate or got put in checkmate (win or loss)
@@ -715,62 +894,84 @@ class GetStats(Resource):
             usrties = 0;
             usrloss = 0;
             usedgids = [];
+            icgms = 0;
+            nonungms = 0;
             for n in range(0, len(cgamesusrplyers)):
                 g = cgamesusrplyers[n];
-                #print(f"GAME ID = {g['id']}");
+                print(g);
+                gid = -1;
+                if (usedummydata): gid = g['id'];
+                else: gid = g.id;
+                #print(f"GAME ID = {gid}");
                 #print(f"usedgids = {usedgids}");
-                if (g['id'] in usedgids):
+                if (gid in usedgids):
                     #print("ALREADY COUNTED THIS GAME!");
+                    nonungms += 1;
                     continue;
-                else: usedgids.append(g['id']);
+                else: usedgids.append(gid);
                 #print(g);
-                if (g["completed"]):
-                    if (g["tied"]):
+                gdone = False;
+                if (usedummydata): gdone = g["completed"];
+                else: gdone = g.completed;
+                
+                if (gdone):
+                    gtied = False;
+                    if (usedummydata): gtied = g["tied"];
+                    else: gtied = g.tied;
+                    gawon = False;
+                    if (usedummydata): gawon = g["playera_won"];
+                    else: gawon = g.playera_won;
+                    garesigned = False;
+                    if (usedummydata): garesigned = g["playera_resigned"];
+                    else: garesigned = g.playera_resigned;
+                    gbresigned = False;
+                    if (usedummydata): gbresigned = g["playerb_resigned"];
+                    else: gbresigned = g.playerb_resigned;
+                    if (gtied):
                         aties += 1;
                         bties += 1;
                         usrties += 1;
                     
-                    if (g["playera_won"] and not(g["playera_resigned"])):
+                    if (gawon and not(garesigned)):
                         awins += 1;
                         bloss += 1;
 
-                    if (g["playera_resigned"]): afts += 1;
-                    if (g["playerb_resigned"]): bfts += 1;
+                    if (garesigned): afts += 1;
+                    if (gbresigned): bfts += 1;
 
-                    if (not(g["tied"]) and not(g["playerb_resigned"]) and
-                        not(g["playera_resigned"])):
+                    if (not(gtied) and not(gbresigned) and not(garesigned)):
                         aloss += 1;
                         bwins += 1;
 
                     if usrisplyraingames[n]:
                         #print("USER IS PLAYER A!");
-                        if (g["playera_resigned"]):
+                        if (garesigned):
                             #print("USER FORFEITED!");
                             usrfts += 1;
                         
-                        if (g["playera_won"] and not(g["playera_resigned"])):
+                        if (gawon and not(garesigned)):
                             #print("USER WON!");
                             usrwins += 1;
 
-                        if (not(g["tied"]) and not(g["playera_resigned"]) and
-                            not(g["playera_won"])):
+                        if (not(gtied) and not(garesigned) and not(gawon)):
                             #print("USER LOST!");
-                            usrloss += 1;#g["playera_resigned"] or
+                            usrloss += 1;#garesigned or
                     
                     if usrisplyrbingames[n]:
                         #print("USER IS PLAYER B!");
-                        if (g["playerb_resigned"]):
+                        if (gbresigned):
                             #print("USER FORFEITED!");
                             usrfts += 1;
                         
-                        if (g["playera_won"] and not(g["playerb_resigned"])):
+                        if (gawon and not(gbresigned)):
                             #print("USER LOST!");
                             usrloss += 1;
 
-                        if (not(g["tied"]) and not(g["playerb_resigned"]) and
-                            not(g["playera_won"])):
+                        if (not(gtied) and not(gbresigned) and
+                            not(gawon)):
                             #print("USER WON!");
                             usrwins += 1;
+                else: icgms += 1;
                         
 
             #print(f"awins = {awins}");
@@ -786,6 +987,8 @@ class GetStats(Resource):
             #print(f"usrfts = {usrfts}");
             #print(f"usrwins = {usrwins}");
             #print(f"usrloss = {usrloss}");
+            #print(f"icgms = {icgms}");
+            #print(f"nonungms = {nonungms}");
 
             if (bwins == aloss and aties == bties and bloss == awins): pass;
             else:
@@ -793,12 +996,23 @@ class GetStats(Resource):
                                  "and the number or ties should be the same, but were not!");
             
             #print(f"len(cgamesusrplyers) = {len(cgamesusrplyers)}");
-            if (usrties + usrfts + usrwins + usrloss == len(cgamesusrplyers)): pass;
+            if ((usrties + usrfts + usrwins + usrloss == len(cgamesusrplyers)) or
+                (icgms + nonungms == len(cgamesusrplyers))):
+                pass;
             else:
                 raise ValueError("the total must add up to the number of non-unique games, " +
                     "but it did not!");
             
-            resobj = {"userid": usr["id"], "username": usr["username"], "wins": usrwins,
+            usrid = -1;
+            usrname = None;
+            if (usedummydata):
+                usrid = usr["id"];
+                usrname = usr["username"];
+            else:
+                usrid = usr.id;
+                usrname = usr.name;
+            
+            resobj = {"userid": usrid, "username": usrname, "wins": usrwins,
                 "losses": usrloss, "forfeits": usrfts, "ties": usrties};
             statsarr.append(resobj);
         

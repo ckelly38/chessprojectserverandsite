@@ -302,7 +302,8 @@ class Players(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True);
     color = db.Column(db.String, nullable=False);
     defers = db.Column(db.Boolean, default=False, nullable=False);
-    game_id = db.Column(db.Integer, db.ForeignKey("games.id"), primary_key=True);
+    game_id = db.Column(db.Integer, db.ForeignKey("games.id", use_alter=True),
+                        primary_key=True, default=0);
 
     game = db.relationship("Games", foreign_keys=[game_id]);
     userplayers = db.relationship("UserPlayers", back_populates="player",
@@ -396,8 +397,8 @@ class Games(db.Model, SerializerMixin):
     tied = db.Column(db.Boolean, default=False, nullable=False);
     completed = db.Column(db.Boolean, default=False, nullable=False);
     
-    playera_id = db.Column(db.Integer, db.ForeignKey("players.id"), default=0);
-    playerb_id = db.Column(db.Integer, db.ForeignKey("players.id"), default=0);
+    playera_id = db.Column(db.Integer, db.ForeignKey("players.id", use_alter=True), default=0);
+    playerb_id = db.Column(db.Integer, db.ForeignKey("players.id", use_alter=True), default=0);
     
     def setPlayerID(self, val, usea):
         if (type(usea) == bool): pass;
@@ -443,6 +444,7 @@ class Games(db.Model, SerializerMixin):
         mystr += f"playera_resigned={self.playera_resigned}, ";
         mystr += f"playerb_resigned={self.playerb_resigned}, ";
         mystr += f"tied={self.tied}, completed={self.completed}, ";
+        mystr += f"playera_id={self.playera_id}, playerb_id={self.playerb_id}, ";
         mystr += f"playerb_won={self.playerb_won()}, can_be_started={self.can_be_started()}>";
         return mystr;
 
