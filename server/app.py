@@ -94,7 +94,7 @@ class Commonalities:
         elif (type(id) != int): raise ValueError("id must be an integer!");
         elif (type(usrid) != int): raise ValueError("usrid must be an integer!");
         elif (self.isClsValid(cls)):
-            if (cls == UserToy or cls == UserEpisodes or UserPlayers):
+            if (cls == UserToy or cls == UserEpisodes or cls == UserPlayers or cls == GameMoves):
                 if (cls == UserToy):
                     print(f"usrid = {usrid}");
                     print(f"toy_id = {id}");
@@ -316,7 +316,7 @@ class Commonalities:
                     elif (cls == UserPlayers):
                         item = cls(user_id=msess["user_id"], player_id=dataobj["player_id"]);
                     elif (cls == Moves):
-                        item = cls(text=dataobj["text"]);
+                        item = cls(contents=dataobj["contents"]);
                     elif (cls == Games):
                         item = cls(playera_won=dataobj["playera_won"],
                                    playera_resigned=dataobj["playera_resigned"],
@@ -579,11 +579,18 @@ api.add_resource(Unsubscribe, "/unsubscribe");
 
 class GamesToJoin(Resource):
     def get(self):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
         gmsazero = Games.query.filter_by(playera_id=0).all();
         gmsbzero = Games.query.filter_by(playerb_id=0).all();
         allgms = [g for g in gmsazero];
         for g in gmsbzero:
-            allgms.append(g);
+            addit = True;
+            for og in allgms:
+                if (og.id == g.id):
+                    addit = False;
+                    break;
+            if (addit): allgms.append(g);
         return [cm.getSerializedItemOnly(item, 3) for item in allgms], 200;
 
 api.add_resource(GamesToJoin, "/games_to_join");

@@ -15,7 +15,9 @@ function GameList(props)
     const simpusrobj = cc.getSimplifiedUserObj(user);
     let [errormsg, setErrorMessage] = useState(null);
     let [loaded, setLoaded] = useState(false);
+    let [usecreate, setUseCreate] = useState(true);
     let [initdata, setInitData] = useState(null);
+    let [mygame, setMyGame] = useState(null);
     let [showcreategameform, setShowCreateGameForm] = useState(false);
     const history = useHistory();
 
@@ -53,6 +55,7 @@ function GameList(props)
             //but we do not have the server set up at all yet
 
             fetch("/games_to_join").then((res) => res.json()).then((mdata) => {
+                console.log("mdata = ", mdata);
                 setInitData(mdata);
                 setErrorMessage("");
                 setLoaded(true);
@@ -78,8 +81,16 @@ function GameList(props)
         }
     }, [usedummydata]);
 
-    //console.log("loaded = " + loaded);
-    //console.log("initdata = ", initdata);
+    console.log("loaded = " + loaded);
+    console.log("initdata = ", initdata);
+
+    function onJoin(game, event)
+    {
+        console.log("GAME TO JOIN: ", game);
+        setMyGame(game);
+        setUseCreate(false);
+        setShowCreateGameForm(true);
+    }
 
     //const prefsSignUpSchema = yup.object().shape({
     //    username: yup.string().required("You must enter a username!").min(1),
@@ -94,6 +105,21 @@ function GameList(props)
     //});
     //const useprefsorsignupschema = (typenm === "Preferences" || typenm === "SignUp");
     //const formSchema = (useprefsorsignupschema ? prefsSignUpSchema : loginSchema);
+
+    function genNewGame(playera_id=0, playerb_id=0)
+    {
+        cc.letMustBeAnInteger(playera_id, "playera_id");
+        cc.letMustBeAnInteger(playerb_id, "playerb_id");
+
+        return { "playera_won": false,
+            "playera_resigned": false,
+            "playerb_resigned": false,
+            "completed": false,
+            "tied": false,
+            "playera_id": playera_id,
+            "playerb_id": playerb_id
+        };
+    }
 
     const formSchema = yup.object().shape({
         username: yup.string().required("You must enter a username!").min(1),
@@ -136,11 +162,44 @@ function GameList(props)
             if (useips) mynwvalsobj["ipaddress"] = "127.0.0.1";
             //else;//do nothing
             console.log("mynwvalsobj = ", mynwvalsobj);
+            console.log("mygame = ", mygame);
+            console.log("usecreate = ", usecreate);
 
             //need to post the new data to the server
             //we may need to get some unique identifiable information for the device
             setLoaded(false);
 
+            //WE CAN MAKE A GAME FIRST AND THEN PATCH IT WITH PLAYER INFORMATION
+
+            //IF USECREATE, WE WANT TO TELL THE SERVER TO MAKE A NEW PLAYER AND A NEW GAME
+            //IF NOT, WE WANT TO DO SOMETHING ELSE WITH THE SERVER
+
+            if (usecreate)
+            {
+                /*let mygmconfigobj = {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                    },
+                    body: JSON.stringify(genNewGame(null, null))
+                };
+                fetch("/games", mygmconfigobj).then((res) => res.json()).then((mdata) => {
+                    console.log("mdata = ", mdata);
+                }).catch((merr) => {
+                    console.error("There was a problem updating the server!");
+                    console.error(merr);
+                    setErrorMessage("There was a problem getting the data from the server! " +
+                        merr);
+                    setLoaded(true);
+                });*/
+            }
+            else
+            {
+                //
+            }
+
+            /*
             let myconfigobj = {
                 method: "POST",
                 headers: {
@@ -149,22 +208,22 @@ function GameList(props)
                 },
                 body: JSON.stringify(mynwvalsobj)
             };
-            //fetch("/url", myconfigobj).then((res) => res.json()).then((mdata) => {
-            //    console.log("mdata = ", mdata);
-                let mdata = null;
+            //let mdata = null;
+            fetch("/players", myconfigobj).then((res) => res.json()).then((mdata) => {
+                console.log("mdata = ", mdata);
                 let mynwdata = initdata.map((mobj) => mobj);
                 let usetstdata = true;
                 if (usetstdata) mynwdata.push(mynwvalsobj);
                 else mynwdata.push(mdata);
                 setInitData(mynwdata);
                 setLoaded(true);
-            //}).catch((merr) => {
-            //    console.error("There was a problem updating the server!");
-            //    console.error(merr);
-            //    setErrorMessage("There was a problem getting the data from the server! " +
-            //        merr);
-            //    setLoaded(true);
-            //});
+            }).catch((merr) => {
+                console.error("There was a problem updating the server!");
+                console.error(merr);
+                setErrorMessage("There was a problem getting the data from the server! " +
+                    merr);
+                setLoaded(true);
+            });*/
 
             console.error("NOT DONE YET WITH SUBMITTING THE GAME!");
         },
@@ -186,7 +245,7 @@ function GameList(props)
                 {useips ? <td key={"game" + game.id + "ipaddress"}>{game.ipaddress}</td>: null}
                 <td key={"game" + game.id + "join"}>
                     {(simpusrobj.instatus || tstmode) ?
-                        <button type="button" onClick={null}>Join</button>:
+                        <button type="button" onClick={onJoin.bind(null, game)}>Join</button>:
                     (<button onClick={(event) => (<Redirect to="/login" />)}>
             You Need To Login To Join A Game</button>)}
                 </td>
@@ -199,7 +258,7 @@ function GameList(props)
         backgroundColor: cc.getBGColorToBeUsed(iserr, "GameList")}}>
         <h2>Join A Game Page:</h2>
         {showcreategameform ? (<form onSubmit={formik.handleSubmit} style={{marginLeft: 10}}>
-            <h3>Create A Game Here:</h3>
+            <h3>{usecreate ? "Create" : "Join"} A Game Here:</h3>
             <p>Username: {simpusrobj.username}</p>
             <p> {formik.errors.username}</p>
             <label id="playercolorlbl" htmlFor="player_color">Color: </label>
@@ -210,6 +269,10 @@ function GameList(props)
                 <option value="DEFER">DEFER</option>
             </select>
             <p> {formik.errors.player_color}</p>
+            {usecreate ? null: (<p>The Game you are joining has an ID: {mygame.id}
+                , a username of: {mygame.username}
+                , and wants color: {mygame.color}, and is willing to defer: {mygame.defers}.
+            </p>)}
             <button type="submit">Submit</button>
         </form>) : null}
         {/*<form onSubmit={formik.handleSubmit}>
@@ -255,7 +318,11 @@ function GameList(props)
         </table>
         {iserr ? <p>{errormsg}</p>: null}
         {(simpusrobj.instatus || tstmode) ? (
-            <><button onClick={(event) => setShowCreateGameForm(!showcreategameform)}>
+            <><button onClick={(event) => {
+                setMyGame(null);
+                setUseCreate(true);
+                setShowCreateGameForm(!showcreategameform);
+                }}>
             Create A Game</button>
             <button onClick={(event) => history.push("/custom")}>Custom Game</button>
             </>): (<button onClick={(event) => (<Redirect to="/login" />)}>

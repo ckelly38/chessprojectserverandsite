@@ -25,7 +25,7 @@ class GenerateSerializableRulesClass:
         elif (clsnm == "Moves"): return ["id", "text"];
         elif (clsnm == "Games"):
             return ["id", "playera_won", "playera_resigned", "playerb_resigned", "tied",
-                    "completed", "can_be_started", "playerb_won", "playera_id", "playerb_id"];
+                    "completed", "playerb_won", "playera_id", "playerb_id"];#"can_be_started", 
         elif (clsnm == "GameMoves"): return ["number", "game_id", "move_id"];
         elif (clsnm == "Players"): return ["id", "color", "defers", "game_id"];
         elif (clsnm == "UserPlayers"): return ["user_id", "player_id"];
@@ -299,7 +299,7 @@ class Players(db.Model, SerializerMixin):
 
     class_name_string = "Players";
 
-    id = db.Column(db.Integer, primary_key=True);
+    id = db.Column(db.Integer, primary_key=True, default=0);
     color = db.Column(db.String, nullable=False);
     defers = db.Column(db.Boolean, default=False, nullable=False);
     game_id = db.Column(db.Integer, db.ForeignKey("games.id", use_alter=True),
@@ -351,13 +351,13 @@ class UserPlayers(db.Model, SerializerMixin):
 class Moves(db.Model, SerializerMixin):
     __tablename__ = "moves";
 
-    __table_args__ = (db.CheckConstraint("length(text) >= 3"),);
+    __table_args__ = (db.CheckConstraint("length(contents) >= 3"),);
     #db.CheckConstraint("access_level == 1 OR access_level == 2")
 
     class_name_string = "Moves";
 
     id = db.Column(db.Integer, primary_key=True);
-    text = db.Column(db.String, primary_key=True, nullable=False);
+    contents = db.Column(db.String, unique=True, nullable=False);
 
     gamemoves = db.relationship("GameMoves", back_populates="move",
                                 cascade="all, delete-orphan");
@@ -374,12 +374,13 @@ class Moves(db.Model, SerializerMixin):
     @classmethod
     def getValidator(cls): return mv;
     
-    @validates("text")
+    @validates("contents")
     def ismovetextvalid(self, key, val):
-        return mv.stringHasAtMinimumXChars(val, 3);
+        if (mv.stringHasAtMinimumXChars(val, 3)): return val;
+        else: raise ValueError("the string must have at minimum 3 characters, but it did not!");
 
     def __repr__(self):
-        mystr = f"<Move id={self.id}, text={self.text}>";
+        mystr = f"<Move id={self.id}, contents={self.contents}>";
         return mystr;
 
 class Games(db.Model, SerializerMixin):
@@ -397,8 +398,10 @@ class Games(db.Model, SerializerMixin):
     tied = db.Column(db.Boolean, default=False, nullable=False);
     completed = db.Column(db.Boolean, default=False, nullable=False);
     
-    playera_id = db.Column(db.Integer, db.ForeignKey("players.id", use_alter=True), default=0);
-    playerb_id = db.Column(db.Integer, db.ForeignKey("players.id", use_alter=True), default=0);
+    playera_id = db.Column(db.Integer, db.ForeignKey("players.id", use_alter=True),
+                           nullable=True, default=0);
+    playerb_id = db.Column(db.Integer, db.ForeignKey("players.id", use_alter=True),
+                           nullable=True, default=0);
     
     def setPlayerID(self, val, usea):
         if (type(usea) == bool): pass;
@@ -424,8 +427,9 @@ class Games(db.Model, SerializerMixin):
     moves = db.relationship("Moves", secondary="game_moves", back_populates="games");
 
     #does not need to be serialized
-    def can_be_started(self):
-        return not((self.playera_id < 1) or (self.playerb_id < 1));
+    def can_be_started(self, isondb=True):
+        if (isondb): return not((self.playera_id < 1) or (self.playerb_id < 1));
+        else: return False;
 
     def playerb_won(self):
         if (self.playera_won or self.playerb_resigned or self.tied): return False;
@@ -439,13 +443,13 @@ class Games(db.Model, SerializerMixin):
 
     serialize_only = tuple(safeserializelist);
 
-    def __repr__(self):
+    def __repr__(self, isondb=True):
         mystr = f"<Games id={self.id}, playera_won={self.playera_won}, ";
         mystr += f"playera_resigned={self.playera_resigned}, ";
         mystr += f"playerb_resigned={self.playerb_resigned}, ";
         mystr += f"tied={self.tied}, completed={self.completed}, ";
         mystr += f"playera_id={self.playera_id}, playerb_id={self.playerb_id}, ";
-        mystr += f"playerb_won={self.playerb_won()}, can_be_started={self.can_be_started()}>";
+        mystr += f"playerb_won={self.playerb_won()}, can_be_started={self.can_be_started(isondb)}>";
         return mystr;
 
 class GameMoves(db.Model, SerializerMixin):

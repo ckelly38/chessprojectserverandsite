@@ -69,6 +69,11 @@ if __name__ == '__main__':
         db.session.add(upstwo);
         db.session.commit();
         print("DONE CREATING DUMMY USER PLAYERS!");
+        mvpnout = Moves(id=1, contents="WPND7TOD5");
+        print(mvpnout);
+        db.session.add(mvpnout);
+        db.session.commit();
+        print("DONE CREATING DUMMY MOVES!");
         myg = Games(id=1, playera_won=False, playera_resigned=False, playerb_resigned=False,
                     tied=False, completed=False, playera_id=myfpr.id, playerb_id=myopr.id);
         print(myg);
@@ -81,16 +86,13 @@ if __name__ == '__main__':
         db.session.add(myopr);
         db.session.commit();
         myog = Games(id=2, playera_won=False, playera_resigned=False, playerb_resigned=False,
-                    tied=False, completed=False);#PROBLEM HERE
-        print(myog);
+                     tied=False, completed=False);#PROBLEM HERE
+        print(myog.__repr__(False));
         db.session.add(myog);
         db.session.commit();
+        print("AFTER ON DB:");
+        print(myog);        
         print("DONE CREATING DUMMY GAMES!");
-        mvpnout = Moves(id=1, text="WPND7TOD5");#PROBLEM HERE
-        print(mvpnout);
-        db.session.add(mvpnout);
-        db.session.commit();
-        print("DONE CREATING DUMMY MOVES!");
         gmfmv = GameMoves(game_id=1, move_id=1, number=1);
         print(gmfmv);
         db.session.add(gmfmv);
@@ -136,6 +138,32 @@ if __name__ == '__main__':
                 db.session.rollback();
             if (unitstfailed): raise Exception("username must not be blank test failed!");
 
+            unitstfailed = True;
+            try:
+                mvfopnout = Moves(id=2, contents="");
+                print(mvfopnout);
+                db.session.add(mvfopnout);
+                db.session.commit();
+            except:
+                print("MOVE CONTENTS MUST NOT BE BLANK: TEST PAST!");
+                unitstfailed = False;
+                db.session.rollback();
+            if (unitstfailed): raise Exception("move contents must not be blank test failed!");
+
+            unitstfailed = True;
+            try:
+                mvopnout = Moves(id=3, contents="WP");
+                print(mvopnout);
+                db.session.add(mvopnout);
+                db.session.commit();
+            except:
+                print("MOVE CONTENTS MUST HAVE AT LEAST 3 CHARACTERS: TEST PAST!");
+                unitstfailed = False;
+                #this needs to be called everytime to keep the initial session
+                #otherwise the errors persist causing problems
+                db.session.rollback();
+            if (unitstfailed): raise Exception("move text length test failed!");
+        
             if (n == 0): print("DONE WITH DB CONSTRAINT TESTS NOW: ALL PAST!");
             else: print("DONE WITH DB VALIDATIONS TESTS NOW: ALL PAST!");
             print("");
