@@ -66,12 +66,25 @@ class Commonalities:
         if (numlisttype == None or type(numlisttype) != int):
             raise ValueError("numlisttype must be a number!");
         if (self.isClsValid(cls)):
-            if (numlisttype == 1): return item.to_dict(only=cls.safeserializelist);
-            elif (numlisttype == 2): return item.to_dict(only=cls.unsafelist);
-            elif (numlisttype == 3): return item.to_dict(only=cls.full_list);
+            if (cls == Games):
+                mydictitem = None;
+                if (numlisttype == 1): mydictitem = item.to_dict(only=cls.safeserializelist);
+                elif (numlisttype == 2): mydictitem = item.to_dict(only=cls.unsafelist);
+                elif (numlisttype == 3): mydictitem = item.to_dict(only=cls.full_list);
+                else:
+                    raise ValueError("numlisttype must be 1 (safe), 2 (unsafe), " +
+                                    "or 3 (full) only!");
+                mydictitem["can_be_started"] = item.can_be_started();
+                mydictitem["playerb_won"] = item.playerb_won();
+                #print(f"mydictitem = {mydictitem}");
+                return mydictitem;
             else:
-                raise ValueError("numlisttype must be 1 (safe), 2 (unsafe), " +
-                                 "or 3 (full) only!");
+                if (numlisttype == 1): return item.to_dict(only=cls.safeserializelist);
+                elif (numlisttype == 2): return item.to_dict(only=cls.unsafelist);
+                elif (numlisttype == 3): return item.to_dict(only=cls.full_list);
+                else:
+                    raise ValueError("numlisttype must be 1 (safe), 2 (unsafe), " +
+                                    "or 3 (full) only!");
         else:
             raise ValueError("the class must be one of the following: " +
                              f"{self.getValidClassList()}!");
@@ -627,6 +640,198 @@ class AllPlayersByID(Resource):
         else: return cm.removeItemFromDBAndReturnResponse(id, Players, session, usr.id);
 
 api.add_resource(AllPlayersByID, "/players/<int:id>");
+
+class CreateGameAndPlayer(Resource):
+    def post(self):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else:
+            dataobj = cm.getDataObjectFromRequest(request);
+            print(dataobj);
+            
+            plyra = None;
+            myg = None;
+            usrplyr = None;
+            try:
+                plyra = Players(color=dataobj["color"], defers=dataobj["defers"], game_id=0);
+                db.session.add(plyra);
+                db.session.commit();
+            except Exception as ex:
+                print(ex);
+                #db.session.rollback();
+                errmsg = "422 error invalid data used to create item of type ";
+                errmsg += f"{cm.getTypeStringForClass(Players)}!";
+                return {"error": errmsg}, 422;
+            try:
+                myg = Games(playera_won=False, playera_resigned=False, playerb_resigned=False,
+                            tied=False, completed=False, playera_id=0, playerb_id=0);
+                db.session.add(myg);
+                db.session.commit();
+                myg.setPlayerAID(plyra.id);
+                plyra.setGameID(myg.id);
+            except Exception as ex:
+                print(ex);
+                #db.session.rollback();
+                errmsg = "422 error invalid data used to create item of type ";
+                errmsg += f"{cm.getTypeStringForClass(Games)}!";
+                return {"error": errmsg}, 422;
+            try:
+                usrplyr = UserPlayers(user_id=usr.id, player_id=plyra.id);
+                db.session.add(usrplyr);
+                db.session.commit();
+            except Exception as ex:
+                print(ex);
+                #db.session.rollback();
+                #db.session.rollback();
+                errmsg = "422 error invalid data used to create item of type ";
+                errmsg += f"{cm.getTypeStringForClass(UserPlayers)}!";
+                return {"error": errmsg}, 422;
+            #print(f"plyra = {plyra}");
+            #print("");
+            #print(f"myg = {myg}");
+            #print("");
+            #print(f"usrplyr = {usrplyr}");
+            #print("");
+            #print(f"plyra.to_dict() = {cm.getSerializedItem(Players, plyra, 3)}");
+            #print("");
+            #print(f"myg.to_dict() = {cm.getSerializedItem(Games, myg, 3)}");
+            #print("");
+            #print(f"usrplyr.to_dict() = {cm.getSerializedItem(UserPlayers, usrplyr, 3)}");
+            #print("");
+            return {"game": cm.getSerializedItem(Games, myg, 3),
+                    "user_player": cm.getSerializedItem(UserPlayers, usrplyr, 3)}, 200;
+
+api.add_resource(CreateGameAndPlayer, "/new_game_with_playera");
+
+class JoinGame(Resource):
+    def patch(self, id):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else:
+            gm = cm.getItemByID(id, Games, usr.id);
+            print(f"gm = {gm}");
+            if (gm == None):
+                errmsg = f"404 error invalid id {id} used to get the Game!";
+                return {"error": errmsg}, 404;
+            
+            useplyraid = False;
+            useplyrbid = False;
+            if (gm.playera_id == 0): useplyraid = True;
+            elif (gm.playerb_id == 0): useplyrbid = True;
+            else:
+                print("422 error no available player ids for game!");
+                errmsg = f"422 error invalid id {id} for game to join, no available player IDS!";
+                return {"error": errmsg}, 422;
+
+            dataobj = cm.getDataObjectFromRequest(request);
+            print(dataobj);
+
+            usrplyr = None;
+            plyra = None;
+            try:
+                plyra = Players(color=dataobj["color"], defers=dataobj["defers"], game_id=gm.id);
+                db.session.add(plyra);
+                db.session.commit();
+            except Exception as ex:
+                print(ex);
+                errmsg = "422 error invalid data used to create item of type ";
+                errmsg += f"{cm.getTypeStringForClass(Players)}!";
+                return {"error": errmsg}, 422;
+            
+            if (useplyraid): gm.setPlayerAID(plyra.id);
+            elif (useplyrbid): gm.setPlayerBID(plyra.id);
+            else:
+                errmsg = f"422 error invalid id {id} for game to join, no available player IDS!";
+                return {"error": errmsg}, 422;
+            try:
+                usrplyr = UserPlayers(user_id=usr.id, player_id=plyra.id);
+                db.session.add(usrplyr);
+                db.session.commit();
+            except Exception as ex:
+                print(ex);
+                #db.session.rollback();
+                errmsg = "422 error invalid data used to create item of type ";
+                errmsg += f"{cm.getTypeStringForClass(UserPlayers)}!";
+                return {"error": errmsg}, 422;
+            
+            if (gm.can_be_started()):
+                print(f"plyra = {plyra}");
+                print("");
+                print(f"gm = {gm}");
+                print("");
+                print(f"usrplyr = {usrplyr}");
+                print("");
+                print(f"plyra.to_dict() = {cm.getSerializedItem(Players, plyra, 3)}");
+                print("");
+                print(f"gm.to_dict() = {cm.getSerializedItem(Games, gm, 3)}");
+                print("");
+                print(f"usrplyr.to_dict() = {cm.getSerializedItem(UserPlayers, usrplyr, 3)}");
+                print("");
+                swapids = False;
+                sameclrs = False;
+                kickbout = True;
+                if (gm.playera.defers == gm.playerb.defers):
+                    if (gm.playera.defers):
+                        #both defer (ideal)
+                        #a is white b is black; no switch required.
+                        swapids = False;
+                    else:
+                        #both do not defer
+                        if (gm.playera.color == gm.playerb.color):
+                            #they chose the same color a gets it and b gets kicked out
+                            sameclrs = True;
+                            if (gm.playera.color == "WHITE"): swapids = False;
+                            else: swapids = True;
+                            kickbout = not(swapids);
+                        else:
+                            #they chose opposite colors and want them (ideal)
+                            if (gm.playera.color == "WHITE"): swapids = False;
+                            else: swapids = True;
+                else:
+                    #deferal status is different (ideal)
+                    if (gm.playera.defers):
+                        if (gm.playerb.color == "BLACK"): swapids = False;
+                        else: swapids = True;
+                    else:
+                        #player a gets their color and b gets the opposite (ideal)
+                        if (gm.playera.color == "WHITE"): swapids = False;
+                        else: swapids = True;
+                print(f"swapids = {swapids}");
+                print(f"sameclrs = {sameclrs}");
+                print(f"kickbout = {kickbout}");
+                #do the IDS swap first
+                if (swapids):
+                    tempaid = gm.playera.id;
+                    gm.setPlayerAID(gm.playerb.id);
+                    gm.setPlayerBID(tempaid);
+                if (sameclrs):
+                    if (kickbout): gm.setPlayerBID(0);
+                    else: gm.setPlayerAID(0);
+                try:
+                    db.session.add(gm);
+                    db.session.commit();
+                except Exception as ex:
+                    print(ex);
+                    errmsg = "422 error invalid player ids data used to create item of type ";
+                    errmsg += f"{cm.getTypeStringForClass(Games)}!";
+                    return {"error": errmsg}, 422;
+            
+            print(f"plyra = {plyra}");
+            print("");
+            print(f"gm = {gm}");
+            print("");
+            print(f"usrplyr = {usrplyr}");
+            print("");
+            print(f"plyra.to_dict() = {cm.getSerializedItem(Players, plyra, 3)}");
+            print("");
+            print(f"gm.to_dict() = {cm.getSerializedItem(Games, gm, 3)}");
+            print("");
+            print(f"usrplyr.to_dict() = {cm.getSerializedItem(UserPlayers, usrplyr, 3)}");
+            print("");
+            return {"game": cm.getSerializedItem(Games, gm, 3),
+                    "user_player": cm.getSerializedItem(UserPlayers, usrplyr, 3)}, 200;
+
+api.add_resource(JoinGame, "/join_game/<int:id>");
 
 class AllMoves(Resource):
     def get(self):

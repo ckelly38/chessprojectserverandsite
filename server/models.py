@@ -221,7 +221,7 @@ class User(db.Model, SerializerMixin):
     class_name_string = "User";
 
     #if I want to use postgressql and deploy using render change this to SERIAL
-    id = db.Column(db.Integer, primary_key=True);
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True);
     name = db.Column(db.String, unique=True, nullable=False);
     _password_hash = db.Column(db.String);
     #access_level = db.Column(db.Integer, default=1);
@@ -299,11 +299,10 @@ class Players(db.Model, SerializerMixin):
 
     class_name_string = "Players";
 
-    id = db.Column(db.Integer, primary_key=True, default=0);
+    id = db.Column(db.Integer, primary_key=True);
     color = db.Column(db.String, nullable=False);
     defers = db.Column(db.Boolean, default=False, nullable=False);
-    game_id = db.Column(db.Integer, db.ForeignKey("games.id", use_alter=True),
-                        primary_key=True, default=0);
+    game_id = db.Column(db.Integer, db.ForeignKey("games.id", use_alter=True), default=0);
 
     game = db.relationship("Games", foreign_keys=[game_id]);
     userplayers = db.relationship("UserPlayers", back_populates="player",
@@ -356,7 +355,7 @@ class Moves(db.Model, SerializerMixin):
 
     class_name_string = "Moves";
 
-    id = db.Column(db.Integer, primary_key=True);
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True);
     contents = db.Column(db.String, unique=True, nullable=False);
 
     gamemoves = db.relationship("GameMoves", back_populates="move",
@@ -391,7 +390,7 @@ class Games(db.Model, SerializerMixin):
 
     class_name_string = "Games";
 
-    id = db.Column(db.Integer, primary_key=True);
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True);
     playera_won = db.Column(db.Boolean, default=False, nullable=False);
     playera_resigned = db.Column(db.Boolean, default=False, nullable=False);
     playerb_resigned = db.Column(db.Boolean, default=False, nullable=False);
@@ -491,7 +490,7 @@ class Show(db.Model, SerializerMixin):
     class_name_string = "Show";
 
     #if I want to use postgressql and deploy using render change this to SERIAL
-    id = db.Column(db.Integer, primary_key=True);
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True);
     name = db.Column(db.String, unique=True, nullable=False);
     description = db.Column(db.String, nullable=False);
 
@@ -553,7 +552,7 @@ class Episode(db.Model, SerializerMixin):
     class_name_string = "Episode";
 
     #if I want to use postgressql and deploy using render change this to SERIAL
-    id = db.Column(db.Integer, primary_key=True);
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True);
     name = db.Column(db.String, nullable=False);
     description = db.Column(db.String, nullable=False);
     season_number = db.Column(db.Integer, default=1);
@@ -624,7 +623,7 @@ class Toy(db.Model, SerializerMixin):
     #if I want to use postgressql and deploy using render change this to SERIAL
     #https://stackoverflow.com/questions/10059345/sqlalchemy-unique-across-multiple-columns
     #above link is for UniqueConstraint method call
-    id = db.Column(db.Integer, primary_key=True);
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True);
     price = db.Column(db.Float, default=1);
     name = db.Column(db.String, nullable=False);
     description = db.Column(db.String, nullable=False);
