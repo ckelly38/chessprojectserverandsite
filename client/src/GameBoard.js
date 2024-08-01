@@ -7,17 +7,21 @@ import Cmdinterface from "./Cmdinterface";
 //import { GameContext } from "./GameProvider";
 import CommonClass from "./commonclass";
 
-function GameBoard(props)
+function GameBoard({srvrgame})
 {
     let cc = new CommonClass();
     const history = useHistory();
     //console.log("INSIDE GAME BOARD!");
 
-    let gid = 1;//NEEDS TO BE MODIFIED 7-13-2024
-    
     let calledsetup = useRef(false);
     let [loaded, setLoaded] = useState(false);
     let [updateboard, setUpdateBoard] = useState(false);
+
+    //console.log("srvrgame = ", srvrgame);
+    cc.letMustBeDefinedAndNotNull(srvrgame, "srvrgame");
+    
+    const gid = srvrgame.id;
+    const addpcs = null;
     
     const [mvslist, setMovesList] = useState([{
         dir: "LEFT",
@@ -48,6 +52,7 @@ function GameBoard(props)
 
     useEffect(() => {
         console.log("INSIDE OF USE EFFECT!");
+        console.log("srvrgame = ", srvrgame);
         if (calledsetup.current)
         {
             hints.current = cc.fourDimArrToTwoDimArr(pcshints);
@@ -58,8 +63,14 @@ function GameBoard(props)
         else
         {
             ChessPiece.setAllPieceHintsFunc(setPcsHints);
-            ChessPiece.setUpBoard(gid);
+            
+            //setup board methods
+            if (ChessPiece.getNumItemsInList(addpcs) < 2) ChessPiece.setUpBoard(gid);
+            else ChessPiece.setUpBoardFromList(gid, addpcs);
+            
+            //game constructor methods
             ChessGame.makeNewChessGameFromColor(gid, "BOTH");//NEEDS TO BE MODIFIED 7-13-2024
+            
             console.log("PIECE LIST AFTER SET UP BOARD CALLED:");
             //console.log("pieces = ", pieces);
             //console.log("getPieces() = ", getPieces());

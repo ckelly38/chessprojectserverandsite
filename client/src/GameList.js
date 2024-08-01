@@ -5,7 +5,7 @@ import * as yup from "yup";
 import { UserContext } from "./UserProvider";
 import CommonClass from "./commonclass";
 
-function GameList(props)
+function GameList({setgame})
 {
     //need to get the list of games
     let usedummydata = false;
@@ -20,6 +20,7 @@ function GameList(props)
     let [mygame, setMyGame] = useState(null);
     let [showcreategameform, setShowCreateGameForm] = useState(false);
     const history = useHistory();
+    cc.letMustBeDefinedAndNotNull(setgame, "setgame");
 
     function genDummyData(usemyips, usetwosameids)
     {
@@ -169,61 +170,88 @@ function GameList(props)
             //we may need to get some unique identifiable information for the device
             setLoaded(false);
 
+            console.error("NOT DONE YET WITH SUBMITTING THE GAME!");
+
+
             //WE CAN MAKE A GAME FIRST AND THEN PATCH IT WITH PLAYER INFORMATION
 
             //IF USECREATE, WE WANT TO TELL THE SERVER TO MAKE A NEW PLAYER AND A NEW GAME
             //IF NOT, WE WANT TO DO SOMETHING ELSE WITH THE SERVER
 
-            if (usecreate)
-            {
-                /*let mygmconfigobj = {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json",
-                    },
-                    body: JSON.stringify(genNewGame(null, null))
-                };
-                fetch("/games", mygmconfigobj).then((res) => res.json()).then((mdata) => {
-                    console.log("mdata = ", mdata);
-                }).catch((merr) => {
-                    console.error("There was a problem updating the server!");
-                    console.error(merr);
-                    setErrorMessage("There was a problem getting the data from the server! " +
-                        merr);
-                    setLoaded(true);
-                });*/
-            }
-            else
-            {
-                //
-            }
-
-            /*
-            let myconfigobj = {
-                method: "POST",
+            const mthdnm = (usecreate ? "POST": "PATCH");
+            let mygmconfigobj = {
+                method: mthdnm,
                 headers: {
                     "Content-Type": "application/json",
                     "Accept": "application/json",
                 },
                 body: JSON.stringify(mynwvalsobj)
             };
-            //let mdata = null;
-            fetch("/players", myconfigobj).then((res) => res.json()).then((mdata) => {
-                console.log("mdata = ", mdata);
-                let mynwdata = initdata.map((mobj) => mobj);
-                let usetstdata = true;
-                if (usetstdata) mynwdata.push(mynwvalsobj);
-                else mynwdata.push(mdata);
-                setInitData(mynwdata);
-                setLoaded(true);
-            }).catch((merr) => {
-                console.error("There was a problem updating the server!");
-                console.error(merr);
-                setErrorMessage("There was a problem getting the data from the server! " +
-                    merr);
-                setLoaded(true);
-            });*/
+            if (usecreate)
+            {
+                fetch("/new_game_with_playera", mygmconfigobj).then((res) => res.json())
+                .then((mdata) => {
+                    console.log("mdata = ", mdata);
+                    //game and user-player object
+                    //user-player object houses a user and a player object as well as their ids
+                    //user_id, player_id
+                    //WHAT WE WANT username, gameid, color, defer
+                    let mynwgame = {"username": mdata.user_player.user.name, "id": mdata.game.id,
+                        "color": mdata.user_player.player.color,
+                        "defers": mdata.user_player.player.defers};
+                    setInitData([...initdata, mynwgame]);
+                    setLoaded(true);
+                }).catch((merr) => {
+                    console.error("There was a problem updating the server!");
+                    console.error(merr);
+                    setErrorMessage("There was a problem getting the data from the server! " +
+                        merr);
+                    setLoaded(true);
+                });
+            }
+            else
+            {
+                fetch("/join_game/" + mygame.id, mygmconfigobj).then((res) => res.json())
+                .then((mdata) => {
+                    console.log("mdata = ", mdata);
+                    //game and user-player object
+                    //user-player object houses a user and a player object as well as their ids
+                    //user_id, player_id
+                    //WHAT WE WANT username, gameid, color, defer
+                    //let mynwgame = {"username": mdata.user_player.user.name, "id": mygame.id,
+                    //    "color": mdata.user_player.player.color,
+                    //    "defers": mdata.user_player.player.defers};
+                    //console.log("initdata = ", initdata);
+
+                    setInitData(initdata.map((cgame) => {
+                        //console.log("cgame = ", cgame);
+                        if (cgame.id === mygame.id) return mdata.game;
+                        else return cgame;
+                    }));
+                    setMyGame(mdata.game);
+                    setLoaded(true);
+
+                    if (mdata.game.can_be_started)
+                    {
+                        setShowCreateGameForm(false);
+                        console.log("mygame = mdata.game = ", mdata.game);
+                        //console.log("playera color = " + mdata.game.playera.color);
+                        //console.log("playerb color = " + mdata.game.playerb.color);
+                        //console.log("playera defers = " + mdata.game.playera.defers);
+                        //console.log("playerb defers = " + mdata.game.playerb.defers);
+                        console.error("NEED TO DO SOMETHING HERE...!");
+                        //history.push("/play");
+                        return setgame(mdata.game);
+                    }
+                    //else;//do nothing
+                }).catch((merr) => {
+                    console.error("There was a problem updating the server!");
+                    console.error(merr);
+                    setErrorMessage("There was a problem getting the data from the server! " +
+                        merr);
+                    setLoaded(true);
+                });
+            }
 
             console.error("NOT DONE YET WITH SUBMITTING THE GAME!");
         },
@@ -237,23 +265,70 @@ function GameList(props)
     else
     {
         myrws = initdata.map((game) => {
-            return (<tr key={"game" + game.id}>
-                <td key={"game" + game.id + "id"}>{game.id}</td>
-                <td key={"game" + game.id + "username"}>{game.username}</td>
-                <td key={"game" + game.id + "color"}>{game.color}</td>
-                <td key={"game" + game.id + "defers"}>{game.defers ? "Yes": "No"}</td>
-                {useips ? <td key={"game" + game.id + "ipaddress"}>{game.ipaddress}</td>: null}
-                <td key={"game" + game.id + "join"}>
-                    {(simpusrobj.instatus || tstmode) ?
-                        <button type="button" onClick={onJoin.bind(null, game)}>Join</button>:
-                    (<button onClick={(event) => (<Redirect to="/login" />)}>
-            You Need To Login To Join A Game</button>)}
-                </td>
-            </tr>);
+            let mclr = null;
+            let mdfrs = false;
+            let mip = null;
+            if (cc.isItemNullOrUndefined(game.playera))
+            {
+                mclr = "";
+                mdfrs = true;
+                mip = "127.0.0.1";
+            }
+            else
+            {
+                mclr = game.playera.color;
+                mdfrs = game.playera.defers;
+                mip = game.playera.ipaddress;
+            }
+            if (game.can_be_started) return null;
+            else
+            {
+                return (<tr key={"game" + game.id}>
+                    <td key={"game" + game.id + "id"}>{game.id}</td>
+                    <td key={"game" + game.id + "username"}>{game.username}</td>
+                    <td key={"game" + game.id + "color"}>{mclr}</td>
+                    <td key={"game" + game.id + "defers"}>{mdfrs ? "Yes": "No"}</td>
+                    {useips ? <td key={"game" + game.id + "ipaddress"}>{mip}</td>: null}
+                    <td key={"game" + game.id + "join"}>
+                        {(simpusrobj.instatus || tstmode) ?
+                            <button type="button" onClick={onJoin.bind(null, game)}>Join</button>:
+                        (<button onClick={(event) => (<Redirect to="/login" />)}>
+                You Need To Login To Join A Game</button>)}
+                    </td>
+                </tr>);
+            }
         });
     }
 
+    console.log("mygame = ", mygame);
+
+    if (cc.isItemNullOrUndefined(mygame));
+    else
+    {
+        if (mygame.can_be_started)
+        {
+            console.log("CALLING PLAY GAME NOW!");
+            return setgame(mygame);
+        }
+        //else;//do nothing
+    }
+
     const iserr = !cc.isStringEmptyNullOrUndefined(errormsg);
+    let mclr = null;
+    let mdfrs = false;
+    let mip = null;
+    if (cc.isItemNullOrUndefined(mygame) || cc.isItemNullOrUndefined(mygame.playera))
+    {
+        mclr = "";
+        mdfrs = true;
+        mip = "127.0.0.1";
+    }
+    else
+    {
+        mclr = mygame.playera.color;
+        mdfrs = mygame.playera.defers;
+        mip = mygame.playera.ipaddress;
+    }
     return (<div style={{paddingTop: 1,
         backgroundColor: cc.getBGColorToBeUsed(iserr, "GameList")}}>
         <h2>Join A Game Page:</h2>
@@ -271,7 +346,7 @@ function GameList(props)
             <p> {formik.errors.player_color}</p>
             {usecreate ? null: (<p>The Game you are joining has an ID: {mygame.id}
                 , a username of: {mygame.username}
-                , and wants color: {mygame.color}, and is willing to defer: {mygame.defers}.
+                , and wants color: {mclr}, and is willing to defer: {mdfrs ? "Yes": "No"}.
             </p>)}
             <button type="submit">Submit</button>
         </form>) : null}

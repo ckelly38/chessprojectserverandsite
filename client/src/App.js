@@ -223,7 +223,16 @@ function App() {
 
   //TestDriver.main(null);
   //let gid = 1;
-  //const [mygame, setMyGame] = useState(ChessGame.makeNewChessGameFromColor(gid, "BOTH"));
+  const [thegame, setTheGame] = useState(null);
+
+  function setGameAndAdvance(ng)
+  {
+    console.log("APP: ng = ", ng);
+    setTheGame(ng);
+    return (<Redirect to="/play" />);
+  }
+
+  console.log("APP: thegame = ", thegame);
 
   return (<div>
       <Switch>
@@ -235,7 +244,7 @@ function App() {
           <Ranks key={"ranksforstats"} />])}
         {getRoutesList("/join", ["/join_games"], [
           <Navbar key={"nvbarforjoin"} />,
-          <GameList key={"gamelistforjoin"} />
+          <GameList key={"gamelistforjoin"} setgame={setGameAndAdvance} />
         ])}
         <Route exact path="/rules">
           <Navbar />
@@ -243,7 +252,7 @@ function App() {
         </Route>
         <Route exact path="/play">
           <Navbar />
-          <GameBoard />
+          <GameBoard srvrgame={thegame} />
         </Route>
         <Route exact path="/preferences" render={(props) => 
           makeLoginPrefsItem(false, true, "Preferences")} />
