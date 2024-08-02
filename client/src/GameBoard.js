@@ -7,7 +7,7 @@ import Cmdinterface from "./Cmdinterface";
 //import { GameContext } from "./GameProvider";
 import CommonClass from "./commonclass";
 
-function GameBoard({srvrgame})
+function GameBoard({srvrgame, addpcs=null, startmvslist=null})
 {
     let cc = new CommonClass();
     const history = useHistory();
@@ -21,7 +21,6 @@ function GameBoard({srvrgame})
     cc.letMustBeDefinedAndNotNull(srvrgame, "srvrgame");
     
     const gid = srvrgame.id;
-    const addpcs = null;
     
     const [mvslist, setMovesList] = useState([{
         dir: "LEFT",
@@ -65,11 +64,17 @@ function GameBoard({srvrgame})
             ChessPiece.setAllPieceHintsFunc(setPcsHints);
             
             //setup board methods
+            //addpcs arr of [{row: 0, col: 0, color: "WHITE", type: "KING", move_count: 0,
+            //arrindx: 0, id: "pid0"}] if used it will have at minimum 2 kings
             if (ChessPiece.getNumItemsInList(addpcs) < 2) ChessPiece.setUpBoard(gid);
-            else ChessPiece.setUpBoardFromList(gid, addpcs);
+            else ChessPiece.setUpBoardFromList(gid, addpcs, false);
             
             //game constructor methods
             ChessGame.makeNewChessGameFromColor(gid, "BOTH");//NEEDS TO BE MODIFIED 7-13-2024
+            //NOTE: OFFICIAL MOVES WILL NEED TO BE FULL SHORT HAND MOVES
+            //ChessGame gm = new ChessGame(gid, offmvs=null, isdone=false, mclrval="BOTH");
+            //ChessGame.makeNewChessGameFromMoveList(gid, offmvs=null, isdone=false);
+            //ChessGame.makeNewChessGameFromGID(gid);
             
             console.log("PIECE LIST AFTER SET UP BOARD CALLED:");
             //console.log("pieces = ", pieces);

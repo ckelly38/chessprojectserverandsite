@@ -52,7 +52,7 @@ class Commonalities:
         else: raise ValueError("retall must be a booleanv value for the variable!");
         if (self.isClsValid(cls)):
             if (retall): return cls.query.all();
-            if (cls == UserToy or cls == UserEpisodes or UserPlayers):
+            if (cls == UserToy or cls == UserEpisodes or cls == UserPlayers):
                 if (usrid == None or type(usrid) != int):
                     raise ValueError("usrid must be a number!");
                 else: return cls.query.filter_by(user_id=usrid).all();
@@ -640,6 +640,22 @@ class AllPlayersByID(Resource):
         else: return cm.removeItemFromDBAndReturnResponse(id, Players, session, usr.id);
 
 api.add_resource(AllPlayersByID, "/players/<int:id>");
+
+class AllUserPlayers(Resource):
+    def get(self):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else: return cm.getAllOfTypeAndSerializeThem(UserPlayers, 3, True, usr.id);
+
+api.add_resource(AllUserPlayers, "/user-players");
+
+class AllPlayersForUser(Resource):
+    def get(self):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else: return cm.getAllOfTypeAndSerializeThem(UserPlayers, 3, False, usr.id);
+
+api.add_resource(AllPlayersForUser, "/all-players-for-user");
 
 class CreateGameAndPlayer(Resource):
     def post(self):

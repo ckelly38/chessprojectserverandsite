@@ -209,11 +209,12 @@ class ChessPiece {
 		}
 	}
 	
-	static setUpBoardFromList(gid, addpcs)
+	static setUpBoardFromList(gid, addpcs, usemethods=true)
 	{
 		//clear the old board
 		//now make copies of those add pcs
 		//this is the new board
+		ChessPiece.cc.letMustBeBoolean(usemethods, "usemethods");
 		ChessPiece.cc.letMustBeAnInteger(gid, "gid");
 		let numpcs = ChessPiece.getNumItemsInList(addpcs);
 		if (numpcs < 1);//do nothing
@@ -222,8 +223,16 @@ class ChessPiece {
 			ChessPiece.clearBoard(gid);
 			
 			let mylist = addpcs.map((mitem) => {
-				return new ChessPiece(mitem.getType(), mitem.getColor(), mitem.getRow(),
-					mitem.getCol(), gid, mitem.getMoveCount(), true);
+				if (usemethods)
+				{
+					return new ChessPiece(mitem.getType(), mitem.getColor(), mitem.getRow(),
+						mitem.getCol(), gid, mitem.getMoveCount(), true);
+				}
+				else
+				{
+					return new ChessPiece(mitem.type, mitem.color, mitem.row,
+						mitem.col, gid, mitem.move_count, true);
+				}
 			});
 		}
 	}

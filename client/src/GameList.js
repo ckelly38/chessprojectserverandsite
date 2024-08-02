@@ -18,6 +18,7 @@ function GameList({setgame})
     let [usecreate, setUseCreate] = useState(true);
     let [initdata, setInitData] = useState(null);
     let [mygame, setMyGame] = useState(null);
+    let [userpdata, setUserPlayerData] = useState(null);
     let [showcreategameform, setShowCreateGameForm] = useState(false);
     const history = useHistory();
     cc.letMustBeDefinedAndNotNull(setgame, "setgame");
@@ -58,8 +59,18 @@ function GameList({setgame})
             fetch("/games_to_join").then((res) => res.json()).then((mdata) => {
                 console.log("mdata = ", mdata);
                 setInitData(mdata);
-                setErrorMessage("");
-                setLoaded(true);
+                fetch("/user-players").then((res) => res.json()).then((updata) => {
+                    console.log("updata = ", updata);
+                    setUserPlayerData(updata);
+                    setErrorMessage("");
+                    setLoaded(true);
+                }).catch((merr) => {
+                    console.error("There was a problem getting the data from the server!");
+                    console.error(merr);
+                    setErrorMessage("There was a problem getting the data from the server! " +
+                        merr);
+                    setLoaded(true);
+                });
             }).catch((merr) => {
                 console.error("There was a problem getting the data from the server!");
                 console.error(merr);
@@ -122,6 +133,64 @@ function GameList({setgame})
         };
     }
 
+    function getColorIPAndDefersFromGame(game, useipsa)
+    {
+        let mclr = null;
+        let mdfrs = false;
+        let mip = null;
+        if (cc.isItemNullOrUndefined(game) || cc.isItemNullOrUndefined(game.playera))
+        {
+            mclr = "";
+            mdfrs = true;
+            mip = "127.0.0.1";
+        }
+        else
+        {
+            mclr = game.playera.color;
+            mdfrs = game.playera.defers;
+            if (useipsa) mip = game.playera.ipaddress;
+            else mip = "127.0.0.1";
+        }
+        return {"mclr": mclr, "mdfrs": mdfrs, "mip": mip};
+    }
+
+    function getUserNameFromGameAndPlayerData(game, updata)
+    {
+        let usrnm = "";
+        if (cc.isItemNullOrUndefined(game));
+        else
+        {
+            let usepa = !(cc.isItemNullOrUndefined(game.playera));
+            let usepb = !(cc.isItemNullOrUndefined(game.playerb));
+            if (usepa || usepb)
+            {
+                for (let x = 0; x < updata.length; x++)
+                {
+                    if (usepa)
+                    {
+                        if (updata[x].player.id === game.playera.id)
+                        {
+                            usrnm = updata[x].user.name;
+                            break;
+                        }
+                        //else;//do nothing
+                    }
+                    else// if (usepb)
+                    {
+                        if (updata[x].player.id === game.playerb.id)
+                        {
+                            usrnm = updata[x].user.name;
+                            break;
+                        }
+                        //else;//do nothing
+                    }
+                }
+            }
+            //else;//do nothing
+        }
+        return usrnm;
+    }
+
     const formSchema = yup.object().shape({
         username: yup.string().required("You must enter a username!").min(1),
         player_color: yup.string().required("You must enter a color or if you defer!"),
@@ -170,8 +239,6 @@ function GameList({setgame})
             //we may need to get some unique identifiable information for the device
             setLoaded(false);
 
-            console.error("NOT DONE YET WITH SUBMITTING THE GAME!");
-
 
             //WE CAN MAKE A GAME FIRST AND THEN PATCH IT WITH PLAYER INFORMATION
 
@@ -200,6 +267,7 @@ function GameList({setgame})
                         "color": mdata.user_player.player.color,
                         "defers": mdata.user_player.player.defers};
                     setInitData([...initdata, mynwgame]);
+                    setUserPlayerData([...userpdata, mdata.user_player]);
                     setLoaded(true);
                 }).catch((merr) => {
                     console.error("There was a problem updating the server!");
@@ -228,6 +296,7 @@ function GameList({setgame})
                         if (cgame.id === mygame.id) return mdata.game;
                         else return cgame;
                     }));
+                    setUserPlayerData([...userpdata, mdata.user_player]);
                     setMyGame(mdata.game);
                     setLoaded(true);
 
@@ -252,8 +321,6 @@ function GameList({setgame})
                     setLoaded(true);
                 });
             }
-
-            console.error("NOT DONE YET WITH SUBMITTING THE GAME!");
         },
     });
 
@@ -265,27 +332,16 @@ function GameList({setgame})
     else
     {
         myrws = initdata.map((game) => {
-            let mclr = null;
-            let mdfrs = false;
-            let mip = null;
-            if (cc.isItemNullOrUndefined(game.playera))
-            {
-                mclr = "";
-                mdfrs = true;
-                mip = "127.0.0.1";
-            }
-            else
-            {
-                mclr = game.playera.color;
-                mdfrs = game.playera.defers;
-                mip = game.playera.ipaddress;
-            }
+            let {mclr, mdfrs, mip} = getColorIPAndDefersFromGame(game, useips);
             if (game.can_be_started) return null;
             else
             {
+                console.log("userpdata = ", userpdata);
+                let usrnm = getUserNameFromGameAndPlayerData(game, userpdata);
+                
                 return (<tr key={"game" + game.id}>
                     <td key={"game" + game.id + "id"}>{game.id}</td>
-                    <td key={"game" + game.id + "username"}>{game.username}</td>
+                    <td key={"game" + game.id + "username"}>{usrnm}</td>
                     <td key={"game" + game.id + "color"}>{mclr}</td>
                     <td key={"game" + game.id + "defers"}>{mdfrs ? "Yes": "No"}</td>
                     {useips ? <td key={"game" + game.id + "ipaddress"}>{mip}</td>: null}
@@ -314,21 +370,11 @@ function GameList({setgame})
     }
 
     const iserr = !cc.isStringEmptyNullOrUndefined(errormsg);
-    let mclr = null;
-    let mdfrs = false;
-    let mip = null;
-    if (cc.isItemNullOrUndefined(mygame) || cc.isItemNullOrUndefined(mygame.playera))
-    {
-        mclr = "";
-        mdfrs = true;
-        mip = "127.0.0.1";
-    }
-    else
-    {
-        mclr = mygame.playera.color;
-        mdfrs = mygame.playera.defers;
-        mip = mygame.playera.ipaddress;
-    }
+    let {mclr, mdfrs, mip} = getColorIPAndDefersFromGame(mygame, useips);
+    
+    console.log("userpdata = ", userpdata);
+    let usrnm = getUserNameFromGameAndPlayerData(mygame, userpdata);
+
     return (<div style={{paddingTop: 1,
         backgroundColor: cc.getBGColorToBeUsed(iserr, "GameList")}}>
         <h2>Join A Game Page:</h2>
@@ -345,7 +391,7 @@ function GameList({setgame})
             </select>
             <p> {formik.errors.player_color}</p>
             {usecreate ? null: (<p>The Game you are joining has an ID: {mygame.id}
-                , a username of: {mygame.username}
+                , a username of: {usrnm}
                 , and wants color: {mclr}, and is willing to defer: {mdfrs ? "Yes": "No"}.
             </p>)}
             <button type="submit">Submit</button>
