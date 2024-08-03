@@ -715,7 +715,7 @@ class CreateGameAndPlayer(Resource):
             #print(f"usrplyr.to_dict() = {cm.getSerializedItem(UserPlayers, usrplyr, 3)}");
             #print("");
             return {"game": cm.getSerializedItem(Games, myg, 3),
-                    "user_player": cm.getSerializedItem(UserPlayers, usrplyr, 3)}, 200;
+                    "user_player": cm.getSerializedItem(UserPlayers, usrplyr, 3)}, 201;
 
 api.add_resource(CreateGameAndPlayer, "/new_game_with_playera");
 
@@ -900,6 +900,55 @@ class GetAllMovesForAGame(Resource):
         usr = cm.getUserFromTheSession(session);
         if (usr == None): return {"error": "401 error no users logged in!"}, 401;
         else: return cm.getItemByIDAndReturnResponse(id, GameMoves, 3, usr.id);
+
+    def post(self, id):
+        #want to bulk post moves for a game in order on the game moves
+        #game ID will be constant
+        #number is known index of the move or index + 1
+        #move id is unknown
+        #GameMoves(game_id, move_id, number);
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else:
+            dataobj = cm.getDataObjectFromRequest(request);
+            print(dataobj);
+
+            mvs = dataobj["moves"];
+            for n in range(0, len(mvs)):
+                mvondb = Moves.query.filter_by(contents=mvs[n]).first();
+                print(f"mvondb = {mvondb}");
+                
+                mvid = -1;
+                if (mvondb == None):
+                    #post the move first
+                    #then get the id
+                    try:
+                        nwmv = Moves(contents=mvs[n]);
+                        db.session.add(nwmv);
+                        db.session.commit();
+                        mvid = nwmv.id;
+                    except Exception as ex:
+                        print(ex);
+                        errmsg = "422 error invalid data used to create item of type ";
+                        errmsg += f"{cm.getTypeStringForClass(Moves)}!";
+                        return {"error": errmsg}, 422;
+                else: mvid = mvondb.id;
+                print(f"mvid = {mvid}");
+
+                try:
+                    gmmv = GameMoves(id, mvid, n + 1);
+                    db.session.add(gmmv);
+                    db.session.commit();
+                except Exception as ex:
+                    print(ex);
+                    errmsg = "422 error invalid data used to create item of type ";
+                    errmsg += f"{cm.getTypeStringForClass(GameMoves)}!";
+                    return {"error": errmsg}, 422;
+            
+            #what to return? POST usually returns a success message or the new contents
+            #I guess that means all the new objects created... and 201 status code of course
+            item = cm.getItemByID(id, GameMoves, usr.id);
+            return cm.getSerializedItem(GameMoves, item, 3), 201;
 
 api.add_resource(GetAllMovesForAGame, "/all-moves-for-game/<int:id>");#id is gameid
 
