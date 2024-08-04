@@ -279,7 +279,7 @@ class CommonClass{
         else
         {
             musrnm = muser.name;
-            alv = muser.access_level;
+            //alv = muser.access_level;
             lgi = true;
             usrid = muser.id;
             pswd = muser.password;

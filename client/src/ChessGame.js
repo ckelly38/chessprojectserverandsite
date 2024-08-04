@@ -105,7 +105,7 @@ class ChessGame {
 	}
 	getGame()
 	{
-		return this.getGameVIAGID(this.getGameID());
+		return ChessGame.getGameVIAGID(this.getGameID());
 	}
 	
 	setMyColor(val)
@@ -126,8 +126,10 @@ class ChessGame {
 	
 	static doesColorAMatchColorB(clrvala, clrvalb)
 	{
-		ChessPiece.colorIsValid(clrvala);
-		ChessPiece.colorIsValid(clrvalb);
+		//console.log("clrvala = " + clrvala);
+		//console.log("clrvalb = " + clrvalb);
+		ChessPiece.colorIsValid(clrvala, true);
+		ChessPiece.colorIsValid(clrvalb, true);
 		if (clrvala === clrvalb) return true;
 		else
 		{
@@ -141,7 +143,7 @@ class ChessGame {
 	}
 	doesColorMatchMyColor(clrval)
 	{
-		return this.doesColorAMatchColorB(clrval, this.getMyColor());
+		return ChessGame.doesColorAMatchColorB(clrval, this.getMyColor());
 	}
 	
 	isCompleted()
@@ -690,6 +692,30 @@ class ChessGame {
 		else for (let x = 0; x < numofmvs; x++) this.stepForward();
 	}
 	
+	sendCompletedGameDataToServer()
+	{
+		//server accepts unique updated data only for patch
+		let configobj = {
+			"method": "PATCH",
+			"headers": {
+				"Content-Type": "application/json",
+				"Accept": "application/json"
+			},
+			"body": JSON.stringify({"tied": this.isTied(), "completed": this.isCompleted(),
+				"playera_won": this.whitewins, "playera_resigned": this.wresigned,
+				"playerb_resigned": this.bresigned
+			})
+		};
+		fetch("/games/" + this.getGameID(), configobj).then((res) => res.json())
+		.then((mdata) => {
+			console.log("mdata = ", mdata);
+			console.log("successfully sent the end of game data to update the game!");
+		}).catch((merr) => {
+			console.error("failed to update the server!");
+			console.error(merr);
+		});
+	}
+
 	//NOT DONE WITH THE COMMUNICATE WITH THE SERVER PART YET
 	completeGameAndCommunicateWithTheServer(msg)
 	{
@@ -705,6 +731,32 @@ class ChessGame {
 		//mark game as completed
 		//communicate with the server and tell them that the game is completed and
 		//send all the data back
+
+		if (this.getMyColor() === "BOTH")
+		{
+			//send all moves in addition to the results of the completed game
+
+			//server accepts unique updated data only for patch
+			let configobj = {
+				"method": "POST",
+				"headers": {
+					"Content-Type": "application/json",
+					"Accept": "application/json"
+				},
+				"body": JSON.stringify({"moves": this.OFFICIAL_MOVES})//problem here 8-3-2024 3 AM
+			};
+			fetch("/all-moves-for-game/" + this.getGameID(), configobj).then((res) => res.json())
+			.then((mdata) => {
+				console.log("mdata = ", mdata);
+				console.log("successfully sent the MOVES data to update the game!");
+
+				this.sendCompletedGameDataToServer();
+			}).catch((merr) => {
+				console.error("failed to update the server!");
+				console.error(merr);
+			});
+		}
+		else this.sendCompletedGameDataToServer();
 	}
 	
 	setIsTied(nwval)

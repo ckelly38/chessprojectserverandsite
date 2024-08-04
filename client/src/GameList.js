@@ -308,7 +308,7 @@ function GameList({setgame})
                         //console.log("playerb color = " + mdata.game.playerb.color);
                         //console.log("playera defers = " + mdata.game.playera.defers);
                         //console.log("playerb defers = " + mdata.game.playerb.defers);
-                        console.error("NEED TO DO SOMETHING HERE...!");
+                        //console.error("NEED TO DO SOMETHING HERE...!");
                         //history.push("/play");
                         return setgame(mdata.game);
                     }

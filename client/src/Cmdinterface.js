@@ -169,12 +169,12 @@ function Cmdinterface({whitemovesdownranks, iswhiteturn, useroworcollocdisp, arr
         if (cmdtp === "COLOR HINTS")
         {
             return (<div style={{display: "inline-block", paddingLeft: 5}}>
-                {clrturndispstr + "HINTS"}</div>);
+                {pcclrsel}{" HINTS"}</div>);
         }
         else if (cmdtp === "PIECE HINTS")
         {
             return (<div style={{display: "inline-block", paddingLeft: 5}}>
-                {clrturndispstr}{pctpsel}
+                {pcclrsel}{pctpsel}
                 {genRowColLocOrStringLocElements(userowcolloc, true)}{" HINTS"}
             </div>);
         }

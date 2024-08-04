@@ -534,19 +534,13 @@ class ChessPiece {
 	//allows both by default
 	static colorIsValid(clrval, allowbth=true)
 	{
+		//console.log("clrval = " + clrval);
 		ChessPiece.cc.letMustBeBoolean(allowbth, "allowbth");
-		if (ChessPiece.cc.isStringEmptyNullOrUndefined(clrval) || clrval.length !== 5)
+		if (clrval === "WHITE" || clrval === "BLACK" || (allowbth && clrval === "BOTH"))
 		{
-			ChessPiece.cc.logAndThrowNewError("INVALID LENGTH FOR THE COLOR!");
+			//do nothing
 		}
-		else
-		{
-			if (clrval === "WHITE" || clrval === "BLACK" || (allowbth && clrval === "BOTH"))
-			{
-				//do nothing
-			}
-			else ChessPiece.cc.logAndThrowNewError("INVALID COLOR!");
-		}
+		else ChessPiece.cc.logAndThrowNewError("INVALID COLOR OR INVALID LENGTH FOR COLOR!");
 	}
 	
 	
@@ -2138,7 +2132,7 @@ class ChessPiece {
 		//NUM OFFICIAL MOVES WILL BE AT LEAST ONE!
 		ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
 		
-		if (ChessPiece.isSideInCheck(sidemoved, ignorelist, addpcs, gid))
+		if (ChessPiece.isSideInCheck(sidemoved, gid, ignorelist, addpcs))
 		{
 			if (undoifincheck)
 			{
@@ -2214,6 +2208,7 @@ class ChessPiece {
 					else
 					{
 						//send commands...
+						console.error("NEED TO DO SOMETHING HERE... 8-2-2024 4:38 PM MST");
 					}
 					console.log(ChessPiece.getGameVIAGID(gid).getSideTurn() + "'S TURN!");
 				}
@@ -7028,7 +7023,7 @@ class ChessPiece {
 		if (ChessPiece.cc.isStringEmptyNullOrUndefined(mymvs)) return null;
 		else
 		{
-			console.log("mymvs = ", mymvs);
+			//console.log("mymvs = ", mymvs);
 
 			let myclrs = [];//new String[mymvs.length];
 			let mytps = [];//new String[mymvs.length];
@@ -7036,7 +7031,7 @@ class ChessPiece {
 			{
 				mytps.push(null);
 				myclrs.push(null);
-				console.log("mymvs[" + n + "] = ", mymvs[n]);
+				//console.log("mymvs[" + n + "] = ", mymvs[n]);
 
 				if (ChessPiece.cc.isStringEmptyNullOrUndefined(mymvs[n]))
 				{

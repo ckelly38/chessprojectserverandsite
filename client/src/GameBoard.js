@@ -43,6 +43,9 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
     let [showqnwarning, setShowQueenWarning] = useState(true);
     let [whitemovesdownranks, setWhiteMovesDownRanks] = useState(true);
     let [pcshints, setPcsHints] = useState([]);//[][][]
+    let [statsinfo, setStatsInfo] = useState(null);
+    let [upsdata, setUserPlayerData] = useState(null);
+    let [errmsg, setErrorMessage] = useState(null);
     //console.log("OLD calledsetup.current = ", calledsetup.current);
     //console.log("pcshints = ", pcshints);
     
@@ -50,8 +53,8 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
     //console.log("hints = ", hints);
 
     useEffect(() => {
-        console.log("INSIDE OF USE EFFECT!");
-        console.log("srvrgame = ", srvrgame);
+        //console.log("INSIDE OF USE EFFECT!");
+        //console.log("srvrgame = ", srvrgame);
         if (calledsetup.current)
         {
             hints.current = cc.fourDimArrToTwoDimArr(pcshints);
@@ -83,7 +86,26 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
             console.log("ChessGame.all = ", ChessGame.all);
             calledsetup.current = true;
             console.log("NEW calledsetup.current = ", calledsetup.current);
-            setLoaded(true);//needed to display the pieces, sling shot route does not work
+            
+            fetch("/stats").then((res) => res.json()).then((mdata) => {
+                console.log("mdata = ", mdata);
+                setStatsInfo(mdata);
+                fetch("/user-players").then((res) => res.json()).then((mupdata) => {
+                    console.log("mupdata = ", mupdata);
+                    setUserPlayerData(mupdata);
+                    setLoaded(true);//needed to display the pieces, sling shot route does not work
+                }).catch((merr) => {
+                    console.error("There was a problem getting data from the server!");
+                    console.error(merr);
+                    setErrorMessage("Could not get the user-player information: " + merr.message);
+                    setLoaded(true);
+                });
+            }).catch((merr) => {
+                console.error("There was a problem getting data from the server!");
+                console.error(merr);
+                setErrorMessage("Could not get the stats information: " + merr.message);
+                setLoaded(true);
+            });
         }
     }, [calledsetup.current, pcshints, gid]);
     
@@ -206,14 +228,20 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
         return myrws;
     }
 
-    function displayCheckStatuses(csideinchk, dispqwarn, csdqninchk, useboldqmsg)
+    function displayCheckStatuses(csideinchk, csideinckmate, cside, dispqwarn,
+        csdqninchk, useboldqmsg)
     {
         cc.letMustBeBoolean(csideinchk, "csideinchk");
+        cc.letMustBeBoolean(csideinckmate, "csideinckmate");
+        cc.letMustBeDefinedAndNotNull(cside, "cside");
         cc.letMustBeBoolean(dispqwarn, "dispqwarn");
         cc.letMustBeBoolean(csdqninchk, "csdqninchk");
         cc.letMustBeBoolean(useboldqmsg, "useboldqmsg");
         
-        return (<div>Check Status: {csideinchk ? (<b>You're in Check!</b>): "No!"}
+        return (<div style={{paddingBottom: 5}}>Check Status: {csideinchk ? (<b>You're in Check
+            {csideinckmate ? <div style={{display: "inline-block"}}>
+                mate! {ChessPiece.getOppositeColor(cside)} Wins!</div>: "!"}
+            </b>): "No!"}
             {dispqwarn ? " Queen WARNING: " : null}
             {(dispqwarn && csdqninchk && useboldqmsg) ? <b>"You're Queen is in Check!"</b> : null}
             {(dispqwarn && csdqninchk && !useboldqmsg) ? "You're Queen is in Check!" : null}
@@ -227,22 +255,118 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
     let iscompleted = false;
     let currentsideisincheck = false;
     let acurrentsidequeenisincheck = false;
+    let currentsideincheckmate = false;
     if (loaded)
     {
         clrvalturn = ChessGame.getGameVIAGID(gid).getSideTurn();
         iswhiteturn = (clrvalturn === "WHITE");
         iscompleted = ChessGame.getGameVIAGID(gid).isCompleted();
         currentsideisincheck = ChessPiece.isSideInCheck(clrvalturn, gid, null, null);
+        if (currentsideisincheck)
+        {
+            currentsideincheckmate = ChessPiece.inCheckmate(clrvalturn, gid, null, null);
+        }
+        //else currentsideincheckmate = false;
         acurrentsidequeenisincheck = ChessPiece.isAtLeastOneQueenForSideInCheck(
             clrvalturn, gid, null, null);
     }
     //else;//defaults will be used
+    
+    //extract the user information from the statistics object
     let playertwousrnm = "tu";
     let playeroneusrnm = "me";
-    let playeronecolor = "WHITE";
-    let playertwocolor = "BLACK";
+    const playeronecolor = "WHITE";
+    const playertwocolor = "BLACK";
     let playeronerank = -1;
     let playertworank = -1;
+
+    //console.log("statsinfo = ", statsinfo);
+    //console.log("upsdata = ", upsdata);
+    //console.log("srvrgame = ", srvrgame);
+
+    if (cc.isStringEmptyNullOrUndefined(statsinfo) || cc.isStringEmptyNullOrUndefined(upsdata));
+    else
+    {
+        if (cc.isItemNullOrUndefined(srvrgame));
+        else
+        {
+            //srvrgame.playera.id
+            //srvrgame.playerb.id
+            let gotpainfo = false;
+            let gotpbinfo = false;
+            let pausrid = -1;
+            let pbusrid = -1;
+            for (let x = 0; x < upsdata.length; x++)
+            {
+                if (upsdata[x].player.game_id === srvrgame.id)
+                {
+                    if (upsdata[x].player.id === srvrgame.playera.id)
+                    {
+                        playeroneusrnm = upsdata[x].user.name;
+                        pausrid = upsdata[x].user.id;
+                        gotpainfo = true;
+                    }
+                    //else;//do nothing
+                    if (upsdata[x].player.id === srvrgame.playerb.id)
+                    {
+                        playertwousrnm = upsdata[x].user.name;
+                        pbusrid = upsdata[x].user.id;
+                        gotpbinfo = true;
+                    }
+                    //else;//do nothing
+                    if (gotpainfo && gotpbinfo) break;
+                    //else;//do nothing
+                }
+                //else;//do nothing
+            }//end of x for loop
+            //console.log("gotpainfo = " + gotpainfo);
+            //console.log("gotpbinfo = " + gotpbinfo);
+            //console.log("playeroneusrnm = " + playeroneusrnm);
+            //console.log("playertwousrnm = " + playertwousrnm);
+            //console.log("pausrid = " + pausrid);
+            //console.log("pbusrid = " + pbusrid);
+
+            if (gotpainfo && gotpbinfo);
+            else
+            {
+                cc.logAndThrowNewError("FAILED TO GET THE PLAYER, USER AND RANK INFORMATION " +
+                    "FROM THE SERVER FOR PLAYER A (" + !gotpainfo + ") AND PLAYER B (" +
+                    !gotpbinfo + ")!");
+            }
+
+            gotpainfo = false;
+            gotpbinfo = false;
+            for (let x = 0; x < statsinfo.length; x++)
+            {
+                if (statsinfo[x].userid === pausrid)
+                {
+                    playeronerank = x + 1;
+                    gotpainfo = true;
+                }
+                //else;//do nothing
+                if (statsinfo[x].userid === pbusrid)
+                {
+                    playertworank = x + 1;
+                    gotpbinfo = true;
+                }
+                //else;//do nothing
+                if (gotpainfo && gotpbinfo) break;
+                //else;//do nothing
+            }
+            //console.log("gotpainfo = " + gotpainfo);
+            //console.log("gotpbinfo = " + gotpbinfo);
+            //console.log("playeronerank = " + playeronerank);
+            //console.log("playertworank = " + playertworank);
+
+            if (gotpainfo && gotpbinfo);
+            else
+            {
+                cc.logAndThrowNewError("FAILED TO GET THE PLAYER RANK INFORMATION " +
+                    "FROM THE SERVER FOR PLAYER A (" + !gotpainfo + ") AND PLAYER B (" +
+                    !gotpbinfo + ")!");
+            }
+        }
+    }
     
     //"PROMOTION", "CREATE", "DELETE" are move types we might want to forbid access to
 
@@ -250,9 +374,6 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
     //<button style={{marginLeft: 50}}
     //onClick={(event) => setWhiteMovesDownRanks(!whitemovesdownranks)}>
     //White moves {whitemovesdownranks ? "down": "up"} ranks!</button>
-
-    //const iserr = !(cc.isStringEmptyNullOrUndefined(errormsg));
-    //{iserr ? <p>{errormsg}</p>: null}
     
     
     //NOT DONE YET 7-14-2024 2:30 AM
@@ -278,7 +399,8 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
         let simpcmd = null;
         let myfullmvcmd = null;
         const usepcclr = (mv.cmd_type === "PROMOTION" || mv.cmd_type === "CREATE" ||
-            mv.cmd_type === "DELETE");
+            mv.cmd_type === "DELETE" || mv.cmd_type === "COLOR HINTS" ||
+            mv.cmd_type === "PIECE HINTS");
         const tp = ((mv.cmd_type === "CASTLEING") ? "CASTLE" :
             ((mv.cmd_type === "PAWNING") ? "PAWN" : "" + mv.piece_type));
         const clr = (usepcclr ? "" + mv.piece_color : (iswhiteturn ? "WHITE" : "BLACK"));
@@ -359,8 +481,19 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
         {
             const ptpval = ((mv.cmd_type === "PROMOTION" || mv.cmd_type === "MOVE") ?
                 mv.promo_piece_type : "QUEEN");
-            myfullmvcmd = ChessPiece.genFullMoveCommandFromDisplayedCommandMain(simpcmd, gid,
-                ptpval, ChessPiece.WHITE_MOVES_DOWN_RANKS, bpassimnxtmv);
+            try
+            {
+                myfullmvcmd = ChessPiece.genFullMoveCommandFromDisplayedCommandMain(simpcmd, gid,
+                    ptpval, ChessPiece.WHITE_MOVES_DOWN_RANKS, bpassimnxtmv);
+                if (cc.isStringEmptyNullOrUndefined(errmsg));
+                else setErrorMessage("");
+            }
+            catch(ex)
+            {
+                console.error(ex);
+                setErrorMessage("invalid command " + ex.message);
+                return;
+            }   
         }
 
         ChessPiece.makeLocalShortHandMove(myfullmvcmd, gid, isuser, isundo,
@@ -388,7 +521,6 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
         setUpdateBoard(!updateboard);
     }
 
-    //NOT DONE YET BUG REDOING DELETING A PIECE...
     function redoMoveMain(gameisover)
     {
         cc.letMustBeBoolean(gameisover, "gameisover");
@@ -406,9 +538,21 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
         }
         setUpdateBoard(!updateboard);
     }
+    //console.log("loaded = " + loaded);
 
+    let plyraid = -1;
+    let plyrbid = -1;
+    if (cc.isItemNullOrUndefined(srvrgame));
+    else
+    {
+        plyraid = srvrgame.playera.id;
+        plyrbid = srvrgame.playerb.id;
+    }
 
-    //NEEDS MODIFIED 7-13-2024 BGCOLOR TO CHANGE IF THERE ARE ERRORS
+    if (loaded);
+    else return (<div>Loading Game...</div>);
+    
+    const iserr = !cc.isStringEmptyNullOrUndefined(errmsg);
     return (<div style={{marginLeft: 10, paddingTop: 1,
         backgroundColor: cc.getBGColorToBeUsed(false, "GameBoard")}}>
         <h2>Play Game:</h2>
@@ -434,8 +578,8 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
             </tbody>
         </table>
         
-        {displayCheckStatuses(currentsideisincheck, showqnwarning, acurrentsidequeenisincheck,
-            false)}
+        {displayCheckStatuses(currentsideisincheck, currentsideincheckmate, clrvalturn,
+            showqnwarning, acurrentsidequeenisincheck, false)}
         
         <div>
             <button onClick={(event) => setShowQueenWarning(!showqnwarning)}>
@@ -444,25 +588,29 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
                 {"< " + (iscompleted ? "Previous": "Undo") + " Move"}</button>
             <button onClick={(event) => redoMoveMain(iscompleted)}>
                 {"> " + (iscompleted ? "Next": "Redo") + " Move"}</button>
-            <button onClick={null}>{(iswhiteturn ? "Black": "White") + "'s Turn!"}</button>
+            <button style={{fontSize: 15}} onClick={(event) => ChessPiece.advanceTurnIfPossibleMain(
+                (iswhiteturn ? "WHITE": "BLACK"), gid, true, null, null)}>
+                    <b>{(iswhiteturn ? "Black": "White") + "'s Turn!"}</b></button>
             <button onClick={(event) => setUseRowColLocDisplay(!useroworcollocdisp)}>
                 {useroworcollocdisp ? "Use string loc(s)" : "Use row-col loc(s)"}
             </button>
         </div>
         
-        <div>
+        <div style={{backgroundColor: cc.getBGColorToBeUsed(iserr, "GameBoard")}}>
             <Cmdinterface style={{display: "inline-block"}}
                 whitemovesdownranks={whitemovesdownranks} iswhiteturn={iswhiteturn}
                 useroworcollocdisp={useroworcollocdisp} arrindx={0} mvs={mvslist}
                 setmvs={setMovesList} userem={false} remmv={null} remitem={false} />
-            <button onClick={(event) => executeUserCommand()}>Execute!</button>
+            <button style={{fontSize: 15}} onClick={(event) => executeUserCommand()}>
+                <b>Execute!</b></button>
+            {iserr ? <p>{errmsg}</p>: <br />}
         </div>
         
         <table style={{marginLeft: 10, marginBottom: 10, marginTop: 10}}>
             <thead>
                 <tr>
-                    <th>PLAYER 1: {playeronecolor}</th>
-                    <th>PLAYER 2: {playertwocolor}</th>
+                    <th>PLAYER 1 (ID: {plyraid}): {playeronecolor}</th>
+                    <th>PLAYER 2 (ID: {plyrbid}): {playertwocolor}</th>
                 </tr>
             </thead>
             <tbody>
