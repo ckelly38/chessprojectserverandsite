@@ -735,6 +735,9 @@ class ChessGame {
 		if (this.getMyColor() === "BOTH")
 		{
 			//send all moves in addition to the results of the completed game
+			let cnvmvslist =
+				ChessPiece.convertShorthandListOfMovesToDisplayList(this.OFFICIAL_MOVES);
+			console.log("cnvmvslist = ", cnvmvslist);
 
 			//server accepts unique updated data only for patch
 			let configobj = {
@@ -743,7 +746,7 @@ class ChessGame {
 					"Content-Type": "application/json",
 					"Accept": "application/json"
 				},
-				"body": JSON.stringify({"moves": this.OFFICIAL_MOVES})//problem here 8-3-2024 3 AM
+				"body": JSON.stringify({"moves": cnvmvslist})
 			};
 			fetch("/all-moves-for-game/" + this.getGameID(), configobj).then((res) => res.json())
 			.then((mdata) => {

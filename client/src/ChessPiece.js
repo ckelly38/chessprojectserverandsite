@@ -7144,6 +7144,121 @@ class ChessPiece {
 	{
 		return ChessPiece.getSideColorOrTypesForMoves(mymvs, false);
 	}
+
+	static convertShorthandListOfMovesToDisplayList(mvslist)
+	{
+		console.log("mvslist = ", mvslist);
+		if (ChessPiece.cc.isItemNullOrUndefined(mvslist)) return null;
+		else if (mvslist.length < 1) return [];
+		//else;//do nothing safe to proceed
+
+		return mvslist.map((mvsasmv) => {
+			//mvsasmv which is a list too and it has up to 3 items on it
+			//(each move is valid provided it is not null and not empty at least 3 characters)
+			//it will not be hints (illegal)
+			//if there is only one keep it and return it
+			//the display command is the overall type
+			//if it is castling, it is the WLCE: command that we keep
+			//if it is pawning, it is the BLPN??TO?? command that we keep
+			if (ChessPiece.cc.isStringEmptyNullOrUndefined(mvsasmv))
+			{
+				ChessPiece.cc.logAndThrowNewError("the move must not be undefined, " +
+					"null or empty!");
+			}
+			else if (mvsasmv.length === 1)
+			{
+				if (ChessPiece.cc.isStringEmptyNullOrUndefined(mvsasmv[0]) ||
+					mvsasmv[0].length < 3)
+				{
+					ChessPiece.cc.logAndThrowNewError("the move must not be undefined, " +
+						"null or empty! And the move must have at least 3 characters on it!");
+				}
+				else
+				{
+					let tpofmvcmd = ChessPiece.getTypeOfMoveCommand(mvsasmv[0]);
+					if (tpofmvcmd === "HINTS")
+					{
+						ChessPiece.cc.logAndThrowNewError("the HINTS command is not " +
+							"allowed on the moves list!");
+					}
+					else return mvsasmv[0];
+				}
+			}
+			else if (1 < mvsasmv.length && mvsasmv.length < 4)
+			{
+				//length for initial list is valid
+				//need to get the types for each of the items
+				let mvtps = mvsasmv.map((mvpt) => ChessPiece.getTypeOfMoveCommand(mvpt));
+				console.log("mvtps = ", mvtps);
+				
+				let cpi = -1;
+				let mvi = -1;
+				let mpi = -1;
+				for (let x = 0; x < mvtps.length; x++)
+				{
+					if (mvtps[x] === "PAWNING" || mvtps[x] === "CASTLEING")
+					{
+						cpi = x;
+						break;
+					}
+					else if (mvtps[x] === "PROMOTION") mpi = x;
+					else if (mvtps[x] === "MOVE") mvi = x;
+					else if (mvtps[x] === "RESIGN")
+					{
+						ChessPiece.cc.logAndThrowNewError("the RESIGN command is not " +
+							"allowed on move with multiple parts list!");
+					}
+					else if (mvtps[x] === "HINTS")
+					{
+						ChessPiece.cc.logAndThrowNewError("the HINTS command is not " +
+							"allowed on the moves list!");
+					}
+					//else;//do nothing
+				}
+				console.log("cpi = " + cpi);
+
+				if (cpi < 0 || mvtps.length - 1 < cpi)
+				{
+					//no castleing and no pawning no hints and no resign
+					//move type will be create, delete, move or promotion
+					//we want to keep move and promotion
+					//just one or just the other, the delete will be implied
+					//create is only used to undo something, but is usually not official
+					console.log("mpi = " + mpi);
+					console.log("mvi = " + mvi);
+
+					let mviisvalid = !(mvi < 0 || mvtps.length - 1 < mvi);
+					let mpiisvalid = !(mpi < 0 || mvtps.length - 1 < mpi);
+					console.log("mviisvalid = " + mviisvalid);
+					console.log("mpiisvalid = " + mpiisvalid);
+
+					if (mviisvalid)
+					{
+						if (mpiisvalid)
+						{
+							//move and promote do move first
+							return mvsasmv[mvi] +
+								mvsasmv[mpi].substring(mvsasmv[mpi].indexOf("INTO"));
+						}
+						else return mvsasmv[mvi];//move only
+					}
+					else
+					{
+						//console.error("NEED TO DO SOMETHING HERE FOR THE MOVES...!");
+						//return mvsasmv;
+						ChessPiece.cc.logAndThrowNewError("THE MOVE TYPES MUST BE ABLE TO BE " +
+							"COMPRESSED DOWN TO ONE MOVE!");
+					}
+				}
+				else return mvsasmv[cpi];
+			}
+			else
+			{
+				ChessPiece.cc.logAndThrowNewError("the move must not be undefined, " +
+					"null or empty! The move must only have at most 3 parts to it!");
+			}
+		});
+	}
 	
 	
 	//MAIN GEN MOVE TO COMMAND METHODS
