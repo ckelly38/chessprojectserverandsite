@@ -915,6 +915,8 @@ class GetAllMovesForAGame(Resource):
 
             mvs = dataobj["moves"];
             for n in range(0, len(mvs)):
+                print(f"mvs[{n}] = {mvs[n]}");
+
                 mvondb = Moves.query.filter_by(contents=mvs[n]).first();
                 print(f"mvondb = {mvondb}");
                 
@@ -936,7 +938,7 @@ class GetAllMovesForAGame(Resource):
                 print(f"mvid = {mvid}");
 
                 try:
-                    gmmv = GameMoves(id, mvid, n + 1);
+                    gmmv = GameMoves(game_id=id, move_id=mvid, number=n + 1);
                     db.session.add(gmmv);
                     db.session.commit();
                 except Exception as ex:
@@ -947,8 +949,8 @@ class GetAllMovesForAGame(Resource):
             
             #what to return? POST usually returns a success message or the new contents
             #I guess that means all the new objects created... and 201 status code of course
-            item = cm.getItemByID(id, GameMoves, usr.id);
-            return cm.getSerializedItem(GameMoves, item, 3), 201;
+            nwgmvslist = cm.getItemByID(id, GameMoves, usr.id);#list of gamemoves
+            return [cm.getSerializedItem(GameMoves, gmv, 3) for gmv in nwgmvslist], 201;
 
 api.add_resource(GetAllMovesForAGame, "/all-moves-for-game/<int:id>");#id is gameid
 

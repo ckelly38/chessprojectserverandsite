@@ -22,7 +22,7 @@ class GenerateSerializableRulesClass:
 
     def getSafeListForClassName(self, clsnm):
         if (clsnm == "User"): return ["id", "name"];#, "access_level"
-        elif (clsnm == "Moves"): return ["id", "text"];
+        elif (clsnm == "Moves"): return ["id", "contents"];
         elif (clsnm == "Games"):
             return ["id", "playera_won", "playera_resigned", "playerb_resigned", "tied",
                     "completed", "playerb_won", "playera_id", "playerb_id"];#"can_be_started", 
@@ -55,7 +55,7 @@ class GenerateSerializableRulesClass:
         gmsunsafelistnos = self.prependStringToListItems("game.", gmssafelist);
         #moves unsafe list
         mvsunsafelistwiths = self.prependStringToListItems("moves.", mvssafelist);
-        mvsunsafelistnos = self.prependStringToListItems("moves.", mvssafelist);
+        mvsunsafelistnos = self.prependStringToListItems("move.", mvssafelist);
         #players unsafe list
         plyrsunsafelistwiths = self.prependStringToListItems("players.", plyrssafelist);
         plyrsunsafelistnos = self.prependStringToListItems("player.", plyrssafelist);
@@ -315,6 +315,9 @@ class Players(db.Model, SerializerMixin):
 
     serialize_only = tuple(safeserializelist);
 
+    @classmethod
+    def getValidator(cls): return mv;
+
     def setGameID(self, val):
         if (type(val) == int):
             if (val < 0): raise ValueError("value must be at least zero (0), but it was not!");
@@ -342,6 +345,9 @@ class UserPlayers(db.Model, SerializerMixin):
     full_list = genlists.combineLists(safeserializelist, unsafelist);
 
     serialize_only = tuple(safeserializelist);
+
+    @classmethod
+    def getValidator(cls): return mv;
 
     def __repr__(self):
         mystr = f"<UserPlayer user_id={self.user_id}, player_id={self.player_id}>";
@@ -402,6 +408,9 @@ class Games(db.Model, SerializerMixin):
     playerb_id = db.Column(db.Integer, db.ForeignKey("players.id", use_alter=True),
                            nullable=True, default=0);
     
+    @classmethod
+    def getValidator(cls): return mv;
+
     def setPlayerID(self, val, usea):
         if (type(usea) == bool): pass;
         else: raise ValueError("usea must be a boolean value, but it was not!");
@@ -471,6 +480,9 @@ class GameMoves(db.Model, SerializerMixin):
     full_list = genlists.combineLists(safeserializelist, unsafelist);
 
     serialize_only = tuple(safeserializelist);
+
+    @classmethod
+    def getValidator(cls): return mv;
 
     def __repr__(self):
         mystr = f"<GameMoves game_id={self.game_id}, move_id={self.move_id}, ";
