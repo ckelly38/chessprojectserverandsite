@@ -376,8 +376,7 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
     //White moves {whitemovesdownranks ? "down": "up"} ranks!</button>
     
     
-    //NOT DONE YET 7-14-2024 2:30 AM
-    function executeUserCommand()
+    function executeUserCommand(usecompletegame)
     {
         //first we need to generate the command in the notation that the executor can process
         //then we execute it
@@ -394,6 +393,8 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
         //THE ONLY TIME PIECE_COLOR STATE IS USED IS FOR COMMAND TYPES:
         //PROMOTION, CREATE, AND DELETE
         //OTHERWISE IT IS FROM COLOR TURN VALUE
+
+        cc.letMustBeBoolean(usecompletegame, "usecompletegame");
         
         
         let simpcmd = null;
@@ -473,6 +474,10 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
         }
         else cc.logAndThrowNewError("ERROR: Command type: " + mv.cmd_type + " not recognized!");
 
+        const baseerrmsg = "invalid command";
+        const cgameerrmsg = "! The game is over. If you did not already " +
+                    "make this move before, you cannot make it now! ";
+        const fullerrmsg = (usecompletegame ? baseerrmsg + cgameerrmsg : baseerrmsg + " ");
         if (cc.isStringEmptyNullOrUndefined(simpcmd))
         {
             cc.logAndThrowNewError("THE SIMPLE COMMAND MUST NOT BE NULL!");
@@ -491,32 +496,79 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
             catch(ex)
             {
                 console.error(ex);
-                setErrorMessage("invalid command " + ex.message);
+                setErrorMessage(fullerrmsg + ex.message);
                 return;
             }   
         }
 
-        ChessPiece.makeLocalShortHandMove(myfullmvcmd, gid, isuser, isundo,
-            ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial);
-        setUpdateBoard(!updateboard);
+        try
+        {
+            ChessPiece.makeLocalShortHandMove(myfullmvcmd, gid, isuser, isundo,
+                ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial);
+            if (cc.isStringEmptyNullOrUndefined(errmsg));
+            else setErrorMessage("");
+            setUpdateBoard(!updateboard);
+        }
+        catch(ex)
+        {
+            console.error(ex);
+            setErrorMessage(fullerrmsg + ex.message);
+            return;
+        }
     }
 
     function undoMoveMain(gameisover)
     {
         cc.letMustBeBoolean(gameisover, "gameisover");
 
-        if (gameisover) ChessGame.getGameVIAGID(gid).stepBackward();
+        if (gameisover)
+        {
+            try
+            {
+                ChessGame.getGameVIAGID(gid).stepBackward();
+                if (cc.isStringEmptyNullOrUndefined(errmsg));
+                else setErrorMessage("");
+            }
+            catch(ex)
+            {
+                console.error(ex);
+                setErrorMessage("invalid command! The game is over. If you did not already " +
+                    "make this move before, you cannot make it now! " + ex.message);
+                return;
+            }
+        }
         else
         {
-            let myfullmvcmd = ChessPiece.genFullMoveCommandFromDisplayedCommandMain("UNDO", gid);
+            let myfullmvcmd = null;
+            try
+            {
+                myfullmvcmd = ChessPiece.genFullMoveCommandFromDisplayedCommandMain("UNDO", gid);
+                if (cc.isStringEmptyNullOrUndefined(errmsg));
+                else setErrorMessage("");
+            }
+            catch(ex)
+            {
+                console.error(ex);
+                setErrorMessage("invalid command " + ex.message);
+                return;
+            }
             const isundo = true;
             const isuser = true;
             //we do not know if the move is official or if the move is unofficial
             //we can determine what it is though by checking the unofficial move
             let cpunoffmv = ChessGame.getGameVIAGID(gid).genCopyOfUnofficialMove();
             const isofficial = (cc.isStringEmptyNullOrUndefined(cpunoffmv) ? true: false);
-            ChessPiece.makeLocalShortHandMove(myfullmvcmd, gid, isuser, isundo,
-                ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial);
+            try
+            {
+                ChessPiece.makeLocalShortHandMove(myfullmvcmd, gid, isuser, isundo,
+                    ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial);
+            }
+            catch(ex)
+            {
+                console.error(ex);
+                setErrorMessage("invalid command " + ex.message);
+                return;
+            }
         }
         setUpdateBoard(!updateboard);
     }
@@ -525,16 +577,53 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
     {
         cc.letMustBeBoolean(gameisover, "gameisover");
 
-        if (gameisover) ChessGame.getGameVIAGID(gid).stepForward();
+        if (gameisover)
+        {
+            try
+            {
+                ChessGame.getGameVIAGID(gid).stepForward();
+                if (cc.isStringEmptyNullOrUndefined(errmsg));
+                else setErrorMessage("");
+            }
+            catch(ex)
+            {
+                console.error(ex);
+                setErrorMessage("invalid command! The game is over. If you did not already " +
+                    "make this move before, you cannot make it now! " + ex.message);
+                return;
+            }
+        }
         else
         {
-            let myfullmvcmd = ChessGame.getGameVIAGID(gid).genCommandToRedoLastUndoneMove();
+            let myfullmvcmd = null;
+            try
+            {
+                myfullmvcmd = ChessGame.getGameVIAGID(gid).genCommandToRedoLastUndoneMove();
+                if (cc.isStringEmptyNullOrUndefined(errmsg));
+                else setErrorMessage("");
+            }
+            catch(ex)
+            {
+                console.error(ex);
+                setErrorMessage("invalid command " + ex.message);
+                return;
+            }
             const isundo = false;
             const isuser = true;
             const isofficial = false;
             console.log("INSIDE REDO! myfullmvcmd = ", myfullmvcmd);
-            ChessPiece.makeLocalShortHandMove(myfullmvcmd, gid, isuser, isundo,
-                ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial);
+            
+            try
+            {
+                ChessPiece.makeLocalShortHandMove(myfullmvcmd, gid, isuser, isundo,
+                    ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial);
+            }
+            catch(ex)
+            {
+                console.error(ex);
+                setErrorMessage("invalid command " + ex.message);
+                return;
+            }
         }
         setUpdateBoard(!updateboard);
     }
@@ -588,8 +677,21 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
                 {"< " + (iscompleted ? "Previous": "Undo") + " Move"}</button>
             <button onClick={(event) => redoMoveMain(iscompleted)}>
                 {"> " + (iscompleted ? "Next": "Redo") + " Move"}</button>
-            <button style={{fontSize: 15}} onClick={(event) => ChessPiece.advanceTurnIfPossibleMain(
-                (iswhiteturn ? "WHITE": "BLACK"), gid, true, null, null)}>
+            <button style={{fontSize: 15}} onClick={(event) => {
+                    try
+                    {
+                        ChessPiece.advanceTurnIfPossibleMain((iswhiteturn ? "WHITE": "BLACK"),
+                            gid, true, null, null);
+                        if (cc.isStringEmptyNullOrUndefined(errmsg));
+                        else setErrorMessage("");
+                    }
+                    catch(ex)
+                    {
+                        console.error(ex);
+                        setErrorMessage("invalid command " + ex.message);
+                        return;
+                    }
+                }}>
                     <b>{(iswhiteturn ? "Black": "White") + "'s Turn!"}</b></button>
             <button onClick={(event) => setUseRowColLocDisplay(!useroworcollocdisp)}>
                 {useroworcollocdisp ? "Use string loc(s)" : "Use row-col loc(s)"}
@@ -601,7 +703,7 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
                 whitemovesdownranks={whitemovesdownranks} iswhiteturn={iswhiteturn}
                 useroworcollocdisp={useroworcollocdisp} arrindx={0} mvs={mvslist}
                 setmvs={setMovesList} userem={false} remmv={null} remitem={false} />
-            <button style={{fontSize: 15}} onClick={(event) => executeUserCommand()}>
+            <button style={{fontSize: 15}} onClick={(event) => executeUserCommand(iscompleted)}>
                 <b>Execute!</b></button>
             {iserr ? <p>{errmsg}</p>: <br />}
         </div>
