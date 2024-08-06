@@ -5,7 +5,7 @@ import * as yup from "yup";
 import { UserContext } from "./UserProvider";
 import CommonClass from "./commonclass";
 
-function GameList({setgame})
+function GameList({setgame, setpaid, setpbid})
 {
     //need to get the list of games
     let usedummydata = false;
@@ -15,13 +15,18 @@ function GameList({setgame})
     const simpusrobj = cc.getSimplifiedUserObj(user);
     let [errormsg, setErrorMessage] = useState(null);
     let [loaded, setLoaded] = useState(false);
+    let [openplay, setOpenPlay] = useState(false);
     let [usecreate, setUseCreate] = useState(true);
     let [initdata, setInitData] = useState(null);
     let [mygame, setMyGame] = useState(null);
     let [userpdata, setUserPlayerData] = useState(null);
     let [showcreategameform, setShowCreateGameForm] = useState(false);
     const history = useHistory();
+    
     cc.letMustBeDefinedAndNotNull(setgame, "setgame");
+    cc.letMustBeDefinedAndNotNull(setpaid, "setpaid");
+    cc.letMustBeDefinedAndNotNull(setpbid, "setpbid");
+
 
     function genDummyData(usemyips, usetwosameids)
     {
@@ -191,6 +196,34 @@ function GameList({setgame})
         return usrnm;
     }
 
+    function checkToSeeIfGameGotJoined(gameid)
+    {
+        fetch("/games/" + gameid).then((ores) => ores.json())
+        .then((omdata) => {
+            console.log("omdata = ", omdata);
+            if (omdata.can_be_started)
+            {
+                setShowCreateGameForm(false);
+                console.log("mygame = ", omdata);
+                //console.log("playera color = " + omdata.playera.color);
+                //console.log("playerb color = " + omdata.playerb.color);
+                //console.log("playera defers = " + omdata.playera.defers);
+                //console.log("playerb defers = " + omdata.playerb.defers);
+                //console.error("NEED TO DO SOMETHING HERE...!");
+                //history.push("/play");
+                setOpenPlay(true);
+                setgame(omdata);
+            }
+            else setTimeout(checkToSeeIfGameGotJoined(omdata.id), 3000);
+        }).catch((merr) => {
+            console.error("there was an error getting data from the server!");
+            console.error(merr);
+            setErrorMessage("There was a problem getting the data from the server! " +
+                merr);
+            setLoaded(true);
+        });
+    }
+
     const formSchema = yup.object().shape({
         username: yup.string().required("You must enter a username!").min(1),
         player_color: yup.string().required("You must enter a color or if you defer!"),
@@ -266,9 +299,13 @@ function GameList({setgame})
                     let mynwgame = {"username": mdata.user_player.user.name, "id": mdata.game.id,
                         "color": mdata.user_player.player.color,
                         "defers": mdata.user_player.player.defers};
+                    setpaid(mdata.user_player.player.id);
                     setInitData([...initdata, mynwgame]);
                     setUserPlayerData([...userpdata, mdata.user_player]);
                     setLoaded(true);
+                    
+                    console.log("CALLING CHECK TO SEE IF GAME GOT JOINED() WITH ID: ", mdata.game.id);
+                    checkToSeeIfGameGotJoined(mdata.game.id);
                 }).catch((merr) => {
                     console.error("There was a problem updating the server!");
                     console.error(merr);
@@ -302,6 +339,7 @@ function GameList({setgame})
 
                     if (mdata.game.can_be_started)
                     {
+                        setpbid(mdata.user_player.player.id);
                         setShowCreateGameForm(false);
                         console.log("mygame = mdata.game = ", mdata.game);
                         //console.log("playera color = " + mdata.game.playera.color);
@@ -310,9 +348,16 @@ function GameList({setgame})
                         //console.log("playerb defers = " + mdata.game.playerb.defers);
                         //console.error("NEED TO DO SOMETHING HERE...!");
                         //history.push("/play");
-                        return setgame(mdata.game);
+                        setOpenPlay(true);
+                        setgame(mdata.game);
                     }
-                    //else;//do nothing
+                    else
+                    {
+                        console.log("CALLING CHECK TO SEE IF GAME GOT JOINED() WITH ID: ",
+                            mdata.game.id);
+                        setpaid(mdata.user_player.player.id);
+                        checkToSeeIfGameGotJoined(mdata.game.id);
+                    }
                 }).catch((merr) => {
                     console.error("There was a problem updating the server!");
                     console.error(merr);
@@ -324,8 +369,13 @@ function GameList({setgame})
         },
     });
 
+    console.log("RIGHT BEFORE RENDERING!");
+    console.log("loaded = " + loaded);
+    console.log("openplay = " + openplay);
     if (loaded);
     else return (<div>Loading...</div>);
+    if (openplay) return (<Redirect to="/play" />);
+    //else;//do nothing
 
     let myrws = null;
     if (cc.isStringEmptyNullOrUndefined(initdata));

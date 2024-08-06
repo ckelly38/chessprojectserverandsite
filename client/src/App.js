@@ -224,15 +224,19 @@ function App() {
   //TestDriver.main(null);
   //let gid = 1;
   const [thegame, setTheGame] = useState(null);
+  let [pa_id, setPaID] = useState(-1);
+  let [pb_id, setPbID] = useState(-1);
 
   function setGameAndAdvance(ng)
   {
     console.log("APP: ng = ", ng);
     setTheGame(ng);
-    return (<Redirect to="/play" />);
+    //return (<Redirect to="/play" />);
   }
 
   console.log("APP: thegame = ", thegame);
+  console.log("APP: pa_id = " + pa_id);
+  console.log("APP: pb_id = " + pb_id);
 
   return (<div>
       <Switch>
@@ -244,7 +248,8 @@ function App() {
           <Ranks key={"ranksforstats"} />])}
         {getRoutesList("/join", ["/join_games"], [
           <Navbar key={"nvbarforjoin"} />,
-          <GameList key={"gamelistforjoin"} setgame={setGameAndAdvance} />
+          <GameList key={"gamelistforjoin"} setgame={setGameAndAdvance}
+            setpaid={setPaID} setpbid={setPbID} />
         ])}
         <Route exact path="/rules">
           <Navbar />
@@ -252,7 +257,7 @@ function App() {
         </Route>
         <Route exact path="/play">
           <Navbar />
-          <GameBoard srvrgame={thegame} />
+          <GameBoard srvrgame={thegame} pa_id={pa_id} pb_id={pb_id} />
         </Route>
         <Route exact path="/preferences" render={(props) => 
           makeLoginPrefsItem(false, true, "Preferences")} />

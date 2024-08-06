@@ -4,21 +4,27 @@ import MyImageComponent from "./MyImageComponent";
 import ChessPiece from "./ChessPiece";
 import ChessGame from "./ChessGame";
 import Cmdinterface from "./Cmdinterface";
+import { UserContext } from "./UserProvider";
 //import { GameContext } from "./GameProvider";
 import CommonClass from "./commonclass";
 
-function GameBoard({srvrgame, addpcs=null, startmvslist=null})
+function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
 {
     let cc = new CommonClass();
     const history = useHistory();
     //console.log("INSIDE GAME BOARD!");
 
     let calledsetup = useRef(false);
+    let executehaserr = useRef(false);
     let [loaded, setLoaded] = useState(false);
     let [updateboard, setUpdateBoard] = useState(false);
+    const { user, setUser } = useContext(UserContext);
+    const mysimpusrobj = cc.getSimplifiedUserObj(user);
 
     //console.log("srvrgame = ", srvrgame);
     cc.letMustBeDefinedAndNotNull(srvrgame, "srvrgame");
+    cc.letMustBeAnInteger(pa_id, "pa_id");
+    cc.letMustBeAnInteger(pb_id, "pb_id");
     
     const gid = srvrgame.id;
     
@@ -52,9 +58,287 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
     let hints = useRef(cc.fourDimArrToTwoDimArr(pcshints));
     //console.log("hints = ", hints);
 
+    function getPlayersUsernamesAndRanksFromData(statsarr, myupsdata, msrvrgame)
+    {
+        //extract the user information from the statistics object
+        let playertwousrnm = "tu";
+        let playeroneusrnm = "me";
+        let playeronerank = -1;
+        let playertworank = -1;
+
+        //console.log("statsarr = ", statsarr);
+        //console.log("myupsdata = ", myupsdata);
+        //console.log("msrvrgame = ", msrvrgame);
+
+        if (cc.isStringEmptyNullOrUndefined(statsarr) ||
+            cc.isStringEmptyNullOrUndefined(myupsdata))
+        {
+            //do nothing
+        }
+        else
+        {
+            if (cc.isItemNullOrUndefined(msrvrgame));
+            else
+            {
+                //msrvrgame.playera.id
+                //msrvrgame.playerb.id
+                let gotpainfo = false;
+                let gotpbinfo = false;
+                let pausrid = -1;
+                let pbusrid = -1;
+                for (let x = 0; x < myupsdata.length; x++)
+                {
+                    if (myupsdata[x].player.game_id === msrvrgame.id)
+                    {
+                        if (myupsdata[x].player.id === msrvrgame.playera.id)
+                        {
+                            playeroneusrnm = myupsdata[x].user.name;
+                            pausrid = myupsdata[x].user.id;
+                            gotpainfo = true;
+                        }
+                        //else;//do nothing
+                        if (myupsdata[x].player.id === msrvrgame.playerb.id)
+                        {
+                            playertwousrnm = myupsdata[x].user.name;
+                            pbusrid = myupsdata[x].user.id;
+                            gotpbinfo = true;
+                        }
+                        //else;//do nothing
+                        if (gotpainfo && gotpbinfo) break;
+                        //else;//do nothing
+                    }
+                    //else;//do nothing
+                }//end of x for loop
+                //console.log("gotpainfo = " + gotpainfo);
+                //console.log("gotpbinfo = " + gotpbinfo);
+                //console.log("playeroneusrnm = " + playeroneusrnm);
+                //console.log("playertwousrnm = " + playertwousrnm);
+                //console.log("pausrid = " + pausrid);
+                //console.log("pbusrid = " + pbusrid);
+
+                if (gotpainfo && gotpbinfo);
+                else
+                {
+                    cc.logAndThrowNewError("FAILED TO GET THE PLAYER, USER AND RANK INFORMATION " +
+                        "FROM THE SERVER FOR PLAYER A (" + !gotpainfo + ") AND PLAYER B (" +
+                        !gotpbinfo + ")!");
+                }
+
+                gotpainfo = false;
+                gotpbinfo = false;
+                for (let x = 0; x < statsarr.length; x++)
+                {
+                    if (statsarr[x].userid === pausrid)
+                    {
+                        playeronerank = x + 1;
+                        gotpainfo = true;
+                    }
+                    //else;//do nothing
+                    if (statsarr[x].userid === pbusrid)
+                    {
+                        playertworank = x + 1;
+                        gotpbinfo = true;
+                    }
+                    //else;//do nothing
+                    if (gotpainfo && gotpbinfo) break;
+                    //else;//do nothing
+                }
+                //console.log("gotpainfo = " + gotpainfo);
+                //console.log("gotpbinfo = " + gotpbinfo);
+                //console.log("playeronerank = " + playeronerank);
+                //console.log("playertworank = " + playertworank);
+
+                if (gotpainfo && gotpbinfo);
+                else
+                {
+                    cc.logAndThrowNewError("FAILED TO GET THE PLAYER RANK INFORMATION " +
+                        "FROM THE SERVER FOR PLAYER A (" + !gotpainfo + ") AND PLAYER B (" +
+                        !gotpbinfo + ")!");
+                }
+            }
+        }
+        return [playertwousrnm, playeroneusrnm, playeronerank, playertworank];
+    }
+
+    function getNextMoveFromServer()
+    {
+        console.error("NOT SURE WHAT TO DO HERE... 8-6-2024 3:30 AM MST");
+        //if we do not get the reply we want keep querying the server, until we do
+
+        //what we might want to say on the server:
+        //GameMoves.query.filter_by(game_id=gid, number=ChessPiece.getGameVIAGID(gid)).first();
+        /*fetch("/url").then((mdata) => {
+            console.log("mdata = ", mdata);
+            //do something here...
+            //somehow take the move made on the other board and make it on this one
+            //simpcmd the simple command usually entered by the user
+            const isuser = false;
+            const isundo = false;
+            const bpassimnxtmv = false;
+            
+            const isofficial = true;
+            //not sure what this should be because it is already an official move,
+            //but has not been made yet on this board
+            
+            let ptpval = "QUEEN";//but might come in from command
+            
+            let myfullmvcmd = ChessPiece.genFullMoveCommandFromDisplayedCommandMain(simpcmd, gid,
+                    ptpval, ChessPiece.WHITE_MOVES_DOWN_RANKS, bpassimnxtmv);
+            ChessPiece.makeLocalShortHandMove(myfullmvcmd, gid, isuser, isundo,
+                ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial);
+        }).catch((merr) => {
+            console.error("there was an error getting data from the server!");
+            console.error(merr);
+            //do something here...
+        });*/
+    }
+
+    function sendMoveToServer(cpunoffmv)
+    {
+        console.log("INSIDE OF SEND MOVE TO SERVER()");
+
+        let cnvmvslist = ChessPiece.convertShorthandListOfMovesToDisplayList([cpunoffmv]);
+        console.log("cnvmvslist = ", cnvmvslist);
+        
+        let configobj = {
+            "method": "POST",
+            "headers": {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            "body": JSON.stringify({"move": cnvmvslist[0],
+            "number": ChessPiece.getGameVIAGID(gid).getNumOfficialMoves()})
+        };
+        fetch("/add-one-move-for-game/" + gid, configobj)
+        .then((res) => res.json()).then((mdata) => {
+            console.log("mdata = ", mdata);
+            getNextMoveFromServer();
+        }).catch((merr) => {
+            console.error("There was a problem sending the data to the server!");
+            console.error(merr);
+            cc.logAndThrowNewError("FAILED TO SEND DATA TO SERVER AND ADVANCE THE TURNS!");
+        });
+    }
+
+    function onSetup(statsarr, myupsdata, msrvrgame)
+    {
+        console.log("ATTEMPTING TO SET UP THE BOARD NOW:");
+        console.log("addpcs = ", addpcs);
+        console.log("gid = ", gid);
+        console.log("pa_id = " + pa_id);
+        console.log("pb_id = " + pb_id);
+        ChessPiece.setAllPieceHintsFunc(setPcsHints);
+        ChessPiece.setSendMoveToServerFunc(sendMoveToServer);
+        
+        //setup board methods
+        //addpcs arr of [{row: 0, col: 0, color: "WHITE", type: "KING", move_count: 0,
+        //arrindx: 0, id: "pid0"}] if used it will have at minimum 2 kings
+        if (ChessPiece.getNumItemsInList(addpcs) < 2) ChessPiece.setUpBoard(gid);
+        else ChessPiece.setUpBoardFromList(gid, addpcs, false);
+        
+        let [playertwousrnm, playeroneusrnm, playeronerank, playertworank] =
+            getPlayersUsernamesAndRanksFromData(statsarr, myupsdata, msrvrgame);
+
+        //if the users are different, then the colors will be different
+        //get the username from the user-player data
+        //if both of the usernames are not the same then,
+        //-the one that matches the current username will determine the color
+        //if both of the usernames are the same, then ?.
+        //-if the number of boards is 1 NOT 2, BOTH colors are used
+        //-if the number of boards is 2 NOT 1, then ?.
+        //--if we know the player id we created, then we can get the color from that.
+        //--if we do not know the player id we created, then screwed.
+
+        let myclr = null;
+        if (playertwousrnm === playeroneusrnm || msrvrgame.completed)
+        {
+            //usernames are the same
+            let numbrds = -1;
+            if (pa_id < 1 && pb_id < 1) numbrds = 0;
+            else if ((pa_id < 1 && (1 < pb_id || pb_id === 1)) ||
+                (pb_id < 1 && (1 < pa_id || pa_id === 1)))
+            {
+                numbrds = 2;
+            }
+            else numbrds = 1;
+            console.log("numbrds = ", numbrds);
+
+            if (numbrds === 1 || msrvrgame.completed) myclr = "BOTH";
+            else if (numbrds === 2)
+            {
+                //need to know the player id we created
+                let pidcrted = -1;
+                if (1 < pb_id || pb_id === 1) pidcrted = pb_id;
+                else if (1 < pa_id || pa_id === 1) pidcrted = pa_id;
+                //else;//do nothing
+                if (msrvrgame.playera.id === pidcrted) myclr = msrvrgame.playera.color;
+                else if (msrvrgame.playerb.id === pidcrted) myclr = msrvrgame.playerb.color;
+                else
+                {
+                    cc.logAndThrowNewError("cannot set the color of the board! " +
+                        "Invalid player id created or it is not known and not on the game!");
+                }
+            }
+            else
+            {
+                cc.logAndThrowNewError("cannot set the color of the board! " +
+                    "Invalid number of boards!");
+            }
+        }
+        else
+        {
+            //will be two boards can look up color from based on username
+            if (mysimpusrobj.username === playertwousrnm) myclr = msrvrgame.playera.color;
+            else myclr = msrvrgame.playerb.color;
+        }
+        console.log("myclr = " + myclr);
+
+        //game constructor methods
+        ChessGame.makeNewChessGameFromColor(gid, myclr);//NEEDS TO BE MODIFIED 7-13-2024
+        //NOTE: OFFICIAL MOVES WILL NEED TO BE FULL SHORT HAND MOVES
+        //ChessGame gm = new ChessGame(gid, offmvs=null, isdone=false, mclrval="BOTH");
+        //ChessGame.makeNewChessGameFromMoveList(gid, offmvs=null, isdone=false);
+        //ChessGame.makeNewChessGameFromGID(gid);
+        
+        console.log("PIECE LIST AFTER SET UP BOARD CALLED:");
+        //console.log("pieces = ", pieces);
+        //console.log("getPieces() = ", getPieces());
+        console.log("ChessPiece.cps = ", ChessPiece.cps);
+        console.log("ChessGame.all = ", ChessGame.all);
+        calledsetup.current = true;
+        console.log("NEW calledsetup.current = ", calledsetup.current);
+    }
+
+
     useEffect(() => {
-        //console.log("INSIDE OF USE EFFECT!");
-        //console.log("srvrgame = ", srvrgame);
+        console.log("INSIDE OF DATA FETCH USE EFFECT!");
+        fetch("/stats").then((res) => res.json()).then((mdata) => {
+            console.log("mdata = ", mdata);
+            setStatsInfo(mdata);
+            fetch("/user-players").then((res) => res.json()).then((mupdata) => {
+                console.log("mupdata = ", mupdata);
+                onSetup(mdata, mupdata, srvrgame);
+                setUserPlayerData(mupdata);
+                setLoaded(true);//needed to display the pieces, sling shot route does not work
+            }).catch((merr) => {
+                console.error("There was a problem getting data from the server!");
+                console.error(merr);
+                setErrorMessage("Could not get the user-player information: " + merr.message);
+                setLoaded(true);
+            });
+        }).catch((merr) => {
+            console.error("There was a problem getting data from the server!");
+            console.error(merr);
+            setErrorMessage("Could not get the stats information: " + merr.message);
+            setLoaded(true);
+        });
+    }, []);
+
+    useEffect(() => {
+        console.log("INSIDE OF USE EFFECT!");
+        console.log("srvrgame = ", srvrgame);
+        console.log("upsdata = ", upsdata);
+        console.log("statsinfo = ", statsinfo);
         if (calledsetup.current)
         {
             hints.current = cc.fourDimArrToTwoDimArr(pcshints);
@@ -62,53 +346,14 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
             setUpdateBoard(!updateboard);
             setTimeout(() => setPcsHints([]), 10000);
         }
-        else
-        {
-            ChessPiece.setAllPieceHintsFunc(setPcsHints);
-            
-            //setup board methods
-            //addpcs arr of [{row: 0, col: 0, color: "WHITE", type: "KING", move_count: 0,
-            //arrindx: 0, id: "pid0"}] if used it will have at minimum 2 kings
-            if (ChessPiece.getNumItemsInList(addpcs) < 2) ChessPiece.setUpBoard(gid);
-            else ChessPiece.setUpBoardFromList(gid, addpcs, false);
-            
-            //game constructor methods
-            ChessGame.makeNewChessGameFromColor(gid, "BOTH");//NEEDS TO BE MODIFIED 7-13-2024
-            //NOTE: OFFICIAL MOVES WILL NEED TO BE FULL SHORT HAND MOVES
-            //ChessGame gm = new ChessGame(gid, offmvs=null, isdone=false, mclrval="BOTH");
-            //ChessGame.makeNewChessGameFromMoveList(gid, offmvs=null, isdone=false);
-            //ChessGame.makeNewChessGameFromGID(gid);
-            
-            console.log("PIECE LIST AFTER SET UP BOARD CALLED:");
-            //console.log("pieces = ", pieces);
-            //console.log("getPieces() = ", getPieces());
-            console.log("ChessPiece.cps = ", ChessPiece.cps);
-            console.log("ChessGame.all = ", ChessGame.all);
-            calledsetup.current = true;
-            console.log("NEW calledsetup.current = ", calledsetup.current);
-            
-            fetch("/stats").then((res) => res.json()).then((mdata) => {
-                console.log("mdata = ", mdata);
-                setStatsInfo(mdata);
-                fetch("/user-players").then((res) => res.json()).then((mupdata) => {
-                    console.log("mupdata = ", mupdata);
-                    setUserPlayerData(mupdata);
-                    setLoaded(true);//needed to display the pieces, sling shot route does not work
-                }).catch((merr) => {
-                    console.error("There was a problem getting data from the server!");
-                    console.error(merr);
-                    setErrorMessage("Could not get the user-player information: " + merr.message);
-                    setLoaded(true);
-                });
-            }).catch((merr) => {
-                console.error("There was a problem getting data from the server!");
-                console.error(merr);
-                setErrorMessage("Could not get the stats information: " + merr.message);
-                setLoaded(true);
-            });
-        }
-    }, [calledsetup.current, pcshints, gid]);
+        //else
+        //{
+            //if (loaded) onSetup(statsinfo, upsdata, srvrgame);
+            //else;//do nothing
+        //}
+    }, [calledsetup.current, pcshints, gid, loaded]);
     
+
     function setSelectedLoc(rval, cval, ispcatloc)
     {
         console.log("INSIDE OF SET-SELECTED-LOC()!");
@@ -157,6 +402,25 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
                 else return mitem;
             });
         }
+        setMovesList(mynwmvs);
+    }
+
+    function swapLocs()
+    {
+        let mynwmvs = mvslist.map(mitem => {
+            if (mitem.id === mv.id)
+            {
+                let mynwmv = {...mv};
+                let tempstartrow = mynwmv.start_row;
+                let tempstartcol = mynwmv.start_col;
+                mynwmv.start_row = mynwmv.end_row;
+                mynwmv.start_col = mynwmv.end_col;
+                mynwmv.end_row = tempstartrow;
+                mynwmv.end_col = tempstartcol;
+                return mynwmv;
+            }
+            else return mitem;
+        });
         setMovesList(mynwmvs);
     }
 
@@ -271,102 +535,14 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
             clrvalturn, gid, null, null);
     }
     //else;//defaults will be used
-    
-    //extract the user information from the statistics object
-    let playertwousrnm = "tu";
-    let playeroneusrnm = "me";
-    const playeronecolor = "WHITE";
-    const playertwocolor = "BLACK";
-    let playeronerank = -1;
-    let playertworank = -1;
 
-    //console.log("statsinfo = ", statsinfo);
-    //console.log("upsdata = ", upsdata);
+
     //console.log("srvrgame = ", srvrgame);
+    //console.log("upsdata = ", upsdata);
+    //console.log("statsinfo = ", statsinfo);
 
-    if (cc.isStringEmptyNullOrUndefined(statsinfo) || cc.isStringEmptyNullOrUndefined(upsdata));
-    else
-    {
-        if (cc.isItemNullOrUndefined(srvrgame));
-        else
-        {
-            //srvrgame.playera.id
-            //srvrgame.playerb.id
-            let gotpainfo = false;
-            let gotpbinfo = false;
-            let pausrid = -1;
-            let pbusrid = -1;
-            for (let x = 0; x < upsdata.length; x++)
-            {
-                if (upsdata[x].player.game_id === srvrgame.id)
-                {
-                    if (upsdata[x].player.id === srvrgame.playera.id)
-                    {
-                        playeroneusrnm = upsdata[x].user.name;
-                        pausrid = upsdata[x].user.id;
-                        gotpainfo = true;
-                    }
-                    //else;//do nothing
-                    if (upsdata[x].player.id === srvrgame.playerb.id)
-                    {
-                        playertwousrnm = upsdata[x].user.name;
-                        pbusrid = upsdata[x].user.id;
-                        gotpbinfo = true;
-                    }
-                    //else;//do nothing
-                    if (gotpainfo && gotpbinfo) break;
-                    //else;//do nothing
-                }
-                //else;//do nothing
-            }//end of x for loop
-            //console.log("gotpainfo = " + gotpainfo);
-            //console.log("gotpbinfo = " + gotpbinfo);
-            //console.log("playeroneusrnm = " + playeroneusrnm);
-            //console.log("playertwousrnm = " + playertwousrnm);
-            //console.log("pausrid = " + pausrid);
-            //console.log("pbusrid = " + pbusrid);
-
-            if (gotpainfo && gotpbinfo);
-            else
-            {
-                cc.logAndThrowNewError("FAILED TO GET THE PLAYER, USER AND RANK INFORMATION " +
-                    "FROM THE SERVER FOR PLAYER A (" + !gotpainfo + ") AND PLAYER B (" +
-                    !gotpbinfo + ")!");
-            }
-
-            gotpainfo = false;
-            gotpbinfo = false;
-            for (let x = 0; x < statsinfo.length; x++)
-            {
-                if (statsinfo[x].userid === pausrid)
-                {
-                    playeronerank = x + 1;
-                    gotpainfo = true;
-                }
-                //else;//do nothing
-                if (statsinfo[x].userid === pbusrid)
-                {
-                    playertworank = x + 1;
-                    gotpbinfo = true;
-                }
-                //else;//do nothing
-                if (gotpainfo && gotpbinfo) break;
-                //else;//do nothing
-            }
-            //console.log("gotpainfo = " + gotpainfo);
-            //console.log("gotpbinfo = " + gotpbinfo);
-            //console.log("playeronerank = " + playeronerank);
-            //console.log("playertworank = " + playertworank);
-
-            if (gotpainfo && gotpbinfo);
-            else
-            {
-                cc.logAndThrowNewError("FAILED TO GET THE PLAYER RANK INFORMATION " +
-                    "FROM THE SERVER FOR PLAYER A (" + !gotpainfo + ") AND PLAYER B (" +
-                    !gotpbinfo + ")!");
-            }
-        }
-    }
+    let [playertwousrnm, playeroneusrnm, playeronerank, playertworank] =
+        getPlayersUsernamesAndRanksFromData(statsinfo, upsdata, srvrgame);
     
     //"PROMOTION", "CREATE", "DELETE" are move types we might want to forbid access to
 
@@ -490,6 +666,7 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
             {
                 myfullmvcmd = ChessPiece.genFullMoveCommandFromDisplayedCommandMain(simpcmd, gid,
                     ptpval, ChessPiece.WHITE_MOVES_DOWN_RANKS, bpassimnxtmv);
+                executehaserr.current = false;
                 if (cc.isStringEmptyNullOrUndefined(errmsg));
                 else setErrorMessage("");
             }
@@ -497,6 +674,7 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
             {
                 console.error(ex);
                 setErrorMessage(fullerrmsg + ex.message);
+                executehaserr.current = true;
                 return;
             }   
         }
@@ -505,6 +683,7 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
         {
             ChessPiece.makeLocalShortHandMove(myfullmvcmd, gid, isuser, isundo,
                 ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial);
+            executehaserr.current = false;
             if (cc.isStringEmptyNullOrUndefined(errmsg));
             else setErrorMessage("");
             setUpdateBoard(!updateboard);
@@ -513,6 +692,31 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
         {
             console.error(ex);
             setErrorMessage(fullerrmsg + ex.message);
+            executehaserr.current = true;
+            return;
+        }
+    }
+
+    function advanceTurnMain()
+    {
+        if (executehaserr.current)
+        {
+            console.error("DID NOT ADVANCE DUE TO EXECUTION ERROR!");
+            return;
+        }
+        //else;//do nothing
+
+        try
+        {
+            ChessPiece.advanceTurnIfPossibleMain((iswhiteturn ? "WHITE": "BLACK"),
+                gid, true, null, null);
+            if (cc.isStringEmptyNullOrUndefined(errmsg));
+            else setErrorMessage("");
+        }
+        catch(ex)
+        {
+            console.error(ex);
+            setErrorMessage("invalid command " + ex.message);
             return;
         }
     }
@@ -627,6 +831,26 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
         }
         setUpdateBoard(!updateboard);
     }
+
+    function genColorString(mgmclr, usepaclr)
+    {
+        cc.letMustBeBoolean(usepaclr, "usepaclr");
+
+        let gmclriswt = false;
+        let gmclrisbk = false;
+        if (mgmclr === "BOTH")
+        {
+            gmclriswt = true;
+            gmclrisbk = true;
+        }
+        else if (mgmclr === "WHITE") gmclriswt = true;
+        else if (mgmclr === "BLACK") gmclrisbk = true;
+        else cc.logAndThrowNewError("INVALID COLOR FOUND AND USED FOR THE GAME COLOR!");
+        if (usepaclr) return "WHITE" + (gmclriswt ? "*": "");
+        else return "BLACK" + (gmclrisbk ? "*": "");
+    }
+
+
     //console.log("loaded = " + loaded);
 
     let plyraid = -1;
@@ -641,6 +865,7 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
     if (loaded);
     else return (<div>Loading Game...</div>);
     
+    const gmclr = ChessGame.getGameVIAGID(gid).getMyColor();
     const iserr = !cc.isStringEmptyNullOrUndefined(errmsg);
     return (<div style={{marginLeft: 10, paddingTop: 1,
         backgroundColor: cc.getBGColorToBeUsed(false, "GameBoard")}}>
@@ -677,22 +902,9 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
                 {"< " + (iscompleted ? "Previous": "Undo") + " Move"}</button>
             <button onClick={(event) => redoMoveMain(iscompleted)}>
                 {"> " + (iscompleted ? "Next": "Redo") + " Move"}</button>
-            <button style={{fontSize: 15}} onClick={(event) => {
-                    try
-                    {
-                        ChessPiece.advanceTurnIfPossibleMain((iswhiteturn ? "WHITE": "BLACK"),
-                            gid, true, null, null);
-                        if (cc.isStringEmptyNullOrUndefined(errmsg));
-                        else setErrorMessage("");
-                    }
-                    catch(ex)
-                    {
-                        console.error(ex);
-                        setErrorMessage("invalid command " + ex.message);
-                        return;
-                    }
-                }}>
-                    <b>{(iswhiteturn ? "Black": "White") + "'s Turn!"}</b></button>
+            <button style={{fontSize: 15}} onClick={(event) => advanceTurnMain()}>
+                <b>{(iswhiteturn ? "Black": "White") + "'s Turn!"}</b></button>
+            <button onClick={(event) => swapLocs()}>Swap Locs</button>
             <button onClick={(event) => setUseRowColLocDisplay(!useroworcollocdisp)}>
                 {useroworcollocdisp ? "Use string loc(s)" : "Use row-col loc(s)"}
             </button>
@@ -705,14 +917,19 @@ function GameBoard({srvrgame, addpcs=null, startmvslist=null})
                 setmvs={setMovesList} userem={false} remmv={null} remitem={false} />
             <button style={{fontSize: 15}} onClick={(event) => executeUserCommand(iscompleted)}>
                 <b>Execute!</b></button>
+            <button style={{fontSize: 15}} onClick={(event) => {
+                    executeUserCommand(iscompleted);
+                    advanceTurnMain();
+                }}>
+                <b>Execute And Advance!</b></button>
             {iserr ? <p>{errmsg}</p>: <br />}
         </div>
         
         <table style={{marginLeft: 10, marginBottom: 10, marginTop: 10}}>
             <thead>
                 <tr>
-                    <th>PLAYER 1 (ID: {plyraid}): {playeronecolor}</th>
-                    <th>PLAYER 2 (ID: {plyrbid}): {playertwocolor}</th>
+                    <th>PLAYER 1 (ID: {plyraid}): {genColorString(gmclr, true)}</th>
+                    <th>PLAYER 2 (ID: {plyrbid}): {genColorString(gmclr, false)}</th>
                 </tr>
             </thead>
             <tbody>

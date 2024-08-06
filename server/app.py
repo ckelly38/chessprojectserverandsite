@@ -140,7 +140,7 @@ class Commonalities:
 
     def getItemByIDAndReturnResponse(self, id, cls, numlisttype=3, usrid=0):
         item = self.getItemByID(id, cls, usrid);
-        return self.takeItemAndReturnResponse(id, item, cls, numlisttype);
+        return self.takeItemAndReturnResponse(item, cls, numlisttype, id);
 
     def isLoggedIn(self, msess):
         if (msess == None): raise ValueError("the session object must be defined!");
@@ -895,6 +895,54 @@ class AllGameMoves(Resource):
 
 api.add_resource(AllGameMoves, "/game-moves");
 
+class AddOneMoveForAGame(Resource):
+    def post(self, id):
+        #game ID will be constant
+        #number is will come in from dataobj
+        #move id is unknown
+        #GameMoves(game_id, move_id, number);
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else:
+            dataobj = cm.getDataObjectFromRequest(request);
+            print(dataobj);
+
+            mv = dataobj["move"];
+            mvondb = Moves.query.filter_by(contents=mv).first();
+            print(f"mvondb = {mvondb}");
+            
+            mvid = -1;
+            if (mvondb == None):
+                #post the move first
+                #then get the id
+                try:
+                    nwmv = Moves(contents=mv);
+                    db.session.add(nwmv);
+                    db.session.commit();
+                    mvid = nwmv.id;
+                except Exception as ex:
+                    print(ex);
+                    errmsg = "422 error invalid data used to create item of type ";
+                    errmsg += f"{cm.getTypeStringForClass(Moves)}!";
+                    return {"error": errmsg}, 422;
+            else: mvid = mvondb.id;
+            print(f"mvid = {mvid}");
+
+            gmmv = None;
+            try:
+                gmmv = GameMoves(game_id=id, move_id=mvid, number=dataobj["number"]);
+                db.session.add(gmmv);
+                db.session.commit();
+            except Exception as ex:
+                print(ex);
+                errmsg = "422 error invalid data used to create item of type ";
+                errmsg += f"{cm.getTypeStringForClass(GameMoves)}!";
+                return {"error": errmsg}, 422;
+            
+            return cm.getSerializedItem(GameMoves, gmmv, 3), 201;
+
+api.add_resource(AddOneMoveForAGame, "/add-one-move-for-game/<int:id>");#id is gameid
+
 class GetAllMovesForAGame(Resource):
     def get(self, id):
         usr = cm.getUserFromTheSession(session);
@@ -1175,6 +1223,7 @@ class GetStats(Resource):
             usedgids = [];
             icgms = 0;
             nonungms = 0;
+            gmsdone = 0;
             for n in range(0, len(cgamesusrplyers)):
                 g = cgamesusrplyers[n];
                 print(g);
@@ -1194,6 +1243,7 @@ class GetStats(Resource):
                 else: gdone = g.completed;
                 
                 if (gdone):
+                    gmsdone += 1;
                     gtied = False;
                     if (usedummydata): gtied = g["tied"];
                     else: gtied = g.tied;
@@ -1262,25 +1312,28 @@ class GetStats(Resource):
             #print(f"bties = {bties}");
             #print(f"bloss = {bloss}");
 
-            #print(f"usrties = {usrties}");
-            #print(f"usrfts = {usrfts}");
-            #print(f"usrwins = {usrwins}");
-            #print(f"usrloss = {usrloss}");
-            #print(f"icgms = {icgms}");
-            #print(f"nonungms = {nonungms}");
+            print(f"usrties = {usrties}");
+            print(f"usrfts = {usrfts}");
+            print(f"usrwins = {usrwins}");
+            print(f"usrloss = {usrloss}");
+            #these three summed will be len(games)
+            print(f"gmsdone = {gmsdone}");
+            print(f"icgms = {icgms}");
+            print(f"nonungms = {nonungms}");
+            print(f"len(usedgids) = {len(usedgids)}");
 
             if (bwins == aloss and aties == bties and bloss == awins): pass;
             else:
                 raise ValueError("the bwins must be the same as aloss and vise-versus " +
                                  "and the number or ties should be the same, but were not!");
             
-            #print(f"len(cgamesusrplyers) = {len(cgamesusrplyers)}");
-            if ((usrties + usrfts + usrwins + usrloss == len(cgamesusrplyers)) or
-                (icgms + nonungms == len(cgamesusrplyers))):
-                pass;
-            else:
-                raise ValueError("the total must add up to the number of non-unique games, " +
-                    "but it did not!");
+            print(f"len(cgamesusrplyers) = {len(cgamesusrplyers)}");
+            #if ((usrties + usrfts + usrwins + usrloss == len(cgamesusrplyers)) or
+            #    (icgms + nonungms + gmsdone == len(cgamesusrplyers))):
+            #    pass;
+            #else:
+            #    raise ValueError("the total must add up to the number of non-unique games, " +
+            #        "but it did not!");
             
             usrid = -1;
             usrname = None;

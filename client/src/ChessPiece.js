@@ -13,6 +13,7 @@ class ChessPiece {
 	//static addPC = null;
 	//static getPCS = null;
 	static setPCSHints = null;
+	static makeMoveOnServer = null;
 	//only one copy so will cause a problem with multiple games
 	constructor(tp="", clr="", r=-1, c=-1, gid=-1, initmvcnt=0, addit=true)
 	{
@@ -109,6 +110,10 @@ class ChessPiece {
 		ChessPiece.setPCSHints = myfunc;
 	}
 
+	static setSendMoveToServerFunc(myfunc)
+	{
+		ChessPiece.makeMoveOnServer = myfunc;
+	}
 
 	getGameID()
 	{
@@ -2129,6 +2134,8 @@ class ChessPiece {
 		//if they choose surrender, ends the game
 		//check to see if it is checkmate
 		
+		let cpunoffmv = ChessPiece.getGameVIAGID(gid).genCopyOfUnofficialMove();
+
 		//NUM OFFICIAL MOVES WILL BE AT LEAST ONE!
 		ChessPiece.getGameVIAGID(gid).makeUnofficialMoveOfficial();
 		
@@ -2208,7 +2215,10 @@ class ChessPiece {
 					else
 					{
 						//send commands...
-						console.error("NEED TO DO SOMETHING HERE... 8-2-2024 4:38 PM MST");
+						//console.error("NEED TO DO SOMETHING HERE... 8-2-2024 4:38 PM MST");
+
+						if (ChessPiece.cc.isItemNullOrUndefined(ChessPiece.makeMoveOnServer));
+						else ChessPiece.makeMoveOnServer(cpunoffmv);
 					}
 					console.log(ChessPiece.getGameVIAGID(gid).getSideTurn() + "'S TURN!");
 				}
