@@ -895,6 +895,30 @@ class AllGameMoves(Resource):
 
 api.add_resource(AllGameMoves, "/game-moves");
 
+class GetOneMoveForAGame(Resource):
+    def get(self, id, mvnum):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else:
+            gm = Games.query.filter_by(id=id).first();
+            print(gm);
+
+            gidisvalid = (False if (gm == None) else True);
+            print(f"gidisvalid = {gidisvalid}");
+
+            gmv = GameMoves.query.filter_by(game_id=id, number=mvnum).first();
+            print(gmv);
+            
+            if (gmv == None):
+                invpt = ("number" if (gidisvalid) else "gid");
+                errmsg = "422 error invalid data (" + invpt + ") used to get item of type ";
+                errmsg += f"{cm.getTypeStringForClass(GameMoves)}!";
+                print(errmsg);
+                return {"error": errmsg}, 422;
+            else: return cm.getSerializedItem(GameMoves, gmv, 3), 201;
+
+api.add_resource(GetOneMoveForAGame, "/get-one-move-for-game/<int:id>/move-number/<int:mvnum>");
+
 class AddOneMoveForAGame(Resource):
     def post(self, id):
         #game ID will be constant

@@ -167,30 +167,73 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
 
         //what we might want to say on the server:
         //GameMoves.query.filter_by(game_id=gid, number=ChessPiece.getGameVIAGID(gid)).first();
-        /*fetch("/url").then((mdata) => {
+        //"422 error invalid data (" + invpt + ") used to get item of type GameMoves"
+        let numoffmvs = ChessPiece.getGameVIAGID(gid).getNumOfficialMoves();
+        const lperrmsg = "422 error invalid data (number) used to get item of type GameMoves!";
+        const ftlerrmsg = "422 error invalid data (gid) used to get item of type GameMoves!";
+        const sidemvd = ChessPiece.getOppositeColor(ChessPiece.getGameVIAGID(gid).getMyColor());
+        console.log("sidemvd = " + sidemvd);
+
+        fetch("/get-one-move-for-game/" + gid + "/move-number/" + (numoffmvs + 1))
+        .then((res) => res.json()).then((mdata) => {
             console.log("mdata = ", mdata);
-            //do something here...
+
+            let mdkys = Object.keys(mdata);
+            for (let n = 0; n < mdkys.length; n++)
+            {
+                if (mdkys[n] === "error")
+                {
+                    if (mdata.error === lperrmsg)
+                    {
+                        setTimeout(getNextMoveFromServer, 3000);
+                        return;
+                    }
+                    else if (mdata.error === ftlerrmsg)
+                    {
+                        cc.logAndThrowNewError("FAILED TO GET DATA FROM THE SERVER TO " +
+                            "ADVANCE THE TURNS (GID WAS INVALID)!");
+                    }
+                    //else;//do nothing safe to proceed
+                }
+                //else;//do nothing safe to proceed
+            }
+
+            let simpcmd = mdata.move.contents;
+            console.log("simpcmd = " + simpcmd);
+
             //somehow take the move made on the other board and make it on this one
             //simpcmd the simple command usually entered by the user
             const isuser = false;
             const isundo = false;
             const bpassimnxtmv = false;
-            
-            const isofficial = true;
-            //not sure what this should be because it is already an official move,
-            //but has not been made yet on this board
-            
+            const isofficial = false;
             let ptpval = "QUEEN";//but might come in from command
+            let pindx = simpcmd.indexOf("INTO");
+            //console.log("pindx = " + pindx);
+
+            if (0 < pindx && pindx < simpcmd.length)
+            {
+                let stp = simpcmd.substring(pindx + 4);
+                ptpval = ChessPiece.getLongHandType(stp);
+            }
+            //else;//do nothing
+            console.log("ptpval = " + ptpval);
+
+            //get the type of command and then get the color from the command
+            //alternatively, if using two boards, get the color from the game for our board,
+            //then get the opposite color
+            console.log("sidemvd = " + sidemvd);
             
-            let myfullmvcmd = ChessPiece.genFullMoveCommandFromDisplayedCommandMain(simpcmd, gid,
-                    ptpval, ChessPiece.WHITE_MOVES_DOWN_RANKS, bpassimnxtmv);
+            let myfullmvcmd = ChessPiece.genFullMoveCommandFromDisplayedCommandMain(simpcmd,
+                gid, ptpval, ChessPiece.WHITE_MOVES_DOWN_RANKS, bpassimnxtmv);
             ChessPiece.makeLocalShortHandMove(myfullmvcmd, gid, isuser, isundo,
                 ChessPiece.WHITE_MOVES_DOWN_RANKS, isofficial);
+            ChessPiece.advanceTurnIfPossible(sidemvd, gid, false, true, null, null);
         }).catch((merr) => {
             console.error("there was an error getting data from the server!");
             console.error(merr);
-            //do something here...
-        });*/
+            cc.logAndThrowNewError("FAILED TO GET DATA FROM THE SERVER TO ADVANCE THE TURNS!");
+        });
     }
 
     function sendMoveToServer(cpunoffmv)
@@ -293,6 +336,8 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         }
         console.log("myclr = " + myclr);
 
+        let sclr = "WHITE";
+
         //game constructor methods
         ChessGame.makeNewChessGameFromColor(gid, myclr);//NEEDS TO BE MODIFIED 7-13-2024
         //NOTE: OFFICIAL MOVES WILL NEED TO BE FULL SHORT HAND MOVES
@@ -307,6 +352,9 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         console.log("ChessGame.all = ", ChessGame.all);
         calledsetup.current = true;
         console.log("NEW calledsetup.current = ", calledsetup.current);
+
+        if (myclr === sclr);
+        else getNextMoveFromServer();
     }
 
 
