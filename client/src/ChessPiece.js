@@ -6976,7 +6976,12 @@ class ChessPiece {
 			else return "CASTLEING";
 		}
 		else if (usrcmd.charAt(0) === 'T') return "PROMOTION";
-		else if (usrcmd.indexOf("TO") === 5 || usrcmd.indexOf("TO") === 3) return "MOVE";
+		else if (usrcmd.indexOf("TO") === 5 || usrcmd.indexOf("TO") === 3)
+		{
+			let pindx = usrcmd.indexOf("INTO");
+			if (pindx === 7 || pindx === 9) return "MOVE-PROMOTE";
+			else return "MOVE";
+		}
 		else if (usrcmd.indexOf("HINTS") === 5 || usrcmd.indexOf("HINTS") === 1) return "HINTS";
 		else
 		{
@@ -7007,7 +7012,7 @@ class ChessPiece {
 	
 	static getMoveCommandTypes()
 	{
-		return ["MOVE", "CASTLEING", "PAWNING", "PROMOTION"];
+		return ["MOVE", "CASTLEING", "PAWNING", "PROMOTION", "MOVE-PROMOTE"];
 	}
 	static isCommandTypeAMoveCommand(cmdtp)
 	{
@@ -8168,7 +8173,7 @@ class ChessPiece {
 			console.log("resstr[2] = " + resstr[2]);
 			return resstr;
 		}
-		else if (cmdtp === "MOVE")
+		else if (cmdtp === "MOVE" || cmdtp === "MOVE-PROMOTE")
 		{
 			//need to determine if the move is actually a special move
 			//need to determine if the move results in a capture
@@ -8197,9 +8202,15 @@ class ChessPiece {
 			let sloc = null;
 			let eloc = null;
 			let esi = -1;
+			let ptpvalfcmd = null;
 			if (usrcmd.indexOf("TO") === 3)
 			{
-				elocstr = usrcmd.substring(5);
+				//WPNTOA8INTOQN
+				//WPNTOA4
+				//0123456789012
+				//0         1
+				if (cmdtp === "MOVE-PROMOTE") elocstr = usrcmd.substring(5, 7);
+				else elocstr = usrcmd.substring(5);
 				//calculate sloc from eloc;
 				eloc = ChessPiece.convertStringLocToRowCol(elocstr, iswhitedown);
 				console.log("myclr = " + myclr);
@@ -8209,6 +8220,12 @@ class ChessPiece {
 				console.log("eloc[1] = " + eloc[1]);
 				//console.log("ignorelist = " , ignorelist);
 				//console.log("addpcs = " , addpcs);
+				
+				if (cmdtp === "MOVE-PROMOTE")
+				{
+					ptpvalfcmd = ChessPiece.getLongHandType(usrcmd.substring(11));
+				}
+				//else;//do nothing
 
 				sloc = ChessPiece.getStartLocForPieceThatCanMoveTo(eloc[0], eloc[1], fullclr,
 					ChessPiece.getLongHandType(mytp), gid, ignorelist, addpcs, false,
@@ -8231,8 +8248,13 @@ class ChessPiece {
 			}
 			else
 			{
+				//WPNB7TOA8INTOQN
+				//WPNA2TOA4
+				//012345678901234
+				//0         1
 				slocstr = usrcmd.substring(3, 5);
-				elocstr = usrcmd.substring(7);
+				if (cmdtp === "MOVE-PROMOTE") elocstr = usrcmd.substring(7, 9);
+				else elocstr = usrcmd.substring(7);
 				console.log("slocstr = " + slocstr);
 				console.log("elocstr = " + elocstr);
 				
@@ -8243,6 +8265,12 @@ class ChessPiece {
 				console.log("eloc[0] = " + eloc[0]);
 				console.log("eloc[1] = " + eloc[1]);
 				
+				if (cmdtp === "MOVE-PROMOTE")
+				{
+					ptpvalfcmd = ChessPiece.getLongHandType(usrcmd.substring(13));
+				}
+				//else;//do nothing
+
 				nwusrcmd = usrcmd.substring(0, 3) +
 					ChessPiece.convertRowColToStringLoc(sloc[0], sloc[1],
 						ChessPiece.WHITE_MOVES_DOWN_RANKS) +
@@ -8307,7 +8335,10 @@ class ChessPiece {
 				
 				const myvptps = ["QUEEN", "BISHOP", "CASTLE", "ROOK", "KNIGHT"];
 				let myctpval = null;
-				if (ChessPiece.itemIsOnGivenList(ptpval, myvptps))
+				let transptpval = null;
+				if (cmdtp === "MOVE-PROMOTE") transptpval = ptpvalfcmd;
+				else transptpval = ptpval;
+				if (ChessPiece.itemIsOnGivenList(transptpval, myvptps))
 				{
 					if (ptpval === "ROOK") myctpval = "CASTLE";
 					else myctpval = "" + ptpval;

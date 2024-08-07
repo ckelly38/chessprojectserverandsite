@@ -759,7 +759,14 @@ class ChessGame {
 				console.error(merr);
 			});
 		}
-		else this.sendCompletedGameDataToServer();
+		else
+		{
+			//get last official move instead of the unofficial move and send that to the server
+			let lstmv = this.OFFICIAL_MOVES[this.OFFICIAL_MOVES.length - 1];
+			if (ChessPiece.cc.isItemNullOrUndefined(ChessPiece.makeMoveOnServer));
+			else ChessPiece.makeMoveOnServer(lstmv, false);
+			//completed game will be sent in makeMoveOnServer
+		}
 	}
 	
 	setIsTied(nwval)

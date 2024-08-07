@@ -9,7 +9,8 @@ from flask_restful import Resource
 # Local imports
 from config import app, db, api
 # Add your model imports
-from models import User, Show, Episode, Toy, UserToy, UserEpisodes, Players, Games, GameMoves, UserPlayers, Moves
+from models import User, Players, Games, GameMoves, UserPlayers, Moves
+#Show, Episode, Toy, UserToy, UserEpisodes, 
 
 # Views go here!
 #anyone (not just users, not needed to be logged in) needs to know what:
@@ -32,8 +33,8 @@ class Commonalities:
     useaccslv = True;
 
     def getValidClassList(self):
-        return [User, Show, Episode, Toy, UserToy, UserEpisodes, Players, Games, GameMoves,
-                UserPlayers, Moves];
+        return [User, Players, Games, GameMoves,
+                UserPlayers, Moves];#Show, Episode, Toy, UserToy, UserEpisodes, 
 
     def isClsValid(self, cls):
         if (cls == None): return False;
@@ -52,7 +53,7 @@ class Commonalities:
         else: raise ValueError("retall must be a booleanv value for the variable!");
         if (self.isClsValid(cls)):
             if (retall): return cls.query.all();
-            if (cls == UserToy or cls == UserEpisodes or cls == UserPlayers):
+            if (cls == UserPlayers):#cls == UserToy or cls == UserEpisodes or 
                 if (usrid == None or type(usrid) != int):
                     raise ValueError("usrid must be a number!");
                 else: return cls.query.filter_by(user_id=usrid).all();
@@ -107,14 +108,14 @@ class Commonalities:
         elif (type(id) != int): raise ValueError("id must be an integer!");
         elif (type(usrid) != int): raise ValueError("usrid must be an integer!");
         elif (self.isClsValid(cls)):
-            if (cls == UserToy or cls == UserEpisodes or cls == UserPlayers or cls == GameMoves):
-                if (cls == UserToy):
-                    print(f"usrid = {usrid}");
-                    print(f"toy_id = {id}");
-                    return cls.query.filter_by(user_id=usrid, toy_id=id).first();
-                elif (cls == UserEpisodes):
-                    return cls.query.filter_by(user_id=usrid, episode_id=id).first();
-                elif (cls == UserPlayers):
+            if (cls == UserPlayers or cls == GameMoves):#cls == UserToy or cls == UserEpisodes or 
+                #if (cls == UserToy):
+                #    print(f"usrid = {usrid}");
+                #    print(f"toy_id = {id}");
+                #    return cls.query.filter_by(user_id=usrid, toy_id=id).first();
+                #elif (cls == UserEpisodes):
+                #    return cls.query.filter_by(user_id=usrid, episode_id=id).first();
+                if (cls == UserPlayers):
                     return cls.query.filter_by(user_id=usrid, player_id=id).first();
                 elif (cls == GameMoves):
                     return cls.query.filter_by(game_id=id).all();
@@ -188,7 +189,7 @@ class Commonalities:
 
     def userIsShowOwner(self, cls, msess, item):
         fully_authorized = False;
-        if (item == None): return {"message": "authorized"}, 200;
+        if (item == None or True): return {"message": "authorized"}, 200;
         if (cls == Show or cls == Episode or cls == Toy):
             usrobj = self.getUserFromTheSession(msess);
             if (usrobj == None):
@@ -298,8 +299,9 @@ class Commonalities:
         item = None;
         if (useadd): pass;
         else:
-            if (cls == UserToy): itemusrid = dataobj["user_id"];
-            else: itemusrid = usrid;
+            itemusrid = usrid;
+            #if (cls == UserToy): itemusrid = dataobj["user_id"];
+            #else: itemusrid = usrid;
             print(f"itemusrid = {itemusrid}");
             
             if (cls == GameMoves): item = self.getGameMovesItem(rqst);
@@ -340,34 +342,34 @@ class Commonalities:
                     elif (cls == GameMoves):
                         item = cls(game_id=dataobj["game_id"], move_id=dataobj["move_id"],
                                    number=dataobj["number"]);
-                    elif (cls == Show):
-                        item = cls(name=dataobj["name"], description=dataobj["description"],
-                                owner_id=msess["user_id"]);
-                    elif (cls == Episode):
-                        item = cls(name=dataobj["name"], description=dataobj["description"],
-                                season_number=dataobj["season_number"],
-                                episode_number=dataobj["episode_number"], show_id=showid);
+                    #elif (cls == Show):
+                    #    item = cls(name=dataobj["name"], description=dataobj["description"],
+                    #            owner_id=msess["user_id"]);
+                    #elif (cls == Episode):
+                    #    item = cls(name=dataobj["name"], description=dataobj["description"],
+                    #            season_number=dataobj["season_number"],
+                    #            episode_number=dataobj["episode_number"], show_id=showid);
                         #print(item);
-                        myresitem = item.makeSureUniqueShowIDEpnumAndSeasonNumPresent();
+                    #    myresitem = item.makeSureUniqueShowIDEpnumAndSeasonNumPresent();
                         #print(myresitem);
-                    elif (cls == Toy):
-                        item = cls(name=dataobj["name"], description=dataobj["description"],
-                                price=dataobj["price"], toy_number=dataobj["toy_number"],
-                                show_id=self.getShowIDFrom(dataobj, showid));
+                    #elif (cls == Toy):
+                    #    item = cls(name=dataobj["name"], description=dataobj["description"],
+                    #            price=dataobj["price"], toy_number=dataobj["toy_number"],
+                    #            show_id=self.getShowIDFrom(dataobj, showid));
                         #show-id comes in the dataobj object: dataobj["show_id"]
                         #show-id comes in as a parameter: showid
                         #print(item);
-                        myresitem = item.makeSureUniqueShowIDAndToyNumPresent();
+                    #    myresitem = item.makeSureUniqueShowIDAndToyNumPresent();
                         #print(myresitem);
-                    elif (cls == UserEpisodes):
+                    #elif (cls == UserEpisodes):
                         #user-id comes in the session object: msess["user_id"]
                         #user-id comes in the dataobj object: dataobj["user_id"]
                         #user-id comes in as a parameter: usrid 
-                        item = cls(user_id=self.getUserIDFrom(msess, dataobj, usrid),
-                                   episode_id=dataobj["episode_id"]);
-                    elif (cls == UserToy):
-                        item = cls(user_id=dataobj["user_id"],
-                                   toy_id=dataobj["toy_id"], quantity=dataobj["quantity"]);
+                    #    item = cls(user_id=self.getUserIDFrom(msess, dataobj, usrid),
+                    #               episode_id=dataobj["episode_id"]);
+                    #elif (cls == UserToy):
+                    #    item = cls(user_id=dataobj["user_id"],
+                    #               toy_id=dataobj["toy_id"], quantity=dataobj["quantity"]);
                     else:
                         raise ValueError("the class must be one of the following: " +
                                         f"{self.getValidClassList()}!");
@@ -383,9 +385,9 @@ class Commonalities:
                     #oldswid = -1;
                     print(f"item = {item}");
                     print(f"dataobj = {dataobj}");
-                    if (cls == Episode or cls == Toy):
-                        cv = cls.getValidator();
-                        myresitem = cv.genDictItemForIsUniqueCols(item, dataobj, cls);
+                    #if (cls == Episode or cls == Toy):
+                    #    cv = cls.getValidator();
+                    #    myresitem = cv.genDictItemForIsUniqueCols(item, dataobj, cls);
 
                     for attr in dataobj:
                         mky = '';
@@ -406,21 +408,21 @@ class Commonalities:
                     #print(f"oldswid = {oldswid}");
                     bypassfinalcheck = True;
                 print(f"FINAL item = {item}");
-                print(f"bypassfinalcheck = {bypassfinalcheck}");
-                if (bypassfinalcheck): pass;
-                else:
-                    print("CHECKING TO SEE IF THE USER IS THE SHOW OWNER AFTER PATCH!");
-                    resobj = self.userIsShowOwner(cls, msess, item);
-                    if (resobj[1] == 200): pass;
-                    else: return resobj;
-                if (useadd):
-                    if (cls == Episode):
+                #print(f"bypassfinalcheck = {bypassfinalcheck}");
+                #if (bypassfinalcheck): pass;
+                #else:
+                #    print("CHECKING TO SEE IF THE USER IS THE SHOW OWNER AFTER PATCH!");
+                #    resobj = self.userIsShowOwner(cls, msess, item);
+                #    if (resobj[1] == 200): pass;
+                #    else: return resobj;
+                #if (useadd):
+                #    if (cls == Episode):
                         #print(item);
-                        myresitem = item.makeSureUniqueShowIDEpnumAndSeasonNumPresent();
+                #        myresitem = item.makeSureUniqueShowIDEpnumAndSeasonNumPresent();
                         #print(myresitem);
-                    elif (cls == Toy):
+                #    elif (cls == Toy):
                         #print(item);
-                        myresitem = item.makeSureUniqueShowIDAndToyNumPresent();
+                #        myresitem = item.makeSureUniqueShowIDAndToyNumPresent();
                         #print(myresitem);
                 db.session.add(item);
                 db.session.commit();
@@ -848,6 +850,43 @@ class JoinGame(Resource):
                     "user_player": cm.getSerializedItem(UserPlayers, usrplyr, 3)}, 200;
 
 api.add_resource(JoinGame, "/join_game/<int:id>");
+
+#NEED TO COME UP WITH RULES AND DESIGN AN INTERFACE TO ACCESS THIS 8-7-2024 12:45 AM MST
+#class GetResumableGamesForUser(Resource):
+    #def get(self):
+        #resumeable games have 2 players, but are not completed
+        #Games.query.filter_by(completed=False)
+        #pass;
+
+#api.add_resource(GetResumableGamesForUser, "/my-resumable-games");
+
+class GetCompletedGamesForUser(Resource):
+    def get(self):
+        #need to get the games for the user and
+        #then filter that list on if they are completed or not
+        #User.players
+        #Players.game
+        #Games.playera and playerb
+        #Games.query.filter_by(completed=True)
+        #the same as stats query more or less
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else:
+            cusrplayers = usr.players;
+            cusrplyrids = [p.id for p in cusrplayers];
+            cgamesusrplyers = [p.game for p in cusrplayers];
+            cgmsfusr = [];
+            usedgids = [];
+            for g in cgamesusrplyers:
+                if (g.completed):
+                    if (g.id in usedgids): pass;
+                    else:
+                        cgmsfusr.append(g);
+                        usedgids.append(g.id);
+            cgmsfusrdicts = [cm.getSerializedItem(Games, g, 3) for g in cgmsfusr];
+            return cgmsfusrdicts, 201;
+
+api.add_resource(GetCompletedGamesForUser, "/my-completed-games");
 
 class AllMoves(Resource):
     def get(self):
@@ -1394,40 +1433,40 @@ api.add_resource(GetStats, "/stats");
 #a user is also allowed to add items to this list
 #a user is also allowed to remove items from this list
 
-class MyEpisodes(Resource):
-    def get(self):
-        usr = cm.getUserFromTheSession(session);
-        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
-        else: return cm.getAllOfTypeAndSerializeThem(UserEpisodes, 3, False, usr.id);
+# class MyEpisodes(Resource):
+#     def get(self):
+#         usr = cm.getUserFromTheSession(session);
+#         if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+#         else: return cm.getAllOfTypeAndSerializeThem(UserEpisodes, 3, False, usr.id);
 
-    def post(self):
-        usr = cm.getUserFromTheSession(session);
-        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
-        else:
-            return cm.addItemToDBAndReturnResponse(UserEpisodes, request, session, 0, 3,
-                                                   usr.id);
+#     def post(self):
+#         usr = cm.getUserFromTheSession(session);
+#         if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+#         else:
+#             return cm.addItemToDBAndReturnResponse(UserEpisodes, request, session, 0, 3,
+#                                                    usr.id);
 
-api.add_resource(MyEpisodes, "/my-watchlist", "/my-episodes");
+# api.add_resource(MyEpisodes, "/my-watchlist", "/my-episodes");
 
-class MyEpisodesByID(Resource):
-    def get(self, id):
-        usr = cm.getUserFromTheSession(session);
-        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
-        else: return cm.getItemByIDAndReturnResponse(id, UserEpisodes, 3, usr.id);
+# class MyEpisodesByID(Resource):
+#     def get(self, id):
+#         usr = cm.getUserFromTheSession(session);
+#         if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+#         else: return cm.getItemByIDAndReturnResponse(id, UserEpisodes, 3, usr.id);
 
-    def patch(self, id):
-        usr = cm.getUserFromTheSession(session);
-        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
-        else:
-            return cm.updateItemOnDBAndReturnResponse(id, UserEpisodes, request, session, 0, 3,
-                                                      usr.id);
+#     def patch(self, id):
+#         usr = cm.getUserFromTheSession(session);
+#         if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+#         else:
+#             return cm.updateItemOnDBAndReturnResponse(id, UserEpisodes, request, session, 0, 3,
+#                                                       usr.id);
 
-    def delete(self, id):
-        usr = cm.getUserFromTheSession(session);
-        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
-        else: return cm.removeItemFromDBAndReturnResponse(id, UserEpisodes, session, usr.id);
+#     def delete(self, id):
+#         usr = cm.getUserFromTheSession(session);
+#         if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+#         else: return cm.removeItemFromDBAndReturnResponse(id, UserEpisodes, session, usr.id);
 
-api.add_resource(MyEpisodesByID, "/my-watchlist/<int:id>", "/my-episodes/<int:id>");
+# api.add_resource(MyEpisodesByID, "/my-watchlist/<int:id>", "/my-episodes/<int:id>");
 
 #what happens on my-toys?
 #all users must be logged in to view this
@@ -1436,211 +1475,211 @@ api.add_resource(MyEpisodesByID, "/my-watchlist/<int:id>", "/my-episodes/<int:id
 #a user is allowed to add more items to this list OR
 #buy more of one item already bought
 
-class MyToys(Resource):
-    def get(self):
-        usr = cm.getUserFromTheSession(session);
-        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
-        else: return cm.getAllOfTypeAndSerializeThem(UserToy, 3, False, usr.id);
+# class MyToys(Resource):
+#     def get(self):
+#         usr = cm.getUserFromTheSession(session);
+#         if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+#         else: return cm.getAllOfTypeAndSerializeThem(UserToy, 3, False, usr.id);
 
-    def post(self):
-        usr = cm.getUserFromTheSession(session);
-        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
-        else: return cm.addItemToDBAndReturnResponse(UserToy, request, session, 0, 3, usr.id);
+#     def post(self):
+#         usr = cm.getUserFromTheSession(session);
+#         if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+#         else: return cm.addItemToDBAndReturnResponse(UserToy, request, session, 0, 3, usr.id);
 
-api.add_resource(MyToys, "/my-toys");
+# api.add_resource(MyToys, "/my-toys");
 
-class MyToysByID(Resource):
-    def get(self, id):
-        usr = cm.getUserFromTheSession(session);
-        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
-        else: return cm.getItemByIDAndReturnResponse(id, UserToy, 3, usr.id);
+# class MyToysByID(Resource):
+#     def get(self, id):
+#         usr = cm.getUserFromTheSession(session);
+#         if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+#         else: return cm.getItemByIDAndReturnResponse(id, UserToy, 3, usr.id);
 
-    def patch(self, id):
-        usr = cm.getUserFromTheSession(session);
-        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
-        else:
-            return cm.updateItemOnDBAndReturnResponse(id, UserToy, request, session, 0, 3,
-                                                      usr.id);
+#     def patch(self, id):
+#         usr = cm.getUserFromTheSession(session);
+#         if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+#         else:
+#             return cm.updateItemOnDBAndReturnResponse(id, UserToy, request, session, 0, 3,
+#                                                       usr.id);
 
-    def delete(self, id):
-        usr = cm.getUserFromTheSession(session);
-        #print("BEGIN DELETE MY TOY:");
-        #print(f"id of the item to remove = {id}");
-        #print(usr);
-        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
-        else: return cm.removeItemFromDBAndReturnResponse(id, UserToy, session, usr.id);
+#     def delete(self, id):
+#         usr = cm.getUserFromTheSession(session);
+#         #print("BEGIN DELETE MY TOY:");
+#         #print(f"id of the item to remove = {id}");
+#         #print(usr);
+#         if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+#         else: return cm.removeItemFromDBAndReturnResponse(id, UserToy, session, usr.id);
 
-api.add_resource(MyToysByID, "/my-toys/<int:id>");
+# api.add_resource(MyToysByID, "/my-toys/<int:id>");
 
-class AllPurchasedToysData(Resource):
-    def get(self):
-        return cm.getAllOfTypeAndSerializeThem(UserToy, 3, True, 0);
+# class AllPurchasedToysData(Resource):
+#     def get(self):
+#         return cm.getAllOfTypeAndSerializeThem(UserToy, 3, True, 0);
 
-api.add_resource(AllPurchasedToysData, "/all-user-toy-data");
+# api.add_resource(AllPurchasedToysData, "/all-user-toy-data");
 
-class Episodes(Resource):
-    def get(self, showid):
-        #get all episodes, then if they have a certain show id add them to the list
-        #then serialize said items on the list
-        #then return it
-        #return cm.getAllOfTypeAndSerializeThem(Episode, numlisttype), 200;
-        return [cm.getSerializedItem(Episode, item, 3)
-                for item in cm.getAllOfTypeFromDB(Episode) if item.show_id == showid], 200;
-        #sw = cm.getItemByID(showid, Show, 0);
-        #if (sw == None):
-        #    return {"error": f"404 error show with id {showid} not found!"}, 404;
-        #else: return [cm.getSerializedItem(Episode, ep, 3) for ep in sw.episodes], 200;
+# class Episodes(Resource):
+#     def get(self, showid):
+#         #get all episodes, then if they have a certain show id add them to the list
+#         #then serialize said items on the list
+#         #then return it
+#         #return cm.getAllOfTypeAndSerializeThem(Episode, numlisttype), 200;
+#         return [cm.getSerializedItem(Episode, item, 3)
+#                 for item in cm.getAllOfTypeFromDB(Episode) if item.show_id == showid], 200;
+#         #sw = cm.getItemByID(showid, Show, 0);
+#         #if (sw == None):
+#         #    return {"error": f"404 error show with id {showid} not found!"}, 404;
+#         #else: return [cm.getSerializedItem(Episode, ep, 3) for ep in sw.episodes], 200;
 
-    def post(self, showid):
-        #you must be logged in first and be authorized
-        return cm.postOrPatchAndReturnResponse(Episode, request, session, True,
-                                               showid, 0, 3);
+#     def post(self, showid):
+#         #you must be logged in first and be authorized
+#         return cm.postOrPatchAndReturnResponse(Episode, request, session, True,
+#                                                showid, 0, 3);
         
-api.add_resource(Episodes, "/shows/<int:showid>/episodes");
+# api.add_resource(Episodes, "/shows/<int:showid>/episodes");
 
 #SHOWID AND ID MUST SOMEHOW CORRESPOND
 #WHAT IT SHOULD BE IS SHOWID AND EPNUM NOT ID
 #/shows/SHOWID(1)/episodes/EPNUM(2) works, BUT WE NEED TO TRANSLATE IT TO THE ID
 #WE WANT TO FIND THE ITEM WHERE BOTH OF THOSE ARE THE CASE
-class EpisodesByID(Resource):
-    def getIDForTheEpisode(self, showid, epnum):
-        myep = Episode.query.filter_by(show_id=showid, episode_number=epnum).first();
-        if (myep == None): return -1;
-        else: return myep.id;
+# class EpisodesByID(Resource):
+#     def getIDForTheEpisode(self, showid, epnum):
+#         myep = Episode.query.filter_by(show_id=showid, episode_number=epnum).first();
+#         if (myep == None): return -1;
+#         else: return myep.id;
 
-    def get(self, showid, epnum):
-        id = self.getIDForTheEpisode(showid, epnum);
-        return cm.getItemByIDAndReturnResponse(id, Episode, 3);
+#     def get(self, showid, epnum):
+#         id = self.getIDForTheEpisode(showid, epnum);
+#         return cm.getItemByIDAndReturnResponse(id, Episode, 3);
 
-    def patch(self, epnum, showid):
-        #you must be logged in first and be authorized
-        id = self.getIDForTheEpisode(showid, epnum);
-        return cm.postOrPatchAndReturnResponse(Episode, request, session, False,
-                                               showid, id, 3);
+#     def patch(self, epnum, showid):
+#         #you must be logged in first and be authorized
+#         id = self.getIDForTheEpisode(showid, epnum);
+#         return cm.postOrPatchAndReturnResponse(Episode, request, session, False,
+#                                                showid, id, 3);
 
-    def delete(self, showid, epnum):
-        #you must be logged in first and be authorized
-        id = self.getIDForTheEpisode(showid, epnum);
-        return cm.completeDeleteItemFromDBAndReturnResponse(id, Episode, session);
+#     def delete(self, showid, epnum):
+#         #you must be logged in first and be authorized
+#         id = self.getIDForTheEpisode(showid, epnum);
+#         return cm.completeDeleteItemFromDBAndReturnResponse(id, Episode, session);
 
-api.add_resource(EpisodesByID, "/shows/<int:showid>/episodes/<int:epnum>");
+# api.add_resource(EpisodesByID, "/shows/<int:showid>/episodes/<int:epnum>");
 
-class OtherEpisodesByID(Resource):
-    def get(self, id):
-        return cm.getItemByIDAndReturnResponse(id, Episode, 3);
+# class OtherEpisodesByID(Resource):
+#     def get(self, id):
+#         return cm.getItemByIDAndReturnResponse(id, Episode, 3);
 
-    def patch(self, id):
-        item = cm.getItemByID(id, Episode, cm.getUserIDFrom(session, None, 0));
-        if (item == None):
-            errmsg = f"404 error item of type {cm.getTypeStringForClass(Episode)}";
-            errmsg += f", with id {id} not found!";
-            return {"error": errmsg}, 404;
-        else:
-            return cm.postOrPatchAndReturnResponse(Episode, request, session, False,
-                                               item.show.id, id, 3);
+#     def patch(self, id):
+#         item = cm.getItemByID(id, Episode, cm.getUserIDFrom(session, None, 0));
+#         if (item == None):
+#             errmsg = f"404 error item of type {cm.getTypeStringForClass(Episode)}";
+#             errmsg += f", with id {id} not found!";
+#             return {"error": errmsg}, 404;
+#         else:
+#             return cm.postOrPatchAndReturnResponse(Episode, request, session, False,
+#                                                item.show.id, id, 3);
 
-    def delete(self, id):
-        return cm.completeDeleteItemFromDBAndReturnResponse(id, Episode, session);
+#     def delete(self, id):
+#         return cm.completeDeleteItemFromDBAndReturnResponse(id, Episode, session);
 
-api.add_resource(OtherEpisodesByID, "/episodes_by_ID/<int:id>");
+# api.add_resource(OtherEpisodesByID, "/episodes_by_ID/<int:id>");
 
-class Shows(Resource):
-    def get(self):
-        return cm.getAllOfTypeAndSerializeThem(Show, 3), 200;
+# class Shows(Resource):
+#     def get(self):
+#         return cm.getAllOfTypeAndSerializeThem(Show, 3), 200;
 
-    def post(self):
-        #you must be logged in first and be authorized
-        return cm.postOrPatchAndReturnResponse(Show, request, session, True, 0, 0, 3);
+#     def post(self):
+#         #you must be logged in first and be authorized
+#         return cm.postOrPatchAndReturnResponse(Show, request, session, True, 0, 0, 3);
 
-api.add_resource(Shows, "/shows");
+# api.add_resource(Shows, "/shows");
 
-class ShowsById(Resource):
-    def get(self, id):
-        return cm.getItemByIDAndReturnResponse(id, Show, 3);
+# class ShowsById(Resource):
+#     def get(self, id):
+#         return cm.getItemByIDAndReturnResponse(id, Show, 3);
 
-    def patch(self, id):
-        #you must be logged in first and be authorized
-        return cm.postOrPatchAndReturnResponse(Show, request, session, False, id, id, 3);
+#     def patch(self, id):
+#         #you must be logged in first and be authorized
+#         return cm.postOrPatchAndReturnResponse(Show, request, session, False, id, id, 3);
 
-    def delete(self, id):
-        #you must be logged in first and be authorized
-        return cm.completeDeleteItemFromDBAndReturnResponse(id, Show, session);
+#     def delete(self, id):
+#         #you must be logged in first and be authorized
+#         return cm.completeDeleteItemFromDBAndReturnResponse(id, Show, session);
 
-api.add_resource(ShowsById, "/shows/<int:id>");
+# api.add_resource(ShowsById, "/shows/<int:id>");
 
-class CheapToys(Resource):
-    def get(self):
-        #get all the toys
-        #check if the price is less than 10
-        #then add it
-        mtys = Toy.query.filter(Toy.price <= 10).all();
-        return [mty.to_dict(Toy.full_list) for mty in mtys], 200;
+# class CheapToys(Resource):
+#     def get(self):
+#         #get all the toys
+#         #check if the price is less than 10
+#         #then add it
+#         mtys = Toy.query.filter(Toy.price <= 10).all();
+#         return [mty.to_dict(Toy.full_list) for mty in mtys], 200;
 
-api.add_resource(CheapToys, "/cheaptoys");
+# api.add_resource(CheapToys, "/cheaptoys");
 
-class Toys(Resource):
-    def get(self):
-        return cm.getAllOfTypeAndSerializeThem(Toy, 3), 200;
+# class Toys(Resource):
+#     def get(self):
+#         return cm.getAllOfTypeAndSerializeThem(Toy, 3), 200;
 
-    def post(self):
-        #you must be logged in first and be authorized
-        return cm.postOrPatchAndReturnResponse(Toy, request, session, True, 0, 0, 3);
+#     def post(self):
+#         #you must be logged in first and be authorized
+#         return cm.postOrPatchAndReturnResponse(Toy, request, session, True, 0, 0, 3);
 
-api.add_resource(Toys, "/toys");
+# api.add_resource(Toys, "/toys");
 
-class ToysByID(Resource):
-    def get(self, id):
-        return cm.getItemByIDAndReturnResponse(id, Toy, 3);
+# class ToysByID(Resource):
+#     def get(self, id):
+#         return cm.getItemByIDAndReturnResponse(id, Toy, 3);
 
-    def patch(self, id):
-        #you must be logged in first and be authorized
-        return cm.postOrPatchAndReturnResponse(Toy, request, session, False, 0, id, 3);
+#     def patch(self, id):
+#         #you must be logged in first and be authorized
+#         return cm.postOrPatchAndReturnResponse(Toy, request, session, False, 0, id, 3);
 
-    def delete(self, id):
-        #you must be logged in first and be authorized
-        return cm.completeDeleteItemFromDBAndReturnResponse(id, Toy, session);
+#     def delete(self, id):
+#         #you must be logged in first and be authorized
+#         return cm.completeDeleteItemFromDBAndReturnResponse(id, Toy, session);
 
-api.add_resource(ToysByID, "/toys/<int:id>");
+# api.add_resource(ToysByID, "/toys/<int:id>");
 
-class ToysForShow(Resource):
-    def get(self, showid):
-        return [cm.getSerializedItem(Toy, item, 3)
-                for item in cm.getAllOfTypeFromDB(Toy) if item.show_id == showid], 200;
-        #sw = cm.getItemByID(showid, Show, 0);
-        #if (sw == None): return {"error": f"404 error show with id {showid} not found!"}, 404;
-        #else: return [cm.getSerializedItem(Toy, ty, 3) for ty in sw.toys], 200;
+# class ToysForShow(Resource):
+#     def get(self, showid):
+#         return [cm.getSerializedItem(Toy, item, 3)
+#                 for item in cm.getAllOfTypeFromDB(Toy) if item.show_id == showid], 200;
+#         #sw = cm.getItemByID(showid, Show, 0);
+#         #if (sw == None): return {"error": f"404 error show with id {showid} not found!"}, 404;
+#         #else: return [cm.getSerializedItem(Toy, ty, 3) for ty in sw.toys], 200;
 
-    def post(self, showid):
-        #you must be logged in first and be authorized
-        return cm.postOrPatchAndReturnResponse(Toy, request, session, True, showid, 0, 3);
+#     def post(self, showid):
+#         #you must be logged in first and be authorized
+#         return cm.postOrPatchAndReturnResponse(Toy, request, session, True, showid, 0, 3);
 
-api.add_resource(ToysForShow, "/shows/<int:showid>/toys");
+# api.add_resource(ToysForShow, "/shows/<int:showid>/toys");
 
 #WRONG SHOWID AND ID MUST SOMEHOW CORRESPOND
 #WHAT IT SHOULD BE IS SHOWID AND TOYNUM NOT ID
 #/shows/SHOWID(1)/toys/TOYNUM(2) works, BUT WE NEED TO TRANSLATE IT TO THE ID
 #WE WANT TO FIND THE ITEM WHERE BOTH OF THOSE ARE THE CASE
-class ToysForShowByID(Resource):
-    def getIDForTheToy(self, showid, toynum):
-        myty = Toy.query.filter_by(show_id=showid, toy_number=toynum).first();
-        if (myty == None): return -1;
-        else: return myty.id;
+# class ToysForShowByID(Resource):
+#     def getIDForTheToy(self, showid, toynum):
+#         myty = Toy.query.filter_by(show_id=showid, toy_number=toynum).first();
+#         if (myty == None): return -1;
+#         else: return myty.id;
 
-    def get(self, toynum, showid):
-        id = self.getIDForTheToy(showid, toynum);
-        return cm.getItemByIDAndReturnResponse(id, Toy, 3);
+#     def get(self, toynum, showid):
+#         id = self.getIDForTheToy(showid, toynum);
+#         return cm.getItemByIDAndReturnResponse(id, Toy, 3);
 
-    def patch(self, toynum, showid):
-        #you must be logged in first and be authorized
-        id = self.getIDForTheToy(showid, toynum);
-        return cm.postOrPatchAndReturnResponse(Toy, request, session, False, showid, id, 3);
+#     def patch(self, toynum, showid):
+#         #you must be logged in first and be authorized
+#         id = self.getIDForTheToy(showid, toynum);
+#         return cm.postOrPatchAndReturnResponse(Toy, request, session, False, showid, id, 3);
 
-    def delete(self, toynum, showid):
-        #you must be logged in first and be authorized
-        id = self.getIDForTheToy(showid, toynum);
-        return cm.completeDeleteItemFromDBAndReturnResponse(id, Toy, session);
+#     def delete(self, toynum, showid):
+#         #you must be logged in first and be authorized
+#         id = self.getIDForTheToy(showid, toynum);
+#         return cm.completeDeleteItemFromDBAndReturnResponse(id, Toy, session);
 
-api.add_resource(ToysForShowByID, "/shows/<int:showid>/toys/<int:toynum>");
+# api.add_resource(ToysForShowByID, "/shows/<int:showid>/toys/<int:toynum>");
 
 
 #THIS STUFF IS ALWAYS NEEDED

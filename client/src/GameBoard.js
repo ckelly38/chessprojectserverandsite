@@ -162,7 +162,7 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
 
     function getNextMoveFromServer()
     {
-        console.error("NOT SURE WHAT TO DO HERE... 8-6-2024 3:30 AM MST");
+        console.log("ATTEMPTING TO GET THE NEXT MOVE FROM THE SERVER() NOW:");
         //if we do not get the reply we want keep querying the server, until we do
 
         //what we might want to say on the server:
@@ -236,9 +236,12 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         });
     }
 
-    function sendMoveToServer(cpunoffmv)
+    function sendMoveToServer(cpunoffmv, isnxtmv=true)
     {
         console.log("INSIDE OF SEND MOVE TO SERVER()");
+        console.log("isnxtmv = " + isnxtmv);
+
+        cc.letMustBeBoolean(isnxtmv, "isnxtmv");
 
         let cnvmvslist = ChessPiece.convertShorthandListOfMovesToDisplayList([cpunoffmv]);
         console.log("cnvmvslist = ", cnvmvslist);
@@ -255,7 +258,9 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         fetch("/add-one-move-for-game/" + gid, configobj)
         .then((res) => res.json()).then((mdata) => {
             console.log("mdata = ", mdata);
-            getNextMoveFromServer();
+            console.log("isnxtmv = " + isnxtmv);
+            if (isnxtmv) getNextMoveFromServer();
+            else ChessPiece.getGameVIAGID(gid).sendCompletedGameDataToServer();
         }).catch((merr) => {
             console.error("There was a problem sending the data to the server!");
             console.error(merr);
@@ -540,20 +545,49 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         return myrws;
     }
 
-    function displayCheckStatuses(csideinchk, csideinckmate, cside, dispqwarn,
+    function displayCheckStatuses(csideinchk, csideinckmate, cside, smate, dispqwarn,
         csdqninchk, useboldqmsg)
     {
         cc.letMustBeBoolean(csideinchk, "csideinchk");
         cc.letMustBeBoolean(csideinckmate, "csideinckmate");
         cc.letMustBeDefinedAndNotNull(cside, "cside");
+        cc.letMustBeBoolean(smate, "smate");
         cc.letMustBeBoolean(dispqwarn, "dispqwarn");
         cc.letMustBeBoolean(csdqninchk, "csdqninchk");
         cc.letMustBeBoolean(useboldqmsg, "useboldqmsg");
         
+        if (csideinckmate)
+        {
+            if (csideinchk);
+            else
+            {
+                cc.logAndThrowNewError("if you are in checkmate, then you must also be in check!");
+            }
+            if (smate)
+            {
+                cc.logAndThrowNewError("You cannot have a draw or a stalemate and be in " +
+                    "checkmate!");
+            }
+            //else;//do nothing
+        }
+        //else;//do nothing
+
+        if (smate)
+        {
+            if (csideinchk || csideinckmate)
+            {
+                cc.logAndThrowNewError("You cannot have a draw or a stalemate and be in " +
+                    "check or checkmate!");
+            }
+            //else;//do nothing
+        }
+        //else;//do nothing
+
         return (<div style={{paddingBottom: 5}}>Check Status: {csideinchk ? (<b>You're in Check
             {csideinckmate ? <div style={{display: "inline-block"}}>
                 mate! {ChessPiece.getOppositeColor(cside)} Wins!</div>: "!"}
             </b>): "No!"}
+            {smate ? <>{" "}<b>Stalemate! Tie!</b></>: null}
             {dispqwarn ? " Queen WARNING: " : null}
             {(dispqwarn && csdqninchk && useboldqmsg) ? <b>"You're Queen is in Check!"</b> : null}
             {(dispqwarn && csdqninchk && !useboldqmsg) ? "You're Queen is in Check!" : null}
@@ -568,12 +602,14 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
     let currentsideisincheck = false;
     let acurrentsidequeenisincheck = false;
     let currentsideincheckmate = false;
+    let smate = false;
     if (loaded)
     {
         clrvalturn = ChessGame.getGameVIAGID(gid).getSideTurn();
         iswhiteturn = (clrvalturn === "WHITE");
         iscompleted = ChessGame.getGameVIAGID(gid).isCompleted();
         currentsideisincheck = ChessPiece.isSideInCheck(clrvalturn, gid, null, null);
+        smate = ChessGame.getGameVIAGID(gid).isTied();
         if (currentsideisincheck)
         {
             currentsideincheckmate = ChessPiece.inCheckmate(clrvalturn, gid, null, null);
@@ -940,7 +976,7 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
             </tbody>
         </table>
         
-        {displayCheckStatuses(currentsideisincheck, currentsideincheckmate, clrvalturn,
+        {displayCheckStatuses(currentsideisincheck, currentsideincheckmate, clrvalturn, smate,
             showqnwarning, acurrentsidequeenisincheck, false)}
         
         <div>
