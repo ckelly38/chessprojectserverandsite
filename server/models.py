@@ -42,9 +42,9 @@ class GenerateSerializableRulesClass:
     
     def genUnSafeListForClassName(self, clsnm):
         #safe lists needed to generate the unsafe lists
-        epsafelist = self.getSafeListForClassName("Episode");
-        tsafelist = self.getSafeListForClassName("Toy");
-        swsafelist = self.getSafeListForClassName("Show");
+        #epsafelist = self.getSafeListForClassName("Episode");
+        #tsafelist = self.getSafeListForClassName("Toy");
+        #swsafelist = self.getSafeListForClassName("Show");
         usrsafelist = self.getSafeListForClassName("User");
         gmssafelist = self.getSafeListForClassName("Games");
         mvssafelist = self.getSafeListForClassName("Moves");
@@ -65,18 +65,19 @@ class GenerateSerializableRulesClass:
         
         #not needed below
         #show unsafe lists
-        swunsafelist = self.prependStringToListItems("show.", swsafelist);
+        #swunsafelist = self.prependStringToListItems("show.", swsafelist);
         #episode unsafe lists
-        epunsafelistwiths = self.prependStringToListItems("episodes.", epsafelist);
-        epunsafelistnos = self.prependStringToListItems("episode.", epsafelist);
+        #epunsafelistwiths = self.prependStringToListItems("episodes.", epsafelist);
+        #epunsafelistnos = self.prependStringToListItems("episode.", epsafelist);
         #toy unsafe lists
-        tunsafelistwiths = self.prependStringToListItems("toys.", tsafelist);
-        tunsafelistnos = self.prependStringToListItems("toy.", tsafelist);
+        #tunsafelistwiths = self.prependStringToListItems("toys.", tsafelist);
+        #tunsafelistnos = self.prependStringToListItems("toy.", tsafelist);
         
         #get the return list here
         if (clsnm == "User"):
-            swlist = self.prependStringToListItems("episodes.", swunsafelist);
-            return self.combineThreeLists(epunsafelistwiths, swlist, tunsafelistwiths);
+            #swlist = self.prependStringToListItems("episodes.", swunsafelist);
+            #return self.combineThreeLists(epunsafelistwiths, swlist, tunsafelistwiths);
+            return plyrsunsafelistwiths;
         elif (clsnm == "Moves"):
             return gmsunsafelistwiths;#games
         elif (clsnm == "Players"):
@@ -93,17 +94,17 @@ class GenerateSerializableRulesClass:
         #elif (clsnm == ?):
         #    return self.combineLists(?, ?);#?
         #not needed below
-        elif (clsnm == "Show"):
-            usrlist = self.prependStringToListItems("owner.", usrsafelist);
-            return self.combineThreeLists(epunsafelistwiths, tunsafelistwiths, usrlist);
-        elif (clsnm == "Episode" or clsnm == "Toy"):
-            return self.combineLists(swunsafelist, usrunsafelistwiths);
-        elif (clsnm == "UserEpisodes"):
-            swlist = self.prependStringToListItems("episode.", swunsafelist);
-            return self.combineThreeLists(usrunsafelistnos, epunsafelistnos, swlist);
-        elif (clsnm == "UserToy"):
-            swlist = self.prependStringToListItems("toy.", swunsafelist);
-            return self.combineThreeLists(usrunsafelistnos, tunsafelistnos, swlist);
+        #elif (clsnm == "Show"):
+        #    usrlist = self.prependStringToListItems("owner.", usrsafelist);
+        #    return self.combineThreeLists(epunsafelistwiths, tunsafelistwiths, usrlist);
+        #elif (clsnm == "Episode" or clsnm == "Toy"):
+        #    return self.combineLists(swunsafelist, usrunsafelistwiths);
+        #elif (clsnm == "UserEpisodes"):
+        #    swlist = self.prependStringToListItems("episode.", swunsafelist);
+        #    return self.combineThreeLists(usrunsafelistnos, epunsafelistnos, swlist);
+        #elif (clsnm == "UserToy"):
+        #    swlist = self.prependStringToListItems("toy.", swunsafelist);
+        #    return self.combineThreeLists(usrunsafelistnos, tunsafelistnos, swlist);
         else:
             raise ValueError(f"clsnm {clsnm} must be User, Show, Episode, Toy, " +
                              "UserEpisodes, or UserToy, but it was not!");
@@ -252,10 +253,10 @@ class User(db.Model, SerializerMixin):
                                 cascade="all, delete-orphan");
     players = db.relationship("Players", secondary="user_players", back_populates="user");
 
-    episodes = db.relationship("Episode", secondary="user_episodes", back_populates="users");
-    toys = db.relationship("Toy", secondary="user_toys", back_populates="users");
-    user_toys = db.relationship("UserToy", back_populates="user",
-                                cascade="all, delete-orphan");
+    #episodes = db.relationship("Episode", secondary="user_episodes", back_populates="users");
+    #toys = db.relationship("Toy", secondary="user_toys", back_populates="users");
+    #user_toys = db.relationship("UserToy", back_populates="user",
+    #                            cascade="all, delete-orphan");
 
     @hybrid_property
     def password_hash(self):

@@ -4500,10 +4500,12 @@ class ChessPiece {
 				if (cp.canPawnLeftMain(allpcs, bpassimnxtmv))
 				{
 					pleftloc = cp.getPawnLeftLocationMain(allpcs, bpassimnxtmv);
+					//console.log("CAN PAWN LEFT!");
 				}
 				if (cp.canPawnRightMain(allpcs, bpassimnxtmv))
 				{
 					prightloc = cp.getPawnRightLocationMain(allpcs, bpassimnxtmv);
+					//console.log("CAN PAWN RIGHT!");
 				}
 				let numaddlocs = 0;
 				let addpleft = false;
@@ -4518,8 +4520,10 @@ class ChessPiece {
 				else
 				{
 					numaddlocs++;
-					addpleft = true;
+					addpright = true;
 				}
+				//console.log("pleftloc = ", pleftloc);
+				//console.log("prightloc = ", prightloc);
 				//console.log("addpleft = " + addpleft);
 				//console.log("addpright = " + addpright);
 
