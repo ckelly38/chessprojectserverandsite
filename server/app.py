@@ -7,10 +7,14 @@ from flask import request, session
 from flask_restful import Resource
 
 # Local imports
-from config import app, db, api
+from config import app, db, api, socketio
+from flask_socketio import emit
 # Add your model imports
 from models import User, Players, Games, GameMoves, UserPlayers, Moves
 #Show, Episode, Toy, UserToy, UserEpisodes, 
+
+#NOTE: you can use the Resource and the api.add_resource(class, "url") with the socketIO,
+#but they function as if the socket was not there
 
 # Views go here!
 #anyone (not just users, not needed to be logged in) needs to know what:
@@ -860,6 +864,7 @@ api.add_resource(JoinGame, "/join_game/<int:id>");
 
 #api.add_resource(GetResumableGamesForUser, "/my-resumable-games");
 
+#NEED TO COME UP WITH RULES AND DESIGN AN INTERFACE TO ACCESS THIS 8-7-2024 12:45 AM MST
 class GetCompletedGamesForUser(Resource):
     def get(self):
         #need to get the games for the user and
@@ -1005,6 +1010,39 @@ class AddOneMoveForAGame(Resource):
             return cm.getSerializedItem(GameMoves, gmmv, 3), 201;
 
 api.add_resource(AddOneMoveForAGame, "/add-one-move-for-game/<int:id>");#id is gameid
+
+#add the move for a game and broadcast to all players on the game
+#I guess if they are not playing that game, they can ignore it
+
+#https://flask-socketio.readthedocs.io/en/latest/getting_started.html#receiving-messages
+#https://medium.com/@adrianhuber17/how-to-build-a-simple-real-time-application-using-flask-react-and-socket-io-7ec2ce2da977
+@socketio.on('send_message')
+def handle_source(json_data):
+    print("INSIDE HANDLE SOURCE():");
+    print(json_data);
+    text = json_data['message'].encode('ascii', 'ignore');
+    print(f"text = {text}");
+    emit('echo', {'echo': 'Server Says: '+text}, broadcast=True, include_self=False);
+
+@socketio.on('echo')
+def handle_echo(data):
+    print('received message: ' + data);
+
+@socketio.on("connect")
+def connected():
+    """event listener when client connects to the server"""
+    print(request.sid)
+    print("client has connected")
+    emit("connect", {"data":f"id: {request.sid} is connected"})
+
+@socketio.on("disconnect")
+def disconnected():
+    """event listener when client disconnects to the server"""
+    print("user disconnected")
+    msg = "user " + str(request.sid) + " disconnected"
+    emit("disconnect", {"message": msg}, broadcast=True)
+
+
 
 class GetAllMovesForAGame(Resource):
     def get(self, id):
@@ -1690,5 +1728,5 @@ def index():
 
 
 if __name__ == '__main__':
-    app.run(port=5555, debug=True)
+    socketio.run(app, port=5555, debug=True)#was app.run(port=5555, debug=True)
 

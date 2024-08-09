@@ -12,6 +12,7 @@ Werkzeug = "2.2.2"
 flask-migrate = "*"
 sqlalchemy-serializer = "*"
 flask-cors = "*"
+flask-socketio = "*"
 flask-restful = "*"
 flask-bcrypt = "*"
 

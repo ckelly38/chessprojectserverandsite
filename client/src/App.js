@@ -1,9 +1,10 @@
 //import logo from './logo.svg';
 import './App.css';
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Switch, Route, Redirect, useHistory } from "react-router-dom";
 import { MyRoute, getRoutesList, addOtherRouteNamesForRoute } from "./MyRoute";
 import { UserContext } from "./UserProvider";
+import { io } from "socket.io-client";
 import Navbar from "./Navbar";
 import Logout from "./Logout";
 import SignUpLoginPreferences from "./SignUpLoginPreferences";
@@ -16,7 +17,9 @@ import NewPiece from "./NewPiece";
 import PieceListForm from "./PieceListForm";
 import CommonClass from "./commonclass";
 import ChessGame from "./ChessGame";
+import pjson from "../package.json";
 //import TestDriver from './TestDriver';
+//https://stackoverflow.com/questions/9153571/is-there-a-way-to-get-the-version-from-the-package-json-file-in-node-js-code
 
 function App() {
   const cc = new CommonClass();
@@ -237,6 +240,54 @@ function App() {
   console.log("APP: thegame = ", thegame);
   console.log("APP: pa_id = " + pa_id);
   console.log("APP: pb_id = " + pb_id);
+
+  let [loading, setLoading] = useState(true);
+  let [socketinstance, setSocketInstance] = useState(null);
+  useEffect(() => {
+    //may have problems here
+    //first is target (the server, currently localhost:5555)
+    //second is origin (where it comes from, currently localhost:3000)
+    if (loading)
+    {
+      console.log("APP: window.location.host = ", window.location.host);//origin
+      console.log("APP: window.location.host = ", window.location);
+      console.log("pjson.proxy = ", pjson.proxy);//target
+      const socket = io(pjson.proxy + "/", {
+        transports: ["websocket"],
+        cors: {
+          origin: window.location.host,
+        },
+      });
+
+      setSocketInstance(socket);
+
+      socket.on("connect", (data) => {
+        console.log("APP connect() handler:");
+        console.log(data);
+      });
+
+      setLoading(false);
+
+      socket.on("send_message", (data) => {
+        console.log("inside APP send_message: ", data);
+      });
+
+      socket.on("disconnect", (data) => {
+        console.log("APP DIS-connect() handler:");
+        console.log(data);
+      });
+
+      console.log("JUST BEFORE ATTEMPTING TO SEND MESSAGE!");
+      socket.emit("send_message", {"message": "send dummy message data to server. I win!"});
+
+      return function cleanup() {
+        socket.disconnect();
+      };
+    }
+    //else;//do nothing
+  }, []);
+
+  if (loading) return (<div>Loading socket connection on App...!</div>);
 
   return (<div>
       <Switch>

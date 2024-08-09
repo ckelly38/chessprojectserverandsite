@@ -493,285 +493,285 @@ class GameMoves(db.Model, SerializerMixin):
 #NOT NEEDED BELOW THIS POINT 7-20-2024
 
 
-class Show(db.Model, SerializerMixin):
-    __tablename__ = "shows";
+# class Show(db.Model, SerializerMixin):
+#     __tablename__ = "shows";
 
-    #constraints go inside the tableargs
-    __table_args__ = (db.CheckConstraint("length(description) >= 1"),
-                     db.CheckConstraint("length(name) >= 1"));
+#     #constraints go inside the tableargs
+#     __table_args__ = (db.CheckConstraint("length(description) >= 1"),
+#                      db.CheckConstraint("length(name) >= 1"));
 
-    class_name_string = "Show";
+#     class_name_string = "Show";
 
-    #if I want to use postgressql and deploy using render change this to SERIAL
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True);
-    name = db.Column(db.String, unique=True, nullable=False);
-    description = db.Column(db.String, nullable=False);
+#     #if I want to use postgressql and deploy using render change this to SERIAL
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True);
+#     name = db.Column(db.String, unique=True, nullable=False);
+#     description = db.Column(db.String, nullable=False);
 
-    owner_id = db.Column(db.Integer, db.ForeignKey("users.id"), default=0);
+#     owner_id = db.Column(db.Integer, db.ForeignKey("users.id"), default=0);
 
-    #serialize_rules = ("-episodes.show", "-owner.episodes.show", "-toys.show",
-    #                   "-toys.user_toys.toy.show", "-users.episodes.show",
-    #                   "-users.user_toys.toy.show");
-    #safeserializelist = ["id", "name", "description"];
-    safeserializelist = genlists.getUnOrSafeListForClassName("Show", True);
-    unsafelist = genlists.getUnOrSafeListForClassName("Show", False);
-    #unsafelist = ["episodes.id", "episodes.name", "episodes.description", "toys.id",
-    #              "toys.name", "toys.description", "owner.id", "owner.name",
-    #              "owner.access_level"];
-    full_list = genlists.combineLists(safeserializelist, unsafelist);
-    #serialize_only = ("id", "name", "description", "episodes.id", "episodes.name",
-    #                  "episodes.description", "toys.id", "toys.name", "toys.description",
-    #                  "owner.id", "owner.name", "owner.access_level");
-    #serialize_only = tuple(genlists.combineLists(safeserializelist, []));#unsafelist
-    serialize_only = tuple(safeserializelist);
+#     #serialize_rules = ("-episodes.show", "-owner.episodes.show", "-toys.show",
+#     #                   "-toys.user_toys.toy.show", "-users.episodes.show",
+#     #                   "-users.user_toys.toy.show");
+#     #safeserializelist = ["id", "name", "description"];
+#     safeserializelist = genlists.getUnOrSafeListForClassName("Show", True);
+#     unsafelist = genlists.getUnOrSafeListForClassName("Show", False);
+#     #unsafelist = ["episodes.id", "episodes.name", "episodes.description", "toys.id",
+#     #              "toys.name", "toys.description", "owner.id", "owner.name",
+#     #              "owner.access_level"];
+#     full_list = genlists.combineLists(safeserializelist, unsafelist);
+#     #serialize_only = ("id", "name", "description", "episodes.id", "episodes.name",
+#     #                  "episodes.description", "toys.id", "toys.name", "toys.description",
+#     #                  "owner.id", "owner.name", "owner.access_level");
+#     #serialize_only = tuple(genlists.combineLists(safeserializelist, []));#unsafelist
+#     serialize_only = tuple(safeserializelist);
 
-    #other stuff after that
-    episodes = db.relationship("Episode", back_populates="show", cascade="all, delete-orphan");
-    owner = db.relationship("User");
-    toys = db.relationship("Toy", back_populates="show", cascade="all, delete-orphan");
+#     #other stuff after that
+#     episodes = db.relationship("Episode", back_populates="show", cascade="all, delete-orphan");
+#     owner = db.relationship("User");
+#     toys = db.relationship("Toy", back_populates="show", cascade="all, delete-orphan");
 
-    #validation code
-    @classmethod
-    def getValidator(cls): return mv;
+#     #validation code
+#     @classmethod
+#     def getValidator(cls): return mv;
 
-    @validates("name")
-    def isnamevalid(self, key, val):
-        return mv.isnamevalid(val, "show name", Show);
+#     @validates("name")
+#     def isnamevalid(self, key, val):
+#         return mv.isnamevalid(val, "show name", Show);
     
-    @validates("description")
-    def isdescriptionvalid(self, key, val):
-        return mv.isstringnotblank(val, "show description");
+#     @validates("description")
+#     def isdescriptionvalid(self, key, val):
+#         return mv.isstringnotblank(val, "show description");
 
-    def getEpisodeIds(self):
-        return [ep.id for ep in self.episodes];
+#     def getEpisodeIds(self):
+#         return [ep.id for ep in self.episodes];
 
-    def __repr__(self):
-        mystr = f"<Show id={self.id}, owner-id={self.owner_id}, ";
-        mystr += f"name={self.name}, description={self.description}, ";
-        mystr += f"owner={self.owner}, episode_ids={self.getEpisodeIds()}>";
-        return mystr;
+#     def __repr__(self):
+#         mystr = f"<Show id={self.id}, owner-id={self.owner_id}, ";
+#         mystr += f"name={self.name}, description={self.description}, ";
+#         mystr += f"owner={self.owner}, episode_ids={self.getEpisodeIds()}>";
+#         return mystr;
 
-class Episode(db.Model, SerializerMixin):
-    __tablename__ = "episodes";
+# class Episode(db.Model, SerializerMixin):
+#     __tablename__ = "episodes";
 
-    #constraints go inside the tableargs
-    __table_args__ = (db.CheckConstraint("length(description) >= 1"),
-                     db.CheckConstraint("length(name) >= 1"),
-                     db.CheckConstraint("season_number >= 1"),
-                     db.CheckConstraint("episode_number >= 1"),
-                     db.UniqueConstraint("episode_number", "season_number", "show_id",
-                                         name="unique_showid_epnumsnnumcombo"));
+#     #constraints go inside the tableargs
+#     __table_args__ = (db.CheckConstraint("length(description) >= 1"),
+#                      db.CheckConstraint("length(name) >= 1"),
+#                      db.CheckConstraint("season_number >= 1"),
+#                      db.CheckConstraint("episode_number >= 1"),
+#                      db.UniqueConstraint("episode_number", "season_number", "show_id",
+#                                          name="unique_showid_epnumsnnumcombo"));
     
-    class_name_string = "Episode";
+#     class_name_string = "Episode";
 
-    #if I want to use postgressql and deploy using render change this to SERIAL
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True);
-    name = db.Column(db.String, nullable=False);
-    description = db.Column(db.String, nullable=False);
-    season_number = db.Column(db.Integer, default=1);
-    episode_number = db.Column(db.Integer, default=1);
+#     #if I want to use postgressql and deploy using render change this to SERIAL
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True);
+#     name = db.Column(db.String, nullable=False);
+#     description = db.Column(db.String, nullable=False);
+#     season_number = db.Column(db.Integer, default=1);
+#     episode_number = db.Column(db.Integer, default=1);
     
-    show_id = db.Column(db.Integer, db.ForeignKey("shows.id"));
+#     show_id = db.Column(db.Integer, db.ForeignKey("shows.id"));
 
-    #safeserializelist = ["id", "name", "description", "season_number", "episode_number"];
-    safeserializelist = genlists.getUnOrSafeListForClassName("Episode", True);
-    unsafelist = genlists.getUnOrSafeListForClassName("Episode", False);
-    #unsafelist = ["show.id", "show.name", "show.description", "users.id", "users.name",
-    #              "users.access_level"];
-    full_list = genlists.combineLists(safeserializelist, unsafelist);
+#     #safeserializelist = ["id", "name", "description", "season_number", "episode_number"];
+#     safeserializelist = genlists.getUnOrSafeListForClassName("Episode", True);
+#     unsafelist = genlists.getUnOrSafeListForClassName("Episode", False);
+#     #unsafelist = ["show.id", "show.name", "show.description", "users.id", "users.name",
+#     #              "users.access_level"];
+#     full_list = genlists.combineLists(safeserializelist, unsafelist);
 
-    #serialize_rules = ("-show.episodes", "-users.episodes");
-    #serialize_only = ("id", "name", "description", "season_number", "episode_number",
-    #                  "show.id", "show.name", "show.description", "users.id", "users.name",
-    #                  "users.access_level");
-    #serialize_only = tuple(genlists.combineLists(safeserializelist, []));#unsafelist
-    serialize_only = tuple(safeserializelist);
+#     #serialize_rules = ("-show.episodes", "-users.episodes");
+#     #serialize_only = ("id", "name", "description", "season_number", "episode_number",
+#     #                  "show.id", "show.name", "show.description", "users.id", "users.name",
+#     #                  "users.access_level");
+#     #serialize_only = tuple(genlists.combineLists(safeserializelist, []));#unsafelist
+#     serialize_only = tuple(safeserializelist);
 
-    #other stuff after that
-    users = db.relationship("User", secondary="user_episodes", back_populates="episodes");
-    show = db.relationship("Show", back_populates="episodes");
+#     #other stuff after that
+#     users = db.relationship("User", secondary="user_episodes", back_populates="episodes");
+#     show = db.relationship("Show", back_populates="episodes");
 
-    #validation code
-    @classmethod
-    def getValidator(cls): return mv;
+#     #validation code
+#     @classmethod
+#     def getValidator(cls): return mv;
     
-    @validates("name")
-    def isnamevalid(self, key, val):
-        return mv.isstringnotblank(val, "episode name");
+#     @validates("name")
+#     def isnamevalid(self, key, val):
+#         return mv.isstringnotblank(val, "episode name");
 
-    @validates("description")
-    def isdescriptionvalid(self, key, val):
-        return mv.isstringnotblank(val, "episode description");
+#     @validates("description")
+#     def isdescriptionvalid(self, key, val):
+#         return mv.isstringnotblank(val, "episode description");
 
-    def makeSureUniqueShowIDEpnumAndSeasonNumPresent(self):
-        #print(self);
-        item = mv.isuniquecols(self.to_dict(), Episode,
-                               ["episode_number", "season_number", "show_id"]);
-        if (item == None): raise ValueError("item must not be none!");
-        else: return self;
+#     def makeSureUniqueShowIDEpnumAndSeasonNumPresent(self):
+#         #print(self);
+#         item = mv.isuniquecols(self.to_dict(), Episode,
+#                                ["episode_number", "season_number", "show_id"]);
+#         if (item == None): raise ValueError("item must not be none!");
+#         else: return self;
 
-    def getUserIds(self):
-        return [usr.id for usr in self.users];
+#     def getUserIds(self):
+#         return [usr.id for usr in self.users];
 
-    def __repr__(self):
-        mystr = f"<Episode id={self.id}, show-id={self.show_id}, ";
-        mystr += f"season_number={self.season_number}, episode_number={self.episode_number}, ";
-        mystr += f"name={self.name}, description={self.description}, ";
-        mystr += f"userids={self.getUserIds()}>";
-        return mystr;
+#     def __repr__(self):
+#         mystr = f"<Episode id={self.id}, show-id={self.show_id}, ";
+#         mystr += f"season_number={self.season_number}, episode_number={self.episode_number}, ";
+#         mystr += f"name={self.name}, description={self.description}, ";
+#         mystr += f"userids={self.getUserIds()}>";
+#         return mystr;
 
-class Toy(db.Model, SerializerMixin):
-    __tablename__ = "toys";
+# class Toy(db.Model, SerializerMixin):
+#     __tablename__ = "toys";
 
-    #constraints go inside the tableargs
-    __table_args__ = (db.CheckConstraint("length(description) >= 1"),
-                     db.CheckConstraint("length(name) >= 1"),
-                     db.CheckConstraint("price >= 0"),
-                     db.CheckConstraint("toy_number >= 1"),
-                     db.UniqueConstraint("toy_number", "show_id",
-                                         name="unique_showid_toynumcombo"));
+#     #constraints go inside the tableargs
+#     __table_args__ = (db.CheckConstraint("length(description) >= 1"),
+#                      db.CheckConstraint("length(name) >= 1"),
+#                      db.CheckConstraint("price >= 0"),
+#                      db.CheckConstraint("toy_number >= 1"),
+#                      db.UniqueConstraint("toy_number", "show_id",
+#                                          name="unique_showid_toynumcombo"));
 
-    class_name_string = "Toy";
+#     class_name_string = "Toy";
 
-    #if I want to use postgressql and deploy using render change this to SERIAL
-    #https://stackoverflow.com/questions/10059345/sqlalchemy-unique-across-multiple-columns
-    #above link is for UniqueConstraint method call
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True);
-    price = db.Column(db.Float, default=1);
-    name = db.Column(db.String, nullable=False);
-    description = db.Column(db.String, nullable=False);
+#     #if I want to use postgressql and deploy using render change this to SERIAL
+#     #https://stackoverflow.com/questions/10059345/sqlalchemy-unique-across-multiple-columns
+#     #above link is for UniqueConstraint method call
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True);
+#     price = db.Column(db.Float, default=1);
+#     name = db.Column(db.String, nullable=False);
+#     description = db.Column(db.String, nullable=False);
     
-    show_id = db.Column(db.Integer, db.ForeignKey("shows.id"));
-    toy_number = db.Column(db.Integer);
+#     show_id = db.Column(db.Integer, db.ForeignKey("shows.id"));
+#     toy_number = db.Column(db.Integer);
     
-    #safeserializelist = ["id", "name", "description", "price", "toy_number"];
-    safeserializelist = genlists.getUnOrSafeListForClassName("Toy", True);
-    unsafelist = genlists.getUnOrSafeListForClassName("Toy", False);
-    #unsafelist = ["show.id", "show.name", "show.description", "users.id", "users.name",
-    #              "users.access_level"];
-    full_list = genlists.combineLists(safeserializelist, unsafelist);
+#     #safeserializelist = ["id", "name", "description", "price", "toy_number"];
+#     safeserializelist = genlists.getUnOrSafeListForClassName("Toy", True);
+#     unsafelist = genlists.getUnOrSafeListForClassName("Toy", False);
+#     #unsafelist = ["show.id", "show.name", "show.description", "users.id", "users.name",
+#     #              "users.access_level"];
+#     full_list = genlists.combineLists(safeserializelist, unsafelist);
 
-    #serialize_rules = ("-show.toys", "-user_toys.toy", "-users.toys",
-    #                   "-users.episodes.show.toys", "-users.user_toys.toy");
-    #serialize_only = ("id", "name", "description", "price", "show.id", "show.name",
-    #                  "show.description", "users.id", "users.name", "users.access_level");
-    #serialize_only = tuple(genlists.combineLists(safeserializelist, []));#unsafelist
-    serialize_only = tuple(safeserializelist);
+#     #serialize_rules = ("-show.toys", "-user_toys.toy", "-users.toys",
+#     #                   "-users.episodes.show.toys", "-users.user_toys.toy");
+#     #serialize_only = ("id", "name", "description", "price", "show.id", "show.name",
+#     #                  "show.description", "users.id", "users.name", "users.access_level");
+#     #serialize_only = tuple(genlists.combineLists(safeserializelist, []));#unsafelist
+#     serialize_only = tuple(safeserializelist);
 
-    #other stuff after that
-    show = db.relationship("Show", back_populates="toys");
-    users = db.relationship("User", secondary="user_toys", back_populates="toys");
-    user_toys = db.relationship("UserToy", back_populates="toy",
-                                cascade="all, delete-orphan");
+#     #other stuff after that
+#     show = db.relationship("Show", back_populates="toys");
+#     users = db.relationship("User", secondary="user_toys", back_populates="toys");
+#     user_toys = db.relationship("UserToy", back_populates="toy",
+#                                 cascade="all, delete-orphan");
 
-    #validation code
-    @classmethod
-    def getValidator(cls): return mv;
+#     #validation code
+#     @classmethod
+#     def getValidator(cls): return mv;
     
-    @validates("name")
-    def isnamevalid(self, key, val):
-        return mv.isstringnotblank(val, "toy name");
+#     @validates("name")
+#     def isnamevalid(self, key, val):
+#         return mv.isstringnotblank(val, "toy name");
     
-    @validates("price")
-    def ispricevalid(self, key, val):
-        if (val == None or (type(val) != float and type(val) != int)):
-            raise ValueError("the value for the price must be a number!");
-        else:
-            if (val < 0): raise ValueError("the price cannot be negative!");
-            else: return val;
+#     @validates("price")
+#     def ispricevalid(self, key, val):
+#         if (val == None or (type(val) != float and type(val) != int)):
+#             raise ValueError("the value for the price must be a number!");
+#         else:
+#             if (val < 0): raise ValueError("the price cannot be negative!");
+#             else: return val;
 
-    @validates("description")
-    def isdescriptionvalid(self, key, val):
-        return mv.isstringnotblank(val, "toy description");
+#     @validates("description")
+#     def isdescriptionvalid(self, key, val):
+#         return mv.isstringnotblank(val, "toy description");
 
-    def makeSureUniqueShowIDAndToyNumPresent(self):
-        #print(self);
-        item = mv.isuniquecols(self.to_dict(), Toy,
-                               ["toy_number", "show_id"]);
-        if (item == None): raise ValueError("item must not be none!");
-        else: return self;
+#     def makeSureUniqueShowIDAndToyNumPresent(self):
+#         #print(self);
+#         item = mv.isuniquecols(self.to_dict(), Toy,
+#                                ["toy_number", "show_id"]);
+#         if (item == None): raise ValueError("item must not be none!");
+#         else: return self;
 
-    def __repr__(self):
-        mystr = f"<Toy id={self.id}, show-id={self.show_id}, price={self.price}, ";
-        mystr += f"name={self.name}, description={self.description}>";
-        return mystr;
+#     def __repr__(self):
+#         mystr = f"<Toy id={self.id}, show-id={self.show_id}, price={self.price}, ";
+#         mystr += f"name={self.name}, description={self.description}>";
+#         return mystr;
 
-class UserEpisodes(db.Model, SerializerMixin):
-    __tablename__ = "user_episodes";
+# class UserEpisodes(db.Model, SerializerMixin):
+#     __tablename__ = "user_episodes";
 
-    class_name_string = "UserEpisodes";
+#     class_name_string = "UserEpisodes";
 
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True);
-    episode_id = db.Column(db.Integer, db.ForeignKey("episodes.id"), primary_key=True);
+#     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True);
+#     episode_id = db.Column(db.Integer, db.ForeignKey("episodes.id"), primary_key=True);
     
-    #safeserializelist = [];
-    safeserializelist = genlists.getUnOrSafeListForClassName("UserEpisodes", True);
-    #User.safeserializelist prepend "user." 
-    #unsafelist = ["user.id", "user.name", "user.access_level", "episode.id", "episode.name",
-    #              "episode.description", "episode.show.id", "episode.show.name",
-    #              "episode.show.description"];
-    unsafelist = genlists.getUnOrSafeListForClassName("UserEpisodes", False);
-    full_list = genlists.combineLists(safeserializelist, unsafelist);
+#     #safeserializelist = [];
+#     safeserializelist = genlists.getUnOrSafeListForClassName("UserEpisodes", True);
+#     #User.safeserializelist prepend "user." 
+#     #unsafelist = ["user.id", "user.name", "user.access_level", "episode.id", "episode.name",
+#     #              "episode.description", "episode.show.id", "episode.show.name",
+#     #              "episode.show.description"];
+#     unsafelist = genlists.getUnOrSafeListForClassName("UserEpisodes", False);
+#     full_list = genlists.combineLists(safeserializelist, unsafelist);
     
-    #serialize_rules = ("-user.episodes",);
-    serialize_only = ("user.id", "user.name", "user.access_level", "episode.id",
-                      "episode.name", "episode.description", "episode.show.id",
-                      "episode.show.name", "episode.show.description");
+#     #serialize_rules = ("-user.episodes",);
+#     serialize_only = ("user.id", "user.name", "user.access_level", "episode.id",
+#                       "episode.name", "episode.description", "episode.show.id",
+#                       "episode.show.name", "episode.show.description");
 
-    #other stuff after that
-    user = db.relationship("User");
-    episode = db.relationship("Episode");
+#     #other stuff after that
+#     user = db.relationship("User");
+#     episode = db.relationship("Episode");
 
-    @classmethod
-    def getValidator(cls): return mv;
+#     @classmethod
+#     def getValidator(cls): return mv;
 
-    def __repr__(self):
-        return f"<UserEpisodes user_id={self.user_id}, episode_id={self.episode_id}>";
+#     def __repr__(self):
+#         return f"<UserEpisodes user_id={self.user_id}, episode_id={self.episode_id}>";
 
-class UserToy(db.Model, SerializerMixin):
-    __tablename__ = "user_toys";
+# class UserToy(db.Model, SerializerMixin):
+#     __tablename__ = "user_toys";
 
-    #constraints go inside the tableargs
-    __table_args__ = (db.CheckConstraint("quantity >= 0"),);
+#     #constraints go inside the tableargs
+#     __table_args__ = (db.CheckConstraint("quantity >= 0"),);
 
-    class_name_string = "UserToy";
+#     class_name_string = "UserToy";
 
-    #if I want to use postgressql and deploy using render change this to SERIAL
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True);
-    toy_id = db.Column(db.Integer, db.ForeignKey("toys.id"), primary_key=True);
-    quantity = db.Column(db.Integer, default=0);
+#     #if I want to use postgressql and deploy using render change this to SERIAL
+#     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), primary_key=True);
+#     toy_id = db.Column(db.Integer, db.ForeignKey("toys.id"), primary_key=True);
+#     quantity = db.Column(db.Integer, default=0);
 
-    #serialize_rules = ("-user.user_toys", "-toy.user_toys", "-user.toys.user_toys",
-    #                   "-toy.users.user_toys", "-toys.user_toys", "-users.user_toys");
-    #safeserializelist = ["quantity"];
-    safeserializelist = genlists.getUnOrSafeListForClassName("UserToy", True);
-    unsafelist = genlists.getUnOrSafeListForClassName("UserToy", False);
-    #unsafelist = ["user.id", "user.name", "user.access_level", "toy.id", "toy.name",
-    #              "toy.description", "toy.show.id", "toy.show.name", "toy.show.description"];
-    full_list = genlists.combineLists(safeserializelist, unsafelist);
-    #serialize_only = ("user.id", "user.name", "user.access_level", "toy.id", "toy.name",
-    #                  "toy.description", "quantity", "toy.show.id", "toy.show.name",
-    #                  "toy.show.description");
-    #serialize_only = tuple(genlists.combineLists(safeserializelist, []));#unsafelist
-    serialize_only = tuple(safeserializelist);
+#     #serialize_rules = ("-user.user_toys", "-toy.user_toys", "-user.toys.user_toys",
+#     #                   "-toy.users.user_toys", "-toys.user_toys", "-users.user_toys");
+#     #safeserializelist = ["quantity"];
+#     safeserializelist = genlists.getUnOrSafeListForClassName("UserToy", True);
+#     unsafelist = genlists.getUnOrSafeListForClassName("UserToy", False);
+#     #unsafelist = ["user.id", "user.name", "user.access_level", "toy.id", "toy.name",
+#     #              "toy.description", "toy.show.id", "toy.show.name", "toy.show.description"];
+#     full_list = genlists.combineLists(safeserializelist, unsafelist);
+#     #serialize_only = ("user.id", "user.name", "user.access_level", "toy.id", "toy.name",
+#     #                  "toy.description", "quantity", "toy.show.id", "toy.show.name",
+#     #                  "toy.show.description");
+#     #serialize_only = tuple(genlists.combineLists(safeserializelist, []));#unsafelist
+#     serialize_only = tuple(safeserializelist);
 
-    #other stuff after that
-    user = db.relationship("User", back_populates="user_toys");
-    toy = db.relationship("Toy", back_populates="user_toys");
+#     #other stuff after that
+#     user = db.relationship("User", back_populates="user_toys");
+#     toy = db.relationship("Toy", back_populates="user_toys");
 
-    #validation code
-    @classmethod
-    def getValidator(cls): return mv;
+#     #validation code
+#     @classmethod
+#     def getValidator(cls): return mv;
     
-    @validates("quantity")
-    def isquantityvalid(self, key, val):
-        if (val == None or type(val) != int):
-            raise ValueError("the value for the quantity must be a number!");
-        else:
-            if (val < 0): raise ValueError("the quantity cannot be negative!");
-            else: return val;
+#     @validates("quantity")
+#     def isquantityvalid(self, key, val):
+#         if (val == None or type(val) != int):
+#             raise ValueError("the value for the quantity must be a number!");
+#         else:
+#             if (val < 0): raise ValueError("the quantity cannot be negative!");
+#             else: return val;
 
-    def __repr__(self):
-        mystr = f"<UserToy user-id={self.user_id}, toy-id={self.toy_id}, ";
-        mystr += f"quantity={self.quantity}>";
-        return mystr;
+#     def __repr__(self):
+#         mystr = f"<UserToy user-id={self.user_id}, toy-id={self.toy_id}, ";
+#         mystr += f"quantity={self.quantity}>";
+#         return mystr;
