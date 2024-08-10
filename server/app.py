@@ -1103,6 +1103,50 @@ class GetAllMovesForAGame(Resource):
 
 api.add_resource(GetAllMovesForAGame, "/all-moves-for-game/<int:id>");#id is gameid
 
+class CreateCustomGame(Resource):
+    def post(self):
+        usr = cm.getUserFromTheSession(session);
+        if (usr == None): return {"error": "401 error no users logged in!"}, 401;
+        else:
+            dataobj = cm.getDataObjectFromRequest(request);
+            print(dataobj);
+            
+            myg = None;
+            try:
+                myg = Games(playera_won=dataobj["playera_won"],
+                            playera_resigned=dataobj["playera_resigned"],
+                            playerb_resigned=dataobj["playerb_resigned"],
+                            tied=dataobj["tied"], completed=dataobj["completed"],
+                            playera_id=0, playerb_id=0);
+                db.session.add(myg);
+                db.session.commit();
+            except Exception as ex:
+                print(ex);
+                #db.session.rollback();
+                errmsg = "422 error invalid data used to create item of type ";
+                errmsg += f"{cm.getTypeStringForClass(Games)}!";
+                return {"error": errmsg}, 422;
+            
+            #the moves for the game...
+            return GetAllMovesForAGame.post(self=self, id=myg.id);
+            #print(f"plyra = {plyra}");
+            #print("");
+            #print(f"myg = {myg}");
+            #print("");
+            #print(f"usrplyr = {usrplyr}");
+            #print("");
+            #print(f"plyra.to_dict() = {cm.getSerializedItem(Players, plyra, 3)}");
+            #print("");
+            #print(f"myg.to_dict() = {cm.getSerializedItem(Games, myg, 3)}");
+            #print("");
+            #print(f"usrplyr.to_dict() = {cm.getSerializedItem(UserPlayers, usrplyr, 3)}");
+            #print("");
+            #return {"game": cm.getSerializedItem(Games, myg, 3),
+            #        "user_player": cm.getSerializedItem(UserPlayers, usrplyr, 3)}, 201;
+
+api.add_resource(CreateCustomGame, "/new_custom_game");
+
+
 #HOW TO UPDATE, GET OR REMOVE A GAME MOVE?
 #IN ORDER TO GET JUST ONE: WE NEED THE GAME ID, THE MOVE ID, AND THE NUMBER IN THE GAME
 class AllGameMovesByID(Resource):

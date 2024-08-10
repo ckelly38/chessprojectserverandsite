@@ -246,7 +246,7 @@ function Cmdinterface({whitemovesdownranks, iswhiteturn, useroworcollocdisp, arr
         }
     }
     
-    const basemvs = ["CASTLEING", "PAWNING", "RESIGNATION", "DRAW", "MOVE"];
+    const basemvs = ["CASTLEING", "PAWNING", "RESIGNATION", "MOVE"];
     const fullmvs = ["COLOR HINTS", "PIECE HINTS", "CASTLEING", "PAWNING",
         "RESIGNATION", "DRAW", "MOVE"];//, "PROMOTION", "CREATE", "DELETE"
     const movevalsarr = (usefullmvset ? fullmvs : basemvs);

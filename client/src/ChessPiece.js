@@ -840,13 +840,17 @@ class ChessPiece {
 				"than 8!");
 		}
 	}
-	static getColorOfLocFromPiece(cp)
+	static getColorOfLocFromPiece(cp, usegets=true)
 	{
 		if (ChessPiece.cc.isItemNullOrUndefined(cp))
 		{
 			ChessPiece.cc.logAndThrowNewError("cp is not allowed to be null!");
 		}
-		else return ChessPiece.getColorOfLoc(cp.getRow(), cp.getCol());
+		else
+		{
+			if (usegets) return ChessPiece.getColorOfLoc(cp.getRow(), cp.getCol());
+			else return ChessPiece.getColorOfLoc(cp.row, cp.col);
+		}
 	}
 	
 	//CONVERT LOCS METHODS
@@ -1557,9 +1561,9 @@ class ChessPiece {
 	
 	//GET CURRENT SIDE PIECES
 	
-	static getCurrentSidePieces(clrval, allpcs)
+	static getCurrentSidePieces(clrval, allpcs, usegets=true)
 	{
-		return ChessPiece.filterListByColor(allpcs, clrval);
+		return ChessPiece.filterListByColor(allpcs, clrval, usegets);
 	}
 	static getCurrentSidePiecesMain(clrval, gid, ignorelist=null, addpcs=null)
 	{
@@ -1585,10 +1589,10 @@ class ChessPiece {
 	
 	//GET ALL OF A CERTAIN TYPE
 	
-	static getAllOfType(typeval, allpcs)
+	static getAllOfType(typeval, allpcs, usegets=true)
 	{
 		ChessPiece.cc.letMustBeDefinedAndNotNull(typeval, "typeval");
-		return ChessPiece.filterListByType(allpcs, typeval);
+		return ChessPiece.filterListByType(allpcs, typeval, usegets);
 	}
 	static getAllOfTypeMain(typeval, gid)
 	{
@@ -5821,7 +5825,7 @@ class ChessPiece {
 	//STALEMATE METHODS
 	
 	//returns true if less than 2 pieces of that type are on the board
-	static areAllOfTypeOnSameColorSquare(typeval, allpcs=null)
+	static areAllOfTypeOnSameColorSquare(typeval, allpcs=null, usegets=true)
 	{
 		ChessPiece.cc.letMustBeDefinedAndNotNull(typeval, "typeval");
 		
@@ -5829,19 +5833,19 @@ class ChessPiece {
 		if (ChessPiece.getNumItemsInList(bps) < 2) return true;
 		else
 		{
-			let myfbpclr = ChessPiece.getColorOfLocFromPiece(bps[0]);
+			let myfbpclr = ChessPiece.getColorOfLocFromPiece(bps[0], usegets);
 			for (let x = 1; x < bps.length; x++)
 			{
-				if (ChessPiece.getColorOfLocFromPiece(bps[x]) === myfbpclr);
+				if (ChessPiece.getColorOfLocFromPiece(bps[x], usegets) === myfbpclr);
 				else return false;
 			}
 			return true;
 		}
 	}
 	
-	static areAllBishopsOnSameColorSquare(allpcs)
+	static areAllBishopsOnSameColorSquare(allpcs, usegets=true)
 	{
-		return ChessPiece.areAllOfTypeOnSameColorSquare("BISHOP", allpcs);
+		return ChessPiece.areAllOfTypeOnSameColorSquare("BISHOP", allpcs, usegets);
 	}
 	static areAllBishopsOnSameColorSquareMain(gid, ignorelist=null, addpcs=null)
 	{
@@ -5853,7 +5857,7 @@ class ChessPiece {
 		return ChessPiece.areAllBishopsOnSameColorSquareMain(this.getGameID());
 	}
 	
-	static isAutoStalemate(allpcs)
+	static isAutoStalemate(allpcs, usegets=true)
 	{
 		//if we have just 2 kings -> yes
 		//if we have a king and a bishop vs a king -> yes
@@ -5876,10 +5880,10 @@ class ChessPiece {
 		//king and castle vs king
 		//checkmate is more likely than stalemate to occur with more pieces in general
 		
-		let wpcs = ChessPiece.getCurrentSidePieces("WHITE", allpcs);
-		let bpcs = ChessPiece.getCurrentSidePieces("BLACK", allpcs);
-		let wpcstps = ChessPiece.getPieceTypes(wpcs);
-		let bpcstps = ChessPiece.getPieceTypes(bpcs);
+		let wpcs = ChessPiece.getCurrentSidePieces("WHITE", allpcs, usegets);
+		let bpcs = ChessPiece.getCurrentSidePieces("BLACK", allpcs, usegets);
+		let wpcstps = ChessPiece.getPieceTypes(wpcs, usegets);
+		let bpcstps = ChessPiece.getPieceTypes(bpcs, usegets);
 		//king, queen, castle (rook), bishop, knight, pawn
 		let wpccnts = ChessPiece.getCountsForEachPieceTypeForASide(wpcstps);
 		let bpccnts = ChessPiece.getCountsForEachPieceTypeForASide(bpcstps);
@@ -5917,7 +5921,7 @@ class ChessPiece {
 		//provided all bishops are on same color square
 		let kgsandbps = (numwkgs === 1 && numbkgs === 1 && numwcs < 1 && numbcs < 1 &&
 			numwqs < 1 && numbqs < 1 && numwps < 1 && numbps < 1 && numwkts < 1 && numbkts < 1);
-		if (kgsandbps && ChessPiece.areAllBishopsOnSameColorSquare(allpcs)) return true;
+		if (kgsandbps && ChessPiece.areAllBishopsOnSameColorSquare(allpcs, usegets)) return true;
 		else return false;
 	}
 	static isAutoStalemateMain(gid, ignorelist=null, addpcs=null)
@@ -8722,8 +8726,16 @@ class ChessPiece {
 		let ptpval = "QUEEN";
 		let ignorelist = null;
 		let addpcs = null;
+		let offset = 0;
 		for (let x = 0; x < mvcmds.length; x++)
 		{
+			if (mvcmds[x].indexOf("PCLIST") === 0)
+			{
+				offset = -1;
+				continue;
+			}
+			//else;//do nothing
+
 			let canpropawn = false;
 			//WCEA5TOA6
 			//WCETOA6
@@ -8778,9 +8790,10 @@ class ChessPiece {
 			//the new location
 			
 			//ignorelist = new int[1][2];
-			for (let p = 0; p < myfullcmds[x].length; p++)
+			for (let p = 0; p < myfullcmds[x + offset].length; p++)
 			{
-				console.log("myfullcmds[" + x + "][" + p + "] = " + myfullcmds[x][p]);
+				console.log("myfullcmds[" + (x + offset) + "][" + p + "] = " +
+					myfullcmds[x + offset][p]);
 			}
 			ChessPiece.printLocsArray(ignorelist, "OLD ignorelist");
 			
@@ -8798,20 +8811,24 @@ class ChessPiece {
 			const nwiswhitedown = ((noloccnv) ? iswhitedown : !iswhitedown);
 			console.log("nwiswhitedown = " + nwiswhitedown);
 			
-			let nwiglist = ChessPiece.getNewIgnoreListFromCommand(myfullcmds[x], nwiswhitedown);
+			let nwiglist = ChessPiece.getNewIgnoreListFromCommand(myfullcmds[x + offset],
+				nwiswhitedown);
 			
 			ChessPiece.printPiecesList(addpcs, false, "OLD ");
 			ChessPiece.printLocsArray(nwiglist, "nwiglist");
 			
-			addpcs = ChessPiece.getNewAddPiecesListFromCommand(myfullcmds[x], addpcs, gid,
-				nwiswhitedown);
+			addpcs = ChessPiece.getNewAddPiecesListFromCommand(myfullcmds[x + offset], addpcs,
+				gid, nwiswhitedown);
 			
 			ChessPiece.printPiecesList(addpcs, false, "NEW ");
 			
 			ignorelist = ChessPiece.combineIgnoreLists(ignorelist, nwiglist);
 			ChessPiece.printLocsArray(ignorelist, "NEW ignorelist");
 		}
-		if (myfullcmds.length === mvcmds.length) return myfullcmds;
+		console.log("myfullcmds.length = " + myfullcmds.length);
+		console.log("mvcmds.length = " + mvcmds.length);
+
+		if (myfullcmds.length === mvcmds.length + offset) return myfullcmds;
 		else ChessPiece.cc.logAndThrowNewError("myfullcmds does not have the correct size!");
 	}
 	

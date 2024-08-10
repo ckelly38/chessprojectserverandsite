@@ -58,108 +58,6 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
     let hints = useRef(cc.fourDimArrToTwoDimArr(pcshints));
     //console.log("hints = ", hints);
 
-    function getPlayersUsernamesAndRanksFromData(statsarr, myupsdata, msrvrgame)
-    {
-        //extract the user information from the statistics object
-        let playertwousrnm = "tu";
-        let playeroneusrnm = "me";
-        let playeronerank = -1;
-        let playertworank = -1;
-
-        //console.log("statsarr = ", statsarr);
-        //console.log("myupsdata = ", myupsdata);
-        //console.log("msrvrgame = ", msrvrgame);
-
-        if (cc.isStringEmptyNullOrUndefined(statsarr) ||
-            cc.isStringEmptyNullOrUndefined(myupsdata))
-        {
-            //do nothing
-        }
-        else
-        {
-            if (cc.isItemNullOrUndefined(msrvrgame));
-            else
-            {
-                //msrvrgame.playera.id
-                //msrvrgame.playerb.id
-                let gotpainfo = false;
-                let gotpbinfo = false;
-                let pausrid = -1;
-                let pbusrid = -1;
-                for (let x = 0; x < myupsdata.length; x++)
-                {
-                    if (myupsdata[x].player.game_id === msrvrgame.id)
-                    {
-                        if (myupsdata[x].player.id === msrvrgame.playera.id)
-                        {
-                            playeroneusrnm = myupsdata[x].user.name;
-                            pausrid = myupsdata[x].user.id;
-                            gotpainfo = true;
-                        }
-                        //else;//do nothing
-                        if (myupsdata[x].player.id === msrvrgame.playerb.id)
-                        {
-                            playertwousrnm = myupsdata[x].user.name;
-                            pbusrid = myupsdata[x].user.id;
-                            gotpbinfo = true;
-                        }
-                        //else;//do nothing
-                        if (gotpainfo && gotpbinfo) break;
-                        //else;//do nothing
-                    }
-                    //else;//do nothing
-                }//end of x for loop
-                //console.log("gotpainfo = " + gotpainfo);
-                //console.log("gotpbinfo = " + gotpbinfo);
-                //console.log("playeroneusrnm = " + playeroneusrnm);
-                //console.log("playertwousrnm = " + playertwousrnm);
-                //console.log("pausrid = " + pausrid);
-                //console.log("pbusrid = " + pbusrid);
-
-                if (gotpainfo && gotpbinfo);
-                else
-                {
-                    cc.logAndThrowNewError("FAILED TO GET THE PLAYER, USER AND RANK INFORMATION " +
-                        "FROM THE SERVER FOR PLAYER A (" + !gotpainfo + ") AND PLAYER B (" +
-                        !gotpbinfo + ")!");
-                }
-
-                gotpainfo = false;
-                gotpbinfo = false;
-                for (let x = 0; x < statsarr.length; x++)
-                {
-                    if (statsarr[x].userid === pausrid)
-                    {
-                        playeronerank = x + 1;
-                        gotpainfo = true;
-                    }
-                    //else;//do nothing
-                    if (statsarr[x].userid === pbusrid)
-                    {
-                        playertworank = x + 1;
-                        gotpbinfo = true;
-                    }
-                    //else;//do nothing
-                    if (gotpainfo && gotpbinfo) break;
-                    //else;//do nothing
-                }
-                //console.log("gotpainfo = " + gotpainfo);
-                //console.log("gotpbinfo = " + gotpbinfo);
-                //console.log("playeronerank = " + playeronerank);
-                //console.log("playertworank = " + playertworank);
-
-                if (gotpainfo && gotpbinfo);
-                else
-                {
-                    cc.logAndThrowNewError("FAILED TO GET THE PLAYER RANK INFORMATION " +
-                        "FROM THE SERVER FOR PLAYER A (" + !gotpainfo + ") AND PLAYER B (" +
-                        !gotpbinfo + ")!");
-                }
-            }
-        }
-        return [playertwousrnm, playeroneusrnm, playeronerank, playertworank];
-    }
-
     function getNextMoveFromServer()
     {
         console.log("ATTEMPTING TO GET THE NEXT MOVE FROM THE SERVER() NOW:");
@@ -285,7 +183,7 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         else ChessPiece.setUpBoardFromList(gid, addpcs, false);
         
         let [playertwousrnm, playeroneusrnm, playeronerank, playertworank] =
-            getPlayersUsernamesAndRanksFromData(statsarr, myupsdata, msrvrgame);
+            cc.getPlayersUsernamesAndRanksFromData(statsarr, myupsdata, msrvrgame);
 
         //if the users are different, then the colors will be different
         //get the username from the user-player data
@@ -344,11 +242,27 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         let sclr = "WHITE";
 
         //game constructor methods
-        ChessGame.makeNewChessGameFromColor(gid, myclr);//NEEDS TO BE MODIFIED 7-13-2024
-        //NOTE: OFFICIAL MOVES WILL NEED TO BE FULL SHORT HAND MOVES
-        //ChessGame gm = new ChessGame(gid, offmvs=null, isdone=false, mclrval="BOTH");
-        //ChessGame.makeNewChessGameFromMoveList(gid, offmvs=null, isdone=false);
-        //ChessGame.makeNewChessGameFromGID(gid);
+        if (msrvrgame.completed)
+        {
+            //the moves will come in from the game...
+            let mytempmvsarr = msrvrgame.moves.map((mymv) => mymv.contents);
+            console.log("mytempmvsarr = ", mytempmvsarr);
+
+            let offmvs = ChessPiece.genFullMoveCommands(mytempmvsarr, gid, null,
+                ChessPiece.WHITE_MOVES_DOWN_RANKS, false);
+            console.log("offmvs = ", offmvs);
+            
+            let gm = new ChessGame(gid, offmvs, true, myclr);
+        }
+        else
+        {
+            ChessGame.makeNewChessGameFromColor(gid, myclr);//NEEDS TO BE MODIFIED 7-13-2024
+            //NOTE: OFFICIAL MOVES WILL NEED TO BE FULL SHORT HAND MOVES
+            //ChessGame gm = new ChessGame(gid, offmvs=null, isdone=false, mclrval="BOTH");
+            //ChessGame.makeNewChessGameFromMoveList(gid, offmvs=null, isdone=false);
+            //ChessGame.makeNewChessGameFromGID(gid);
+        }
+        
         
         console.log("PIECE LIST AFTER SET UP BOARD CALLED:");
         //console.log("pieces = ", pieces);
@@ -358,7 +272,7 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         calledsetup.current = true;
         console.log("NEW calledsetup.current = ", calledsetup.current);
 
-        if (myclr === sclr);
+        if (myclr === sclr || myclr === "BOTH");
         else getNextMoveFromServer();
     }
 
@@ -626,7 +540,7 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
     //console.log("statsinfo = ", statsinfo);
 
     let [playertwousrnm, playeroneusrnm, playeronerank, playertworank] =
-        getPlayersUsernamesAndRanksFromData(statsinfo, upsdata, srvrgame);
+        cc.getPlayersUsernamesAndRanksFromData(statsinfo, upsdata, srvrgame);
     
     //"PROMOTION", "CREATE", "DELETE" are move types we might want to forbid access to
 

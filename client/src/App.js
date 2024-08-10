@@ -1,6 +1,6 @@
 //import logo from './logo.svg';
 import './App.css';
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import { Switch, Route, Redirect, useHistory } from "react-router-dom";
 import { MyRoute, getRoutesList, addOtherRouteNamesForRoute } from "./MyRoute";
 import { UserContext } from "./UserProvider";
@@ -8,6 +8,7 @@ import { io } from "socket.io-client";
 import Navbar from "./Navbar";
 import Logout from "./Logout";
 import SignUpLoginPreferences from "./SignUpLoginPreferences";
+import MyCompletedGames from "./MyCompletedGames";
 import Home from "./Home";
 import MyRules from "./MyRules";
 import GameList from "./GameList";
@@ -84,6 +85,13 @@ function App() {
     arrindx: 0,
     id: "mv0"
   }]);
+  let [haserrors, hasErrors] = useState(false);
+
+  function setMovesListAndClearErrors(nmvslist)
+  {
+    setMovesList(nmvslist);
+    hasErrors(false);
+  }
   
   function addMove()
   {
@@ -106,7 +114,7 @@ function App() {
       id: genidstr
     };
 
-    setMovesList([...mvslist, nwmv]);
+    setMovesListAndClearErrors([...mvslist, nwmv]);
   }
   
   function removeMove(mid)
@@ -137,7 +145,7 @@ function App() {
     console.log("REMPC: nwmvs = ", nwmvs);
 
     //then set it
-    setMovesList(nwmvs);
+    setMovesListAndClearErrors(nwmvs);
   }
 
   function getPcs()
@@ -222,7 +230,7 @@ function App() {
   //-THE REST OF YOUR ROUTING WILL BE IGNORED!
   //NOTE: THE SWITCH COMPONENT WILL ONLY RENDER ROUTE COMPONENTS AND ANYTHING THAT EXTENDS IT ONLY
   //simpusrobj={cc.getSimplifiedUserObj(user)}
-  //console.log("mypieces = ", mypieces);
+  console.log("APP: mypieces = ", mypieces);
 
   //TestDriver.main(null);
   //let gid = 1;
@@ -240,9 +248,11 @@ function App() {
   console.log("APP: thegame = ", thegame);
   console.log("APP: pa_id = " + pa_id);
   console.log("APP: pb_id = " + pb_id);
+  console.log("APP: mvslist = ", mvslist);
 
-  let [loading, setLoading] = useState(true);
-  let [socketinstance, setSocketInstance] = useState(null);
+  let [loading, setLoading] = useState(false);
+  /*
+  let socket = useRef(null);
   useEffect(() => {
     //may have problems here
     //first is target (the server, currently localhost:5555)
@@ -252,43 +262,63 @@ function App() {
       console.log("APP: window.location.host = ", window.location.host);//origin
       console.log("APP: window.location.host = ", window.location);
       console.log("pjson.proxy = ", pjson.proxy);//target
-      const socket = io(pjson.proxy + "/", {
+      if (cc.isItemNullOrUndefined(socket.current));//proceed and set it
+      else return;
+      socket.current = io(pjson.proxy + "/", {
         transports: ["websocket"],
         cors: {
           origin: window.location.host,
         },
       });
 
-      setSocketInstance(socket);
-
-      socket.on("connect", (data) => {
+      socket.current.on("connect", (data) => {
         console.log("APP connect() handler:");
         console.log(data);
       });
 
-      setLoading(false);
-
-      socket.on("send_message", (data) => {
+      socket.current.on("send_message", (data) => {
         console.log("inside APP send_message: ", data);
       });
 
-      socket.on("disconnect", (data) => {
+      socket.current.on("disconnect", (data) => {
         console.log("APP DIS-connect() handler:");
         console.log(data);
       });
 
       console.log("JUST BEFORE ATTEMPTING TO SEND MESSAGE!");
-      socket.emit("send_message", {"message": "send dummy message data to server. I win!"});
+      socket.current.emit("send_message", {"message": "send dummy message data to server. I win!"});
+      console.log("JUST AFTER ATTEMPTING TO SEND MESSAGE!");
+      setLoading(false);
 
       return function cleanup() {
-        socket.disconnect();
+        console.log("INSIDE OF CLEANUP SOCKET()!");
+        socket.current.disconnect();
       };
     }
     //else;//do nothing
-  }, []);
+  }, []);*/
+
+  console.log("loading = " + loading);
 
   if (loading) return (<div>Loading socket connection on App...!</div>);
-
+  
+  let isgmcustom = false;
+  if (cc.isItemNullOrUndefined(thegame));
+  else
+  {
+    if (cc.isStringEmptyNullOrUndefined(thegame.moves));
+    else
+    {
+      let pclisti = thegame.moves[0].contents.indexOf("PCLIST");
+      if ((0 < pclisti || 0 === pclisti) && pclisti < thegame.moves[0].contents.length)
+      {
+        isgmcustom = true;
+      }
+      //else;//do nothing
+    }
+  }
+  console.log("isgmcustom = " + isgmcustom);
+  
   return (<div>
       <Switch>
         {getRoutesList("/", ["/home"], [
@@ -308,7 +338,9 @@ function App() {
         </Route>
         <Route exact path="/play">
           <Navbar />
-          <GameBoard srvrgame={thegame} pa_id={pa_id} pb_id={pb_id} />
+          {isgmcustom ? <GameBoard srvrgame={thegame} pa_id={pa_id} pb_id={pb_id}
+            addpcs={mypieces} />:
+          <GameBoard srvrgame={thegame} pa_id={pa_id} pb_id={pb_id} />}
         </Route>
         <Route exact path="/preferences" render={(props) => 
           makeLoginPrefsItem(false, true, "Preferences")} />
@@ -322,8 +354,12 @@ function App() {
         <Route exact path="/custom">
           <Navbar />
           <PieceListForm addpiece={addPiece} mpcs={mypieces} rempiece={remPiece}
-          getpcs={getPcs} setpcs={setMyPieces} mvs={mvslist} setmvs={setMovesList}
-          addmv={addMove} remmv={removeMove} />
+            getpcs={getPcs} setpcs={setMyPieces} mvs={mvslist} setmvs={setMovesListAndClearErrors}
+            addmv={addMove} remmv={removeMove} haserrs={haserrors} sethaserrs={hasErrors} />
+        </Route>
+        <Route exact path="/my-completed-games">
+          <Navbar />
+          <MyCompletedGames />
         </Route>
         <Route exact path="/redirectme" render={(props) => {
           console.log("history = ", history);

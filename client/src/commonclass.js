@@ -229,6 +229,7 @@ class CommonClass{
             }
             else if (typenm === "GameBoard") mybgcolor = "orange";
             else if (typenm === "GameList") mybgcolor = "lime";
+            else if (typenm === "CompleteGames") mybgcolor = "lime";
             else if (typenm === "SignUp") mybgcolor = "yellow";
             else if (typenm === "Login") mybgcolor = "lime";
             else if (typenm === "Preferences") mybgcolor = "pink";
@@ -236,12 +237,114 @@ class CommonClass{
             {
                 this.logAndThrowNewError(this.getTypeErrorMsgFromList(["Ranks", "Stats",
                     "Statistics", "GameList", "GameBoard", "Episode", "Toy", "Show", "SignUp",
-                    "Login", "Preferences"]));
+                    "Login", "Preferences", "CompleteGames"]));
                 //this.logAndThrowNewError("typenm must be Episode, Toy, Show, or SignUp, " +
                 //  "Login, or Preferences but it was not!");
             }
         }
         return mybgcolor;
+    }
+
+    getPlayersUsernamesAndRanksFromData(statsarr, myupsdata, msrvrgame)
+    {
+        //extract the user information from the statistics object
+        let playertwousrnm = "tu";
+        let playeroneusrnm = "me";
+        let playeronerank = -1;
+        let playertworank = -1;
+
+        //console.log("statsarr = ", statsarr);
+        //console.log("myupsdata = ", myupsdata);
+        //console.log("msrvrgame = ", msrvrgame);
+
+        if (this.isStringEmptyNullOrUndefined(statsarr) ||
+            this.isStringEmptyNullOrUndefined(myupsdata))
+        {
+            //do nothing
+        }
+        else
+        {
+            if (this.isItemNullOrUndefined(msrvrgame));
+            else
+            {
+                //msrvrgame.playera.id
+                //msrvrgame.playerb.id
+                let gotpainfo = false;
+                let gotpbinfo = false;
+                let pausrid = -1;
+                let pbusrid = -1;
+                for (let x = 0; x < myupsdata.length; x++)
+                {
+                    if (myupsdata[x].player.game_id === msrvrgame.id)
+                    {
+                        if (myupsdata[x].player.id === msrvrgame.playera.id)
+                        {
+                            playeroneusrnm = myupsdata[x].user.name;
+                            pausrid = myupsdata[x].user.id;
+                            gotpainfo = true;
+                        }
+                        //else;//do nothing
+                        if (myupsdata[x].player.id === msrvrgame.playerb.id)
+                        {
+                            playertwousrnm = myupsdata[x].user.name;
+                            pbusrid = myupsdata[x].user.id;
+                            gotpbinfo = true;
+                        }
+                        //else;//do nothing
+                        if (gotpainfo && gotpbinfo) break;
+                        //else;//do nothing
+                    }
+                    //else;//do nothing
+                }//end of x for loop
+                //console.log("gotpainfo = " + gotpainfo);
+                //console.log("gotpbinfo = " + gotpbinfo);
+                //console.log("playeroneusrnm = " + playeroneusrnm);
+                //console.log("playertwousrnm = " + playertwousrnm);
+                //console.log("pausrid = " + pausrid);
+                //console.log("pbusrid = " + pbusrid);
+
+                if (gotpainfo && gotpbinfo);
+                else
+                {
+                    this.logAndThrowNewError("FAILED TO GET THE PLAYER, USER AND RANK " +
+                        "INFORMATION FROM THE SERVER FOR PLAYER A (" + !gotpainfo +
+                        ") AND PLAYER B (" + !gotpbinfo + ")!");
+                }
+
+                gotpainfo = false;
+                gotpbinfo = false;
+                for (let x = 0; x < statsarr.length; x++)
+                {
+                    if (statsarr[x].userid === pausrid)
+                    {
+                        playeronerank = x + 1;
+                        gotpainfo = true;
+                    }
+                    //else;//do nothing
+                    if (statsarr[x].userid === pbusrid)
+                    {
+                        playertworank = x + 1;
+                        gotpbinfo = true;
+                    }
+                    //else;//do nothing
+                    if (gotpainfo && gotpbinfo) break;
+                    //else;//do nothing
+                }
+                //console.log("gotpainfo = " + gotpainfo);
+                //console.log("gotpbinfo = " + gotpbinfo);
+                //console.log("playeronerank = " + playeronerank);
+                //console.log("playertworank = " + playertworank);
+
+                if (gotpainfo && gotpbinfo);
+                else
+                {
+                    this.logAndThrowNewError("FAILED TO GET THE PLAYER RANK INFORMATION " +
+                        "FROM THE SERVER FOR PLAYER A (" + !gotpainfo + ") AND PLAYER B (" +
+                        !gotpbinfo + ")!");
+                }
+            }
+        }
+        return [playertwousrnm, playeroneusrnm, playeronerank, playertworank];
     }
 
     genOptionListFromArray(vals, dispvals=null)

@@ -41,6 +41,10 @@ function Navbar(props) {
         {(notloggedin) ? null :
           <div className="toysforshowlinkcls"><Link to={"/play"}>Play Game</Link></div>}
         
+        {(notloggedin) ? null :
+          <div className="loginlinkcls">
+            <Link to={"/my-completed-games"}>My Completed Games</Link></div>}
+
         {(notloggedin) ? <><div className="loginlinkcls"><Link to="/login">Login</Link></div>
         <div className="signuplinkcls"><Link to="/signup">Signup</Link></div></> :
         <div className="logoutlinkcls"><Link to="/logout">Logout</Link></div>}
