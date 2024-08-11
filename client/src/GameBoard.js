@@ -26,6 +26,110 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
     cc.letMustBeAnInteger(pa_id, "pa_id");
     cc.letMustBeAnInteger(pb_id, "pb_id");
     
+    function isServerGameEndDataValid(msrvrgame)
+    {
+        //is the winning data on the server game valid
+        if (msrvrgame.tied)
+        {
+            if (msrvrgame.playera_resigned || msrvrgame.playerb_resigned)
+            {
+                //error
+                cc.logAndThrowNewError("the game is tied, so no players should have " +
+                    "resigned!");
+            }
+            //else;//do nothing valid
+            if (msrvrgame.completed);
+            else
+            {
+                //error
+                cc.logAndThrowNewError("the game is tied, so the game must be completed!");
+            }
+        }
+        else
+        {
+            if (msrvrgame.playerb_resigned)
+            {
+                if (msrvrgame.playera_won);
+                else
+                {
+                    //error
+                    cc.logAndThrowNewError("a player resigned, but that same player " +
+                        "cannot also win the game!");
+                }
+
+                if (msrvrgame.playera_resigned)
+                {
+                    //error
+                    cc.logAndThrowNewError("a player resigned, but the other player " +
+                        "cannot both resign and also win the game!");
+                }
+                //else;//do nothing
+
+                if (msrvrgame.completed);
+                else
+                {
+                    //error
+                    cc.logAndThrowNewError("a player resigned, so the game must be " +
+                        "completed!");
+                }
+            }
+            else
+            {
+                if (msrvrgame.playera_resigned)
+                {
+                    if (msrvrgame.playera_won)
+                    {
+                        //error
+                        cc.logAndThrowNewError("a player resigned, but that same player " +
+                            "cannot also win the game!");
+                    }
+                    //else;//do nothing valid
+
+                    if (msrvrgame.completed);
+                    else
+                    {
+                        //error
+                        cc.logAndThrowNewError("a player resigned, so the game must be " +
+                            "completed!");
+                    }
+                }
+                else
+                {
+                    if (msrvrgame.completed)
+                    {
+                        if (msrvrgame.playera_resigned || msrvrgame.playerb_resigned ||
+                            msrvrgame.tied || msrvrgame.playera_won || msrvrgame.playerb_won)
+                        {
+                            //do nothing valid
+                        }
+                        else
+                        {
+                            //error
+                            cc.logAndThrowNewError("the game is completed, so a least one " +
+                                "of the following must be true: a player won the game, the " +
+                                "game ended in a tie, or a player must have resigned!");
+                        }
+                    }
+                    else
+                    {
+                        if (msrvrgame.playera_resigned || msrvrgame.playerb_resigned ||
+                            msrvrgame.tied || msrvrgame.playera_won || msrvrgame.playerb_won)
+                        {
+                            //error
+                            cc.logAndThrowNewError("the game is not completed, so a " +
+                                "player must not have resigned, the game must not be tied, " +
+                                "and no player must have won the game!");
+                        }
+                        //else;//do nothing valid
+                    }
+                }         
+            }
+        }
+        return true;
+    }
+
+    if (isServerGameEndDataValid(srvrgame));
+
     const gid = srvrgame.id;
     
     const [mvslist, setMovesList] = useState([{
@@ -51,6 +155,7 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
     let [pcshints, setPcsHints] = useState([]);//[][][]
     let [statsinfo, setStatsInfo] = useState(null);
     let [upsdata, setUserPlayerData] = useState(null);
+    let [mygamemoves, setGameMovesData] = useState(null);
     let [errmsg, setErrorMessage] = useState(null);
     //console.log("OLD calledsetup.current = ", calledsetup.current);
     //console.log("pcshints = ", pcshints);
@@ -58,15 +163,16 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
     let hints = useRef(cc.fourDimArrToTwoDimArr(pcshints));
     //console.log("hints = ", hints);
 
-    function getNextMoveFromServer()
+    function getNextMoveFromServer(offset)
     {
         console.log("ATTEMPTING TO GET THE NEXT MOVE FROM THE SERVER() NOW:");
         //if we do not get the reply we want keep querying the server, until we do
+        cc.letMustBeAnInteger(offset, "offset");
 
         //what we might want to say on the server:
         //GameMoves.query.filter_by(game_id=gid, number=ChessPiece.getGameVIAGID(gid)).first();
         //"422 error invalid data (" + invpt + ") used to get item of type GameMoves"
-        let numoffmvs = ChessPiece.getGameVIAGID(gid).getNumOfficialMoves();
+        let numoffmvs = ChessPiece.getGameVIAGID(gid).getNumOfficialMoves() + offset;
         const lperrmsg = "422 error invalid data (number) used to get item of type GameMoves!";
         const ftlerrmsg = "422 error invalid data (gid) used to get item of type GameMoves!";
         const sidemvd = ChessPiece.getOppositeColor(ChessPiece.getGameVIAGID(gid).getMyColor());
@@ -83,7 +189,7 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
                 {
                     if (mdata.error === lperrmsg)
                     {
-                        setTimeout(getNextMoveFromServer, 3000);
+                        setTimeout(() => getNextMoveFromServer(offset), 3000);
                         return;
                     }
                     else if (mdata.error === ftlerrmsg)
@@ -157,7 +263,25 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         .then((res) => res.json()).then((mdata) => {
             console.log("mdata = ", mdata);
             console.log("isnxtmv = " + isnxtmv);
-            if (isnxtmv) getNextMoveFromServer();
+            if (isnxtmv)
+            {
+                let gmhasmvs = false;
+                if (cc.isStringEmptyNullOrUndefined(mygamemoves));
+                else gmhasmvs = true;
+                console.log("gmhasmvs = " + gmhasmvs);
+
+                let moffset = 0;
+                if (gmhasmvs)
+                {
+                    const fullmvstr = mygamemoves[0].move.contents;
+                    console.log("fullmvstr = " + fullmvstr);
+
+                    const pci = fullmvstr.indexOf("PCLIST");
+                    const hspclist = (pci === 0);
+                    if (hspclist) moffset = 1;
+                }
+                getNextMoveFromServer(moffset);
+            }
             else ChessPiece.getGameVIAGID(gid).sendCompletedGameDataToServer();
         }).catch((merr) => {
             console.error("There was a problem sending the data to the server!");
@@ -166,21 +290,152 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         });
     }
 
-    function onSetup(statsarr, myupsdata, msrvrgame)
+    function onSetup(statsarr, myupsdata, msrvrgame, mygmmvs)
     {
         console.log("ATTEMPTING TO SET UP THE BOARD NOW:");
         console.log("addpcs = ", addpcs);
         console.log("gid = ", gid);
         console.log("pa_id = " + pa_id);
         console.log("pb_id = " + pb_id);
+        console.log("mygmmvs = ", mygmmvs);
         ChessPiece.setAllPieceHintsFunc(setPcsHints);
         ChessPiece.setSendMoveToServerFunc(sendMoveToServer);
         
+        //a custom game will have at least one of:
+        //different pieces, moves, may start with a different side
+        //if it has different pieces
+        
+        let gmhasmvs = false;
+        if (cc.isStringEmptyNullOrUndefined(mygmmvs));
+        else gmhasmvs = true;
+        console.log("gmhasmvs = " + gmhasmvs);
+
+        let mypclist = null;
+        if (gmhasmvs)
+        {
+            const fullmvstr = mygmmvs[0].move.contents;
+            console.log("fullmvstr = " + fullmvstr);
+
+            const pci = fullmvstr.indexOf("PCLIST");
+            const hspclist = (pci === 0);
+            if (hspclist)
+            {
+                //"PCLIST = [{type: KING color: WHITE row: 7 col: 4 move_count: 0},
+                //{type: KING color: BLACK row: 0 col: 4 move_count: 0},
+                //{type: QUEEN color: WHITE row: 1 col: 0 move_count: 0}]"
+
+                const fsbi = fullmvstr.indexOf("[");
+                if (pci + 6 + 3 === fsbi);
+                else
+                {
+                    cc.logAndThrowNewError("illegal format for PCLIST found and used here!");
+                }
+
+                const esbi = fullmvstr.indexOf("]");
+                if (esbi === fsbi + 1)
+                {
+                    cc.logAndThrowNewError("illegal PCLIST found on server!");
+                }
+                //else;//do nothing
+                
+                mypclist = [];
+                for (let i = fsbi + 1; i < fullmvstr.length; i++)
+                {
+                    if (fullmvstr.charAt(i) === '{')
+                    {
+                        //the word type: space must be found next
+                        let tpi = cc.getNextIndexOf("type: ", fullmvstr, i);
+                        if (tpi === i + 1)
+                        {
+                            //good
+                            let clri = cc.getNextIndexOf(" color: ", fullmvstr, tpi);
+                            let idiff = clri - (tpi + 6);
+                            if (idiff < 0 || 6 < idiff)
+                            {
+                                cc.logAndThrowNewError("illegal format for PCLIST found " +
+                                    "and used here!");
+                            }
+                            //else;//do nothing
+
+                            let tpval = fullmvstr.substring(tpi + 6, clri);
+                            console.log("tpval = " + tpval);
+
+                            let ri = cc.getNextIndexOf(" row: ", fullmvstr, clri);
+                            
+                            if (ri === clri + 13);
+                            else
+                            {
+                                cc.logAndThrowNewError("illegal format for PCLIST found " +
+                                    "and used here!");
+                            }
+
+                            let clrval = fullmvstr.substring(clri + 8, ri);
+                            console.log("clrval = " + clrval);
+                            
+                            let ci = cc.getNextIndexOf(" col: ", fullmvstr, ri);
+                            
+                            if (ci === ri + 7);
+                            else
+                            {
+                                cc.logAndThrowNewError("illegal format for PCLIST found " +
+                                    "and used here!");
+                            }
+
+                            let rval = Number(fullmvstr.substring(ri + 6, ci));
+                            console.log("rval = " + rval);
+
+                            let mci = cc.getNextIndexOf(" move_count: ", fullmvstr, ci);
+                            
+                            if (mci === ci + 7);
+                            else
+                            {
+                                cc.logAndThrowNewError("illegal format for PCLIST found " +
+                                    "and used here!");
+                            }
+
+                            let cval = Number(fullmvstr.substring(ci + 6, mci));
+                            console.log("cval = " + cval);
+
+                            let ebi = cc.getNextIndexOf("}", fullmvstr, mci);
+                            
+                            let ebmcidiff = ebi - (mci + 13);
+                            if (ebmcidiff < 1 || 3 < ebmcidiff)
+                            {
+                                cc.logAndThrowNewError("illegal format for PCLIST found " +
+                                    "and used here!");
+                            }
+                            //else;//do nothing
+
+                            let mvcnt = Number(fullmvstr.substring(mci + 13, ebi));
+                            console.log("mvcnt = " + mvcnt);
+
+                            let nwpc = {
+                                "type": tpval,
+                                "color": clrval,
+                                "row": rval,
+                                "col": cval,
+                                "move_count": mvcnt
+                            };
+                            mypclist.push(nwpc);
+                        }
+                        else
+                        {
+                            cc.logAndThrowNewError("illegal format for PCLIST found " +
+                                "and used here!");
+                        }
+                    }
+                }
+            }
+            //else;//do nothing no custom pieces list
+        }
+        //else;//do nothing no custom pieces list
+        console.log("mypclist = ", mypclist);
+
         //setup board methods
         //addpcs arr of [{row: 0, col: 0, color: "WHITE", type: "KING", move_count: 0,
         //arrindx: 0, id: "pid0"}] if used it will have at minimum 2 kings
-        if (ChessPiece.getNumItemsInList(addpcs) < 2) ChessPiece.setUpBoard(gid);
-        else ChessPiece.setUpBoardFromList(gid, addpcs, false);
+        if (ChessPiece.getNumItemsInList(mypclist) < 2) ChessPiece.setUpBoard(gid);
+        else ChessPiece.setUpBoardFromList(gid, mypclist, false);
         
         let [playertwousrnm, playeroneusrnm, playeronerank, playertworank] =
             cc.getPlayersUsernamesAndRanksFromData(statsarr, myupsdata, msrvrgame);
@@ -242,21 +497,37 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         let sclr = "WHITE";
 
         //game constructor methods
-        if (msrvrgame.completed)
+        let nxtmvoffset = 0;
+        if (gmhasmvs)
         {
             //the moves will come in from the game...
             let mytempmvsarr = msrvrgame.moves.map((mymv) => mymv.contents);
+            nxtmvoffset = 1;
             console.log("mytempmvsarr = ", mytempmvsarr);
 
             let offmvs = ChessPiece.genFullMoveCommands(mytempmvsarr, gid, null,
                 ChessPiece.WHITE_MOVES_DOWN_RANKS, false);
             console.log("offmvs = ", offmvs);
             
-            let gm = new ChessGame(gid, offmvs, true, myclr);
+            let gm = new ChessGame(gid, offmvs, msrvrgame.completed, myclr);
+            
+            if (msrvrgame.completed)
+            {
+                //server game is valid
+
+                if (msrvrgame.tied) gm.setIsTied(true, true);
+                if (msrvrgame.playera_resigned) gm.setColorResigns("WHITE", true, true);
+                if (msrvrgame.playerb_resigned) gm.setColorResigns("BLACK", true, true);
+                if (msrvrgame.playera_won) gm.setColorWins("WHITE", true, true);
+                if (msrvrgame.playerb_won) gm.setColorWins("BLACK", true, true);
+            }
+            else gm.makeAllGivenOfficialMoves();
         }
         else
         {
+            //NORMAL GAME: THIS WORKS:
             ChessGame.makeNewChessGameFromColor(gid, myclr);//NEEDS TO BE MODIFIED 7-13-2024
+            
             //NOTE: OFFICIAL MOVES WILL NEED TO BE FULL SHORT HAND MOVES
             //ChessGame gm = new ChessGame(gid, offmvs=null, isdone=false, mclrval="BOTH");
             //ChessGame.makeNewChessGameFromMoveList(gid, offmvs=null, isdone=false);
@@ -271,9 +542,10 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         console.log("ChessGame.all = ", ChessGame.all);
         calledsetup.current = true;
         console.log("NEW calledsetup.current = ", calledsetup.current);
+        console.log("nxtmvoffset = " + nxtmvoffset);
 
         if (myclr === sclr || myclr === "BOTH");
-        else getNextMoveFromServer();
+        else getNextMoveFromServer(nxtmvoffset);
     }
 
 
@@ -284,9 +556,20 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
             setStatsInfo(mdata);
             fetch("/user-players").then((res) => res.json()).then((mupdata) => {
                 console.log("mupdata = ", mupdata);
-                onSetup(mdata, mupdata, srvrgame);
                 setUserPlayerData(mupdata);
-                setLoaded(true);//needed to display the pieces, sling shot route does not work
+                fetch("/all-moves-for-game/" + gid).then((res) => res.json())
+                .then((gmmvsdata) => {
+                    console.log("gmmvsdata = ", gmmvsdata);
+                    onSetup(mdata, mupdata, srvrgame, gmmvsdata);
+                    setGameMovesData(gmmvsdata);
+                    setLoaded(true);
+                    //needed to display the pieces, sling shot route does not work
+                }).catch((merr) => {
+                    console.error("There was a problem getting data from the server!");
+                    console.error(merr);
+                    setErrorMessage("Could not get the game-moves information: " + merr.message);
+                    setLoaded(true);
+                });
             }).catch((merr) => {
                 console.error("There was a problem getting data from the server!");
                 console.error(merr);
@@ -523,12 +806,16 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         iswhiteturn = (clrvalturn === "WHITE");
         iscompleted = ChessGame.getGameVIAGID(gid).isCompleted();
         currentsideisincheck = ChessPiece.isSideInCheck(clrvalturn, gid, null, null);
-        smate = ChessGame.getGameVIAGID(gid).isTied();
         if (currentsideisincheck)
         {
             currentsideincheckmate = ChessPiece.inCheckmate(clrvalturn, gid, null, null);
         }
-        //else currentsideincheckmate = false;
+        else
+        {
+            currentsideincheckmate = false;
+            smate = ChessPiece.isStalemate(ChessPiece.getOppositeColor(clrvalturn), gid,
+                null, null);
+        }
         acurrentsidequeenisincheck = ChessPiece.isAtLeastOneQueenForSideInCheck(
             clrvalturn, gid, null, null);
     }

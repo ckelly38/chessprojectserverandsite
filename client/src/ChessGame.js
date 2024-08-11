@@ -769,13 +769,16 @@ class ChessGame {
 		}
 	}
 	
-	setIsTied(nwval)
+	setIsTied(nwval, nosrvrcom=false)
 	{
 		ChessGame.cc.letMustBeBoolean(nwval, "istiednwval");
+		ChessGame.cc.letMustBeBoolean(nosrvrcom, "nosrvrcom");
 		if (nwval)
 		{
 			this.istied = true;
-			this.completeGameAndCommunicateWithTheServer("TIE!");
+			this.completed = true;
+			if (nosrvrcom);
+			else this.completeGameAndCommunicateWithTheServer("TIE!");
 		}
 		else this.istied = false;
 	}
@@ -784,9 +787,10 @@ class ChessGame {
 		return this.istied;
 	}
 	
-	setColorWins(clrval, nwval)
+	setColorWins(clrval, nwval, nosrvrcom=false)
 	{
 		ChessGame.cc.letMustBeBoolean(nwval, "colorwinsnwval");
+		ChessGame.cc.letMustBeBoolean(nosrvrcom, "nosrvrcom");
 		if (ChessGame.cc.isStringEmptyNullOrUndefined(clrval))
 		{
 			ChessGame.cc.logAndThrowNewError("color cannot be null or empty!");
@@ -797,13 +801,19 @@ class ChessGame {
 		{
 			ChessGame.cc.logAndThrowNewError("invalid color (" + clrval + ") found and used here!");
 		}
-		if (nwval) this.completeGameAndCommunicateWithTheServer("" + clrval + " WINS!");
+		if (nwval)
+		{
+			this.completed = true;
+			if (nosrvrcom);
+			else this.completeGameAndCommunicateWithTheServer("" + clrval + " WINS!");
+		}
 		//else;//do nothing
 	}
 	
-	setColorResigns(clrval, nwval)
+	setColorResigns(clrval, nwval, nosrvrcom=false)
 	{
 		ChessGame.cc.letMustBeBoolean(nwval, "colorresignsnwval");
+		ChessGame.cc.letMustBeBoolean(nosrvrcom, "nosrvrcom");
 		if (ChessGame.cc.isStringEmptyNullOrUndefined(clrval))
 		{
 			ChessGame.cc.logAndThrowNewError("color cannot be null or empty!");
@@ -817,14 +827,15 @@ class ChessGame {
 		if (nwval)
 		{
 			console.log(clrval + " RESIGNED!");
-			this.setColorWins(ChessPiece.getOppositeColor(clrval), true);
+			this.setColorWins(ChessPiece.getOppositeColor(clrval), true, nosrvrcom);
 		}
 		//else;//do nothing no resignation made
 	}
 	
-	setColorWantsADraw(clrval, nwval)
+	setColorWantsADraw(clrval, nwval, nosrvrcom=false)
 	{
 		ChessGame.cc.letMustBeBoolean(nwval, "clrdrawval");
+		ChessGame.cc.letMustBeBoolean(nosrvrcom, "nosrvrcom");
 		
 		if (ChessGame.cc.isStringEmptyNullOrUndefined(clrval))
 		{
@@ -839,17 +850,17 @@ class ChessGame {
 				ChessGame.cc.logAndThrowNewError("illegal color (" + clrval +
 					") found and used here!");
 			}
-			if (this.whitewantsdraw && this.blackwantsdraw) this.setIsTied(true);
+			if (this.whitewantsdraw && this.blackwantsdraw) this.setIsTied(true, nosrvrcom);
 			//else;//do nothing
 		}
 	}
-	setBlackWantsADraw(nwval)
+	setBlackWantsADraw(nwval, nosrvrcom=false)
 	{
-		this.setColorWantsADraw("BLACK", nwval);
+		this.setColorWantsADraw("BLACK", nwval, nosrvrcom);
 	}
-	setWhiteWantsADraw(nwval)
+	setWhiteWantsADraw(nwval, nosrvrcom=false)
 	{
-		this.setColorWantsADraw("WHITE", nwval);
+		this.setColorWantsADraw("WHITE", nwval, nosrvrcom);
 	}
 }
 

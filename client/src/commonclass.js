@@ -1,3 +1,4 @@
+import { createContext } from "react";
 import reactRouterDom from "react-router-dom";
 
 class CommonClass{
@@ -243,6 +244,44 @@ class CommonClass{
             }
         }
         return mybgcolor;
+    }
+
+    getNextIndexOf(wdqry, mstr, si=0)
+    {
+        //sadfjalkdfjlkasdtext
+        //01234567890123456789
+        //0         1
+        //          si
+        //text starts at 16
+        //jlkasdtext
+        //0123456789
+        //      mindx
+        //mindx = 6
+        //si = 10
+        //6 + 10 = 16
+
+        if (this.isInteger(si))
+        {
+            if (si < 0) return this.getNextIndexOf(wdqry, mstr, 0);
+            //else;//do nothing safe to proceed
+        }
+        else this.logAndThrowNewError("si must be an integer!")
+
+        if (this.isStringEmptyNullOrUndefined(mstr))
+        {
+            if (this.isStringEmptyNullOrUndefined(wdqry)) return si;
+            else return -1;
+        }
+        else
+        {
+            if (this.isStringEmptyNullOrUndefined(wdqry)) return -1;
+            //else;//do nothing safe to proceed below
+        }
+
+        let mytempstr = mstr.substring(si);
+        let mindx = mytempstr.indexOf(wdqry);
+        if (mindx < 0 || mytempstr.length - 1 < mindx) return mindx;
+        else return mindx + si;
     }
 
     getPlayersUsernamesAndRanksFromData(statsarr, myupsdata, msrvrgame)

@@ -122,7 +122,7 @@ class Commonalities:
                 if (cls == UserPlayers):
                     return cls.query.filter_by(user_id=usrid, player_id=id).first();
                 elif (cls == GameMoves):
-                    return cls.query.filter_by(game_id=id).all();
+                    return cls.query.filter_by(game_id=id).order_by(GameMoves.number).all();
                 else:
                     raise ValueError("the class was UserToy or UserEpisdes, but now it " +
                                      "is not!");
@@ -1048,7 +1048,11 @@ class GetAllMovesForAGame(Resource):
     def get(self, id):
         usr = cm.getUserFromTheSession(session);
         if (usr == None): return {"error": "401 error no users logged in!"}, 401;
-        else: return cm.getItemByIDAndReturnResponse(id, GameMoves, 3, usr.id);
+        else:
+            #want to get all of the GameMoves with game_id id and then serialize them
+            #GameMoves.query.filter_by(game_id=id).order_by(GameMoves.number).all();
+            mygmmvs = cm.getItemByID(id, GameMoves, usr.id);
+            return [cm.getSerializedItem(GameMoves, gmmv, 3) for gmmv in mygmmvs], 200;
 
     def post(self, id):
         #want to bulk post moves for a game in order on the game moves

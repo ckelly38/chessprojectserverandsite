@@ -203,10 +203,53 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
                     {
                         if (rdiff === 0 && cdiff === 0) locsarevalid = false;
                         //else;//do nothing true
+                        //cannot conclusively tell if pawn can capture or not
+                    }
+                    else
+                    {
+                        if (cdiff === 2)
+                        {
+                            if (mvs[n].piece_type === "KING")
+                            {
+                                if (mvs[n].cmd_type === "CASTLEING");
+                                //else;//cannot conclusively tell if we can castle or not
+                            }
+                            else locsarevalid = false;
+                        }
+                        else locsarevalid = false;
+                    }
+                }
+                else
+                {
+                    if (rdiff === 2)
+                    {
+                        if (mvs[n].piece_type === "PAWN")
+                        {
+                            //problem here not necessarily false
+                            //now color and location need to be taken into account
+                            //and direction of travel
+                            //start row for white pawn is 6 row for black is 1
+                            if (cdiff === 0)
+                            {
+                                const srowclr = ((mvs[n].piece_color === "WHITE") ? 6: 1);
+                                if (mvs[n].start_row === 6 && mvs[n].end_row === 4 &&
+                                    srowclr === 6)
+                                {
+                                    //valid
+                                }
+                                else if (mvs[n].start_row === 1 && mvs[n].end_row === 3 &&
+                                    srowclr === 1)
+                                {
+                                    //valid
+                                }
+                                else locsarevalid = false;
+                            }
+                            else locsarevalid = false;
+                        }
+                        else locsarevalid = false;
                     }
                     else locsarevalid = false;
                 }
-                else locsarevalid = false;
                 console.log("locsarevalid = " + locsarevalid);
 
                 if (locsarevalid);
@@ -345,7 +388,14 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
         }
         //else;//do nothing
 
+        let resigndfnd = false;
         let mvsstrarr = mvs.map((mymv) => {
+            if (resigndfnd)
+            {
+                cc.logAndThrowNewError("NO COMMANDS CAN BE PRESENT AFTER A RESIGNATION!");
+            }
+            //else;//do nothing safe to proceed
+
             if (mymv.cmd_type === "MOVE")
             {
                 const useleft = (mymv.dir === "LEFT");
@@ -380,6 +430,7 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
                     pawon = true;
                 }
                 iscomplete = true;
+                resigndfnd = true;
                 return ChessPiece.genLongOrShortHandResignCommand(mymv.piece_color, true);
             }
             else cc.logAndThrowNewError("INVALID COMMMAND TYPE FOUND AND USED HERE!");
@@ -461,6 +512,30 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
         else sethaserrs(true);
     }
 
+    let nomoremoves = false;
+    if (cc.isStringEmptyNullOrUndefined(mvs));
+    else
+    {
+        let fndresignation = false;
+        for (let x = 0; x < mvs.length; x++)
+        {
+            if (fndresignation)
+            {
+                setMyErrorMessage("Found a move after a resignation!");
+                sethaserrs(true);
+                break;
+            }
+            //else;//do nothings
+
+            if (mvs[x].cmd_type === "RESIGNATION")
+            {
+                fndresignation = true;
+                nomoremoves = true;
+            }
+            //else;//do nothing
+        }
+    }
+
     //NOT DONE YET WITH THE SUBMIT... 7-12-2024
     let iserr = !(cc.isStringEmptyNullOrUndefined(errmsg) &&
         cc.isStringEmptyNullOrUndefined(merrmsg));//New Piece List
@@ -479,7 +554,7 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
             onClick={(event) => {setWhiteStarts(!whitestarts)}}>
                 {whitestarts ? "White" : "Black"} Starts</button>
         {dispmoves}
-        <button type="button" onClick={addmv}>Add Move</button>
+        <button type="button" onClick={addmv} disabled={nomoremoves}>Add Move</button>
         <button type="button" onClick={(event) => {
             setMyErrorMessage("");
             sethaserrs(false);
