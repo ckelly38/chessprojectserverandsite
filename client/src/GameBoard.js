@@ -250,6 +250,22 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         let cnvmvslist = ChessPiece.convertShorthandListOfMovesToDisplayList([cpunoffmv]);
         console.log("cnvmvslist = ", cnvmvslist);
         
+        let gmhasmvs = false;
+        if (cc.isStringEmptyNullOrUndefined(mygamemoves));
+        else gmhasmvs = true;
+        console.log("gmhasmvs = " + gmhasmvs);
+
+        let moffset = 0;
+        if (gmhasmvs)
+        {
+            const fullmvstr = mygamemoves[0].move.contents;
+            console.log("fullmvstr = " + fullmvstr);
+
+            const pci = fullmvstr.indexOf("PCLIST");
+            const hspclist = (pci === 0);
+            if (hspclist) moffset = 1;
+        }
+
         let configobj = {
             "method": "POST",
             "headers": {
@@ -257,31 +273,13 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
                 "Accept": "application/json"
             },
             "body": JSON.stringify({"move": cnvmvslist[0],
-            "number": ChessPiece.getGameVIAGID(gid).getNumOfficialMoves()})
+            "number": ChessPiece.getGameVIAGID(gid).getNumOfficialMoves() + moffset})
         };
         fetch("/add-one-move-for-game/" + gid, configobj)
         .then((res) => res.json()).then((mdata) => {
             console.log("mdata = ", mdata);
             console.log("isnxtmv = " + isnxtmv);
-            if (isnxtmv)
-            {
-                let gmhasmvs = false;
-                if (cc.isStringEmptyNullOrUndefined(mygamemoves));
-                else gmhasmvs = true;
-                console.log("gmhasmvs = " + gmhasmvs);
-
-                let moffset = 0;
-                if (gmhasmvs)
-                {
-                    const fullmvstr = mygamemoves[0].move.contents;
-                    console.log("fullmvstr = " + fullmvstr);
-
-                    const pci = fullmvstr.indexOf("PCLIST");
-                    const hspclist = (pci === 0);
-                    if (hspclist) moffset = 1;
-                }
-                getNextMoveFromServer(moffset);
-            }
+            if (isnxtmv) getNextMoveFromServer(moffset);
             else ChessPiece.getGameVIAGID(gid).sendCompletedGameDataToServer();
         }).catch((merr) => {
             console.error("There was a problem sending the data to the server!");
