@@ -35,6 +35,7 @@ class ChessGame {
 		this.OFFICIAL_MOVES = null;
 		this.UNOFFICIAL_MOVE = null;
 		this.mycolor = null;
+		this.srvrgmhaspclist = false;
 		this.wresigned = false;
 		this.bresigned = false;
 		this.whitewins = false;
@@ -149,6 +150,16 @@ class ChessGame {
 	isCompleted()
 	{
 		return this.completed;
+	}
+
+	setHasPieceListOnServer(mblval)
+	{
+		ChessGame.cc.letMustBeBoolean(mblval, "haspiecelistonserverval");
+		this.srvrgmhaspclist = mblval;
+	}
+	hasPieceListOnServer()
+	{
+		return this.srvrgmhaspclist;
 	}
 	
 	setLastSetLocMove(mvstr)

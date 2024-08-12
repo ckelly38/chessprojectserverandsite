@@ -178,8 +178,11 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         const sidemvd = ChessPiece.getOppositeColor(ChessPiece.getGameVIAGID(gid).getMyColor());
         console.log("sidemvd = " + sidemvd);
 
+        console.log("");
+        console.log("MOVE NUMBER: " + (numoffmvs + 1));
         fetch("/get-one-move-for-game/" + gid + "/move-number/" + (numoffmvs + 1))
         .then((res) => res.json()).then((mdata) => {
+            console.log("GOT MOVE NUMBER: " + (numoffmvs + 1));
             console.log("mdata = ", mdata);
 
             let mdkys = Object.keys(mdata);
@@ -236,6 +239,7 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         }).catch((merr) => {
             console.error("there was an error getting data from the server!");
             console.error(merr);
+            console.error("FAILED TO GET MOVE NUMBER: " + (numoffmvs + 1));
             cc.logAndThrowNewError("FAILED TO GET DATA FROM THE SERVER TO ADVANCE THE TURNS!");
         });
     }
@@ -249,22 +253,22 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
 
         let cnvmvslist = ChessPiece.convertShorthandListOfMovesToDisplayList([cpunoffmv]);
         console.log("cnvmvslist = ", cnvmvslist);
+
+        console.log("mygamemoves = ", mygamemoves);
         
         let gmhasmvs = false;
         if (cc.isStringEmptyNullOrUndefined(mygamemoves));
         else gmhasmvs = true;
         console.log("gmhasmvs = " + gmhasmvs);
 
-        let moffset = 0;
-        if (gmhasmvs)
-        {
-            const fullmvstr = mygamemoves[0].move.contents;
-            console.log("fullmvstr = " + fullmvstr);
+        const moffset = (ChessPiece.getGameVIAGID(gid).hasPieceListOnServer() ? 1: 0);
+        console.log("moffset = " + moffset);
 
-            const pci = fullmvstr.indexOf("PCLIST");
-            const hspclist = (pci === 0);
-            if (hspclist) moffset = 1;
-        }
+        const num_offmvs = ChessPiece.getGameVIAGID(gid).getNumOfficialMoves();
+        console.log("num_offmvs = " + num_offmvs);
+
+        const nwmvnum = num_offmvs + moffset;
+        console.log("nwmvnum = " + nwmvnum);
 
         let configobj = {
             "method": "POST",
@@ -273,7 +277,7 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
                 "Accept": "application/json"
             },
             "body": JSON.stringify({"move": cnvmvslist[0],
-            "number": ChessPiece.getGameVIAGID(gid).getNumOfficialMoves() + moffset})
+            "number": nwmvnum})
         };
         fetch("/add-one-move-for-game/" + gid, configobj)
         .then((res) => res.json()).then((mdata) => {
@@ -493,6 +497,7 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         console.log("myclr = " + myclr);
 
         let sclr = "WHITE";
+        console.log("INIT sclr = " + sclr);
 
         //game constructor methods
         let nxtmvoffset = 0;
@@ -508,6 +513,7 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
             console.log("offmvs = ", offmvs);
             
             let gm = new ChessGame(gid, offmvs, msrvrgame.completed, myclr);
+            gm.setHasPieceListOnServer(true);
             
             if (msrvrgame.completed)
             {
@@ -519,12 +525,19 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
                 if (msrvrgame.playera_won) gm.setColorWins("WHITE", true, true);
                 if (msrvrgame.playerb_won) gm.setColorWins("BLACK", true, true);
             }
-            else gm.makeAllGivenOfficialMoves();
+            else
+            {
+                gm.makeAllGivenOfficialMoves();
+                //start color may not be white...
+                sclr = gm.getSideTurn();
+                console.log("NEW sclr = " + sclr);
+            }
         }
         else
         {
             //NORMAL GAME: THIS WORKS:
-            ChessGame.makeNewChessGameFromColor(gid, myclr);//NEEDS TO BE MODIFIED 7-13-2024
+            let gm = ChessGame.makeNewChessGameFromColor(gid, myclr);
+            gm.setHasPieceListOnServer(false);
             
             //NOTE: OFFICIAL MOVES WILL NEED TO BE FULL SHORT HAND MOVES
             //ChessGame gm = new ChessGame(gid, offmvs=null, isdone=false, mclrval="BOTH");
@@ -538,12 +551,23 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         //console.log("getPieces() = ", getPieces());
         console.log("ChessPiece.cps = ", ChessPiece.cps);
         console.log("ChessGame.all = ", ChessGame.all);
+        
         calledsetup.current = true;
+        
         console.log("NEW calledsetup.current = ", calledsetup.current);
         console.log("nxtmvoffset = " + nxtmvoffset);
+        console.log("myclr = " + myclr);
+        console.log("FINAL sclr = " + sclr);
 
-        if (myclr === sclr || myclr === "BOTH");
-        else getNextMoveFromServer(nxtmvoffset);
+        if (myclr === sclr || myclr === "BOTH")
+        {
+            console.log("WAITING FOR THE USER ON THIS BOARD TO MAKE THE FIRST MOVE!");
+        }
+        else
+        {
+            console.log("FETCHING THE FIRST (NEXT) MOVE FROM THE SERVER!");
+            getNextMoveFromServer(nxtmvoffset);
+        }
     }
 
 
