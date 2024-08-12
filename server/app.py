@@ -419,7 +419,11 @@ class Commonalities:
                 #    resobj = self.userIsShowOwner(cls, msess, item);
                 #    if (resobj[1] == 200): pass;
                 #    else: return resobj;
-                #if (useadd):
+                if (useadd):
+                    if (cls == GameMoves):
+                        print(item);
+                        myresitem = item.makeSureGameIDMoveIDAndNumberAreUnique();
+                        print(myresitem);
                 #    if (cls == Episode):
                         #print(item);
                 #        myresitem = item.makeSureUniqueShowIDEpnumAndSeasonNumPresent();

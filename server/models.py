@@ -202,9 +202,10 @@ class MyValidator:
         for mky in nvalobj: myitemdict[mky] = nvalobj[mky];
         print(f"NEW myitemdict = {myitemdict}");
         cols = None;
-        if (cls == Episode): cols = ["episode_number", "season_number", "show_id"];
-        elif (cls == Toy): cols = ["toy_number", "show_id"];
-        else: raise ValueError("cls must be Episode or Toy, but it was not!");
+        if (cls == GameMoves): cols = ["game_id", "move_id", "number"];
+        #elif (cls == Episode): cols = ["episode_number", "season_number", "show_id"];
+        #elif (cls == Toy): cols = ["toy_number", "show_id"];
+        else: raise ValueError("cls must be GameMoves or Episode or Toy, but it was not!");
         return self.isuniquecols(myitemdict, cls, cols);
     
     def genDictItemForIsUniqueCols(self, item, nvalobj, cls):
@@ -464,14 +465,15 @@ class Games(db.Model, SerializerMixin):
 class GameMoves(db.Model, SerializerMixin):
     __tablename__ = "game_moves";
 
-    #__table_args__ = (db.CheckConstraint("length(name) >= 1"),);
+    __table_args__ = (db.PrimaryKeyConstraint("game_id", "number"),
+        db.UniqueConstraint("game_id", "number", name="allcolsunique"));
     #db.CheckConstraint("access_level == 1 OR access_level == 2")
 
     class_name_string = "GameMoves";
 
-    game_id = db.Column(db.Integer, db.ForeignKey("games.id"), primary_key=True);
-    move_id = db.Column(db.Integer, db.ForeignKey("moves.id"), primary_key=True);
-    number = db.Column(db.Integer, default=0);
+    game_id = db.Column(db.Integer, db.ForeignKey("games.id"));
+    move_id = db.Column(db.Integer, db.ForeignKey("moves.id"));
+    number = db.Column(db.Integer, default=0);#, primary_key=True
 
     game = db.relationship("Games");
     move = db.relationship("Moves");
@@ -484,6 +486,13 @@ class GameMoves(db.Model, SerializerMixin):
 
     @classmethod
     def getValidator(cls): return mv;
+
+    def makeSureGameIDMoveIDAndNumberAreUnique(self):
+         #print(self);
+         item = mv.isuniquecols(self.to_dict(), GameMoves,
+                                ["game_id", "move_id", "number"]);
+         if (item == None): raise ValueError("item must not be none!");
+         else: return self;
 
     def __repr__(self):
         mystr = f"<GameMoves game_id={self.game_id}, move_id={self.move_id}, ";
