@@ -1044,8 +1044,8 @@ def disconnected():
     """event listener when client disconnects to the server"""
     print("user disconnected")
     msg = "user " + str(request.sid) + " disconnected"
-    emit("disconnect", {"message": msg}, broadcast=True)
-
+    print(f"msg before sent via emit: {msg}");
+    emit("disconnect", {"message": msg});#, broadcast=True
 
 
 class GetAllMovesForAGame(Resource):

@@ -39,4 +39,4 @@ CORS(app)
 #configure the socketIO
 #https://flask-socketio.readthedocs.io/en/latest/getting_started.html#initialization
 #https://medium.com/@adrianhuber17/how-to-build-a-simple-real-time-application-using-flask-react-and-socket-io-7ec2ce2da977
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, ping_interval=2500, cors_allowed_origins="*")

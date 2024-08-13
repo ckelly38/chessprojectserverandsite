@@ -250,7 +250,7 @@ function App() {
   console.log("APP: pb_id = " + pb_id);
   console.log("APP: mvslist = ", mvslist);
 
-  let [loading, setLoading] = useState(false);
+  let [loading, setLoading] = useState(false);//true
   /*
   let socket = useRef(null);
   useEffect(() => {
@@ -264,39 +264,66 @@ function App() {
       console.log("pjson.proxy = ", pjson.proxy);//target
       if (cc.isItemNullOrUndefined(socket.current));//proceed and set it
       else return;
-      socket.current = io(pjson.proxy + "/", {
+      console.log("after null check!");
+      socket = io(pjson.proxy + "/", {
         transports: ["websocket"],
         cors: {
           origin: window.location.host,
         },
       });
+      console.log("socket = ", socket);
 
-      socket.current.on("connect", (data) => {
+      socket.on("connect_error", (err) => {
+        // the reason of the error, for example "xhr poll error"
+        console.log(err.message);
+      
+        // some additional description, for example the status code of the initial HTTP response
+        console.log(err.description);
+      
+        // some additional context, for example the XMLHttpRequest object
+        console.log(err.context);
+      });
+
+      // socket.io.engine.on("connection_error", (err) => {
+      //   console.log(err.req);      // the request object
+      //   console.log(err.code);     // the error code, for example 1
+      //   console.log(err.message);  // the error message, for example "Session ID unknown"
+      //   console.log(err.context);  // some additional error context
+      // });
+
+      socket.on("connection_error", (err) => {
+        console.log(err.req);      // the request object
+        console.log(err.code);     // the error code, for example 1
+        console.log(err.message);  // the error message, for example "Session ID unknown"
+        console.log(err.context);  // some additional error context
+      });
+
+      socket.on("connect", (data) => {
         console.log("APP connect() handler:");
         console.log(data);
       });
 
-      socket.current.on("send_message", (data) => {
+      socket.on("send_message", (data) => {
         console.log("inside APP send_message: ", data);
       });
 
-      socket.current.on("disconnect", (data) => {
+      socket.on("disconnect", (data) => {
         console.log("APP DIS-connect() handler:");
         console.log(data);
       });
 
       console.log("JUST BEFORE ATTEMPTING TO SEND MESSAGE!");
-      socket.current.emit("send_message", {"message": "send dummy message data to server. I win!"});
+      socket.emit("send_message", {"message": "send dummy message data to server. I win!"});
       console.log("JUST AFTER ATTEMPTING TO SEND MESSAGE!");
       setLoading(false);
 
       return function cleanup() {
         console.log("INSIDE OF CLEANUP SOCKET()!");
-        socket.current.disconnect();
+        socket.disconnect();
       };
     }
     //else;//do nothing
-  }, []);*/
+  }, []);//*/
 
   console.log("loading = " + loading);
 
@@ -359,7 +386,8 @@ function App() {
         </Route>
         <Route exact path="/my-completed-games">
           <Navbar />
-          <MyCompletedGames />
+          <MyCompletedGames setgame={setGameAndAdvance}
+            setpaid={setPaID} setpbid={setPbID} />
         </Route>
         <Route exact path="/redirectme" render={(props) => {
           console.log("history = ", history);

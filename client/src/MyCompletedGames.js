@@ -3,13 +3,14 @@ import { Redirect } from "react-router-dom";
 import { UserContext } from "./UserProvider";
 import CommonClass from "./commonclass";
 
-function MyCompletedGames(props)
+function MyCompletedGames({setgame, setpaid, setpbid})
 {
     let [mycgs, setMyCGs] = useState([]);
     let [stats, setStatsInfo] = useState([]);
     let [upsdata, setUserPlayerData] = useState([]);
     let [errmsg, setErrorMessage] = useState(null);
     let [loaded, setLoaded] = useState(false);
+    let [openplay, setOpenPlay] = useState(false);
     let cc = new CommonClass();
 
     const { user, setUser } = useContext(UserContext);
@@ -19,6 +20,10 @@ function MyCompletedGames(props)
     cc.letMustBeDefinedAndNotNull(simpusrobj, "simpusrobj");
     const notloggedin = !simpusrobj["instatus"];
     const username = simpusrobj["username"];
+
+    cc.letMustBeDefinedAndNotNull(setgame, "setgame");
+    cc.letMustBeDefinedAndNotNull(setpaid, "setpaid");
+    cc.letMustBeDefinedAndNotNull(setpbid, "setpbid");
 
     useEffect(() => {
         if (notloggedin) return;
@@ -64,14 +69,6 @@ function MyCompletedGames(props)
         });
     }, []);
 
-    if (loaded);
-    else
-    {
-        if (notloggedin) return (<Redirect to="/login" />);
-        else return (<div>Loading Completed Games Data!</div>);
-    }
-
-
     function onJoin(gm, event)
     {
         console.log("gm = ", gm);
@@ -82,8 +79,26 @@ function MyCompletedGames(props)
         //addpcs=[{type: "", color, row, col, game_id, move_count},...]
         //we need to take the string from the db and turn it into a list of objects
         //<GameBoard srvrgame={mcg} pa_id={mcg.playera_id} pb_id={mcg.playerb_id} addpcs={} />
+        //we have two players and it can be started since it is a completed game the moves cannot be changed
+        //therefore anyone can view it
+        
+        //history.push("/play");
+        setpaid(gm.playera_id);
+        setpbid(gm.playerb_id);
+        setgame(gm);
+        setOpenPlay(true);
     }
 
+    if (loaded)
+    {
+        if (openplay) return (<Redirect to="/play" />);
+        //else;//do nothing
+    }
+    else
+    {
+        if (notloggedin) return (<Redirect to="/login" />);
+        else return (<div>Loading Completed Games Data!</div>);
+    }
 
     let mydispgms = null;
     let numcgs = 0;
