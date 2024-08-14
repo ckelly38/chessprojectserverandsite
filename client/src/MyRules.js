@@ -1,18 +1,23 @@
-import React, { createContext } from "react";
 import CommonClass from "./commonclass";
 
 function MyRules()
 {
     const cc = new CommonClass();
-    return (<div style={{backgroundColor: cc.getBGColorToBeUsed(false, "Rules"),
-        paddingTop: 5
-    }}>
+    //cc.getBGColorToBeUsed(false, "Rules")
+    const clsnm = "pt-5 bg-yellow-500";//#ffeb3b
+    //style={{backgroundColor: cc.getBGColorToBeUsed(false, "Rules"),
+    //paddingTop: 5}}
+    //style={{minHeight: 160, minWidth: 295}}//242 (height) and 359 (width)
+    // className="list-desc list-inside pl-8"
+    // className="list-desc list-inside pl-12"
+    return (<div className="pt-5" style={{backgroundColor: cc.getBGColorToBeUsed(false, "Rules")}}>
         THE <b>RULES OF CHESS</b> THAT THIS PROGRAM ENFORCES:<ul>
         <li>The Pieces: <ul>
             <li><b>The Castle or Rook (MALE):</b><ul>
                 <li>Can have at most 10 Castles!</li>
                 <li><b>Can only move on the same column (up or down) or row (right or left)!</b></li>
-                <li>Shares a Special Move with the King called <b>Castleing (below)!</b><ul>
+                <li>Shares a Special Move with the King called <b>Castleing (below)!</b>
+                <ul>
                     <li>You cannot Castle out of Check!</li>
                     <li>You must not be in check nor can any spots in the path of the King put you in Check!</li>
                     <li>The path of your Castle nor can any spots in the path of the Castle expose the Castle!</li>
@@ -71,14 +76,16 @@ function MyRules()
                 <li>Has 2 Special Moves. One called <b>Promotion</b> and the other called <b>Pawning or En-Passant</b>.</li>
                 <ul>
                     <li><b>Promotion</b> occurs when a Pawn reaches the other end of the board farthest from where it started.</li>
-                    <li>When a Pawn can be Promoted it can be Promoted into:<ul>
-                        <li>a Queen,</li>
-                        <li>a Castle,</li>
-                        <li>a Bishop, OR</li>
-                        <li>a Knight only!</li>
+                    <li>When a Pawn can be Promoted it can be Promoted into:
+                        <ul>
+                            <li>a Queen,</li>
+                            <li>a Castle,</li>
+                            <li>a Bishop, OR</li>
+                            <li>a Knight only!</li>
                         </ul>
                     </li>
-                    <li><b>Pawning or En-Passant (French for In-Passing)!</b><ul>
+                    <li><b>Pawning or En-Passant (French for In-Passing)!</b>
+                    <ul>
                         <li>In Passing means as one person (Pawn) is walking by an enemy, they kill the enemy <b>in one fluid move!</b></li>
                         <li>Pawning: Can only be done by an enemy Pawn where the other Pawn has moved out 2 spots on its first move and landed next to the enemy Pawn already there and waiting!</li>
                         <li>Then to complete it, the enemy Pawn moves diagnally of the Pawn that made its first move and removes it from the board!</li>
@@ -106,13 +113,15 @@ function MyRules()
         <li><b>White moves First and then they alternate (White, Black, White, Black, etc.)!</b></li>
         
         <p>SETUP:</p>
+        
 
         <li>On the End Rows from both ends it goes: Castles, Knights, Bishops, then Queen takes her Color first, then the King.</li>
         <li>On the Row immediately before the End Row, are all Pawns!</li>
         <li>The color of squares alternate from WHITE and BLACK! The same as the turns!</li>
         <li>The WHITE CASTLE on the BOTTOM RIGHT CORNER must be on a WHITE SQUARE!</li>
         <br />
-        <textarea id="board-setup-txt-display-only" style={{minHeight: 160, minWidth: 295}} readOnly={true} value={"  0   1   2   3   4   5   6   7  (c)\n  A   B   C   D   E   F   G   H  RANK r\n|BCE|BKT|BBP|BQN|BKG|BBP|BKT|BCE| 8 1 0\n|BPN|BPN|BPN|BPN|BPN|BPN|BPN|BPN| 7 2 1\n|---|---|---|---|---|---|---|---| 6 3 2\n|---|---|---|---|---|---|---|---| 5 4 3\n|---|---|---|---|---|---|---|---| 4 5 4\n|---|---|---|---|---|---|---|---| 3 6 5\n|WPN|WPN|WPN|WPN|WPN|WPN|WPN|WPN| 2 7 6\n|WCE|WKT|WBP|WQN|WKG|WBP|WKT|WCE| 1 8 7"} />
+        
+        <textarea id="board-setup-txt-display-only" className="min-w-[295px] min-h-[160px] resize" readOnly={true} value={"  0   1   2   3   4   5   6   7  (c)\n  A   B   C   D   E   F   G   H  RANK r\n|BCE|BKT|BBP|BQN|BKG|BBP|BKT|BCE| 8 1 0\n|BPN|BPN|BPN|BPN|BPN|BPN|BPN|BPN| 7 2 1\n|---|---|---|---|---|---|---|---| 6 3 2\n|---|---|---|---|---|---|---|---| 5 4 3\n|---|---|---|---|---|---|---|---| 4 5 4\n|---|---|---|---|---|---|---|---| 3 6 5\n|WPN|WPN|WPN|WPN|WPN|WPN|WPN|WPN| 2 7 6\n|WCE|WKT|WBP|WQN|WKG|WBP|WKT|WCE| 1 8 7"} />
 
 
         <p>THE END OF THE GAME:</p>
@@ -120,7 +129,8 @@ function MyRules()
         <li>Both sides are allowed to agree on a Draw! If they agree, the Game Ends in a Tie!</li>
         <li>A Stalemate is a form of Draw!</li>
         <li>Stalemate is not normally your goal because it means you Tied! But if you know you cannot win, and the best you can do is a Tie, then Stalemate is your goal!</li>
-        <li>The Game Ends in a <b>Stalemate</b> automatically (Draw By Insufficient Material) if:<ul>
+        <li>The Game Ends in a <b>Stalemate</b> automatically (Draw By Insufficient Material) if:
+        <ul>
             <li>King vs King!</li>
             <li>King vs King and Bishop!</li>
             <li>King and zero or more Bishops vs King and zero or more Bishops where all Bishops are on the same color square!</li>
@@ -132,35 +142,39 @@ function MyRules()
             </ul>
         </li>
         <br />
-        <li>The Game Ends in <b>Checkmate (YOUR GOAL)</b> if:<ul>
-            <li>it is your turn,</li>
-            <li>your King is in Check,</li>
-            <li>and you cannot get out of Check (IE: YOU LOST AND YOUR OPPONENT WON) by:<ul>
-                <li>moving your King,</li>
-                <li>blocking check, or</li>
-                <li>by killing the Checking piece!</li>
-                </ul>
-            </li>
+        <li>The Game Ends in <b>Checkmate (YOUR GOAL)</b> if:
+            <ul>
+                <li>it is your turn,</li>
+                <li>your King is in Check,</li>
+                <li>and you cannot get out of Check (IE: YOU LOST AND YOUR OPPONENT WON) by:
+                    <ul>
+                        <li>moving your King,</li>
+                        <li>blocking check, or</li>
+                        <li>by killing the Checking piece!</li>
+                    </ul>
+                </li>
             </ul>
         </li>
         <br />
-        <li>It is possible, but not guaranteed to Checkmate if you have:<ul>
-            <li>King vs King and Castle</li>
-            <li>King vs King and Queen</li>
-            <li>King vs King and two Bishops where both Bishops are on opposite color squares!</li>
-            <li>King vs King and two Knights</li>
-            <li>King vs King and Bishop and Knight</li>
-            <li>King and Bishop vs King and Knight</li>
-            <li>King and Bishop vs King and Castle</li>
-            <li>King and Bishop vs King and Queen</li>
-            <b><li>This is not an all encompassing list!</li>
-            <li>Of course it goes without saying: the more power pieces your have on the board, the more likely you are to Checkmate!</li>
-            </b>
-        </ul>
+        <li>It is possible, but not guaranteed to Checkmate if you have:
+            <ul>
+                <li>King vs King and Castle</li>
+                <li>King vs King and Queen</li>
+                <li>King vs King and two Bishops where both Bishops are on opposite color squares!</li>
+                <li>King vs King and two Knights</li>
+                <li>King vs King and Bishop and Knight</li>
+                <li>King and Bishop vs King and Knight</li>
+                <li>King and Bishop vs King and Castle</li>
+                <li>King and Bishop vs King and Queen</li>
+                <b><li>This is not an all encompassing list!</li>
+                <li>Of course it goes without saying: the more power pieces your have on the board, the more likely you are to Checkmate!</li>
+                </b>
+            </ul>
         </li>
         <br />
         <li>NOTE: There is no timeout! And therefore No timeout vs Insufficient Material (Stalemate, but it is rediculous to begin with)!</li>
         <li>NOTE: There is no maximum amount of moves made without a capture that results in Draw!</li>
+        <br />
         </ul></div>);
 }
 

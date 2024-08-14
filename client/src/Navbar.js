@@ -33,17 +33,15 @@ function Navbar(props) {
         <div className="showslinkcls"><Link to="/rules">Rules</Link></div>
         
         {(notloggedin) ? null : <>
-        <div className="loginlinkcls"><Link to="/join">Join</Link></div>
-        <div className="epslinkcls"><Link to="/custom">Custom Game</Link></div></>}
-
-        <div className="toyslinkcls"><Link to="/stats">Stats</Link></div>
+          <div className="loginlinkcls"><Link to={"/my-completed-games"}>My Completed Games</Link></div>
+          <div className="epslinkcls"><Link to="/custom">Custom Game</Link></div>
+          <div className="loginlinkcls"><Link to="/join">Join</Link></div>
+        </>}
         
         {(notloggedin) ? null :
           <div className="toysforshowlinkcls"><Link to={"/play"}>Play Game</Link></div>}
-        
-        {(notloggedin) ? null :
-          <div className="loginlinkcls">
-            <Link to={"/my-completed-games"}>My Completed Games</Link></div>}
+
+        <div className="toyslinkcls"><Link to="/stats">Stats</Link></div>
 
         {(notloggedin) ? <><div className="loginlinkcls"><Link to="/login">Login</Link></div>
         <div className="signuplinkcls"><Link to="/signup">Signup</Link></div></> :

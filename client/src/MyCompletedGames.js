@@ -134,6 +134,8 @@ function MyCompletedGames({setgame, setpaid, setpbid})
     }
 
     const iserr = !(cc.isStringEmptyNullOrUndefined(errmsg));
+    //const myclsnm = "bg-" + cc.getBGColorToBeUsed(iserr, "CompleteGames") + "-500";
+    //style={{backgroundColor: cc.getBGColorToBeUsed(iserr, "CompleteGames")}}
     return (<div style={{backgroundColor: cc.getBGColorToBeUsed(iserr, "CompleteGames")}}>
         <h1>My Completed Games</h1>
         <p>There are {numcgs} completed Games for the user {username}!</p>

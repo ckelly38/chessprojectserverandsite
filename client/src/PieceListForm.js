@@ -440,8 +440,6 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
         const fmvsarr = [mstr, ...mvsstrarr];
         console.log("fmvsarr = ", fmvsarr);
 
-        console.error("NOT DONE YET WITH STARTING THE CUSTOM GAME 8-9-2024 11 PM!");
-
         //now that we have the moves and the piece list set
         //we need to create the new game and get the game_ID
         //we also need to add it with two of the same player
@@ -536,12 +534,13 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
         }
     }
 
-    //NOT DONE YET WITH THE SUBMIT... 7-12-2024
     let iserr = !(cc.isStringEmptyNullOrUndefined(errmsg) &&
         cc.isStringEmptyNullOrUndefined(merrmsg));//New Piece List
     if (haserrs);
     else iserr = false;
-    return (<div style={{ backgroundColor: "cyan", paddingTop: 1 }}><h1>New Custom Game Form:</h1>
+    //style={{ backgroundColor: "cyan", paddingTop: 1 }}
+    //style={{ backgroundColor: "red" }}
+    return (<div className="pt-1" style={{ backgroundColor: "cyan"}}><h1>New Custom Game Form:</h1>
     <form onSubmit={handleSubmit}>
         <button type="button" onClick={(event) => setUseRowColLocDisplay(!useroworcollocdisp)}>
             {useroworcollocdisp ? " Use String Locs" : "Use Row Col Locs"}</button>

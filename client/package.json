@@ -18,8 +18,10 @@
     "yup": "^0.32.11"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "npm run start:css && react-scripts start",
+    "start:css": "tailwindcss -o public/output.css",
+    "build": "npm run build:css && react-scripts build",
+    "build:css": "NODE_ENV=production tailwindcss -o public/output.css -m",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -40,5 +42,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.10"
   }
 }

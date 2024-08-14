@@ -317,6 +317,10 @@ function SignUpLoginPreferences({typenm}) {
     else if (typenm === "Login" || typenm === "SignUp") mybtnnm = "" + typenm;
     else this.cc.logAndThrowNewError(typenmerrmsg);
 
+    //style={{ backgroundColor: bgcolor }}
+    //style={{marginLeft: "5px"}}
+    //style={{marginLeft: "50px"}}
+    const clsnm = "bg-" + bgcolor + "-500";
     return (<div style={{ backgroundColor: bgcolor }}><h1>{typenm}:</h1>
     <form onSubmit={formik.handleSubmit}>
         <label id="usernamelbl" htmlFor="myusername">Username: </label>
@@ -337,10 +341,10 @@ function SignUpLoginPreferences({typenm}) {
             onChange={formik.handleChange} value={formik.values.access_level} />
         <p> {formik.errors.access_level}</p></>: null}
         <button type="submit">{mybtnnm}</button>
-        <button type="button"  style={{marginLeft: "5px"}}
+        <button type="button" className="ml-5"
             onClick={(event) => history.push("/")}>Cancel</button>
         {(typenm === "Preferences") ?
-            <button onClick={unsubscribeMe} style={{marginLeft: "50px"}}>
+            <button onClick={unsubscribeMe} className="ml-50">
                 Remove My Account</button>: null}
     </form>
     <p>{(useerrcolor) ? errmsg : sucsmsg}</p>

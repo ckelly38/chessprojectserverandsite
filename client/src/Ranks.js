@@ -314,10 +314,13 @@ function Ranks(props)
     //when no sorting original data ordering will be used (server returns in order of most wins).
     //, marginTop: 10
     const iserr = !(cc.isStringEmptyNullOrUndefined(errormsg));
-    return (<div style={{marginLeft: 10, paddingTop: 1,
-        backgroundColor: cc.getBGColorToBeUsed(iserr, "Ranks")}}>
+    const clsnm = "ml-10 pt-1 bg-" + cc.getBGColorToBeUsed(iserr, "Ranks") + "-300";
+    //style={{marginLeft: 10, paddingTop: 1,
+    //backgroundColor: cc.getBGColorToBeUsed(iserr, "Ranks")}}
+    //style={{marginLeft: 10, marginBottom: 10}}
+    return (<div className="pt-1" style={{backgroundColor: cc.getBGColorToBeUsed(iserr, "Ranks")}}>
         <h2>Ranks Page:</h2>
-        <table style={{marginLeft: 10, marginBottom: 10}}>
+        <table className="ml-10 mb-10">
             <thead>
                 <tr>
                     <th>#</th>

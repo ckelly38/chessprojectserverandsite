@@ -25,9 +25,14 @@ function MyImageComponent({type, color, url=null})
         //<img src={logo} className="App-logo" alt="logo" />
         
         //https://bdwm.be/css-change-a-transparent-png-to-any-color-you-want/
+        //png-container
+        const myimgclsnm = "-translate-y-full drop-shadow(0px 100px 0px " + color + ")";
+        //style={{filter: "drop-shadow(0px 100px 0px " + color + ")",
+        //transform: "translateY(-100px)"}}
         return (<div className="png-container"><img src={mysrc}
             style={{filter: "drop-shadow(0px 100px 0px " + color + ")",
-                transform: "translateY(-100px)"}} alt={"" + color + " " + type + " image"} />
+                transform: "translateY(-100px)"}}
+            alt={"" + color + " " + type + " image"} />
         </div>);
     }
 }

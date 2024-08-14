@@ -143,7 +143,11 @@ function GameList({setgame, setpaid, setpbid})
         let mclr = null;
         let mdfrs = false;
         let mip = null;
-        if (cc.isItemNullOrUndefined(game) || cc.isItemNullOrUndefined(game.playera))
+        let gmiscustom = false;
+        console.log("game = ", game);
+        console.log("useipsa = " + useipsa);
+
+        if (cc.isItemNullOrUndefined(game))
         {
             mclr = "";
             mdfrs = true;
@@ -151,12 +155,33 @@ function GameList({setgame, setpaid, setpbid})
         }
         else
         {
-            mclr = game.playera.color;
-            mdfrs = game.playera.defers;
-            if (useipsa) mip = game.playera.ipaddress;
-            else mip = "127.0.0.1";
+            if (cc.isItemNullOrUndefined(game.playera))
+            {
+                if (cc.isItemNullOrUndefined(game.defers))
+                {
+                    mclr = "";
+                    mdfrs = true;
+                    mip = "127.0.0.1";
+                }
+                else
+                {
+                    mclr = game.color;
+                    mdfrs = game.defers;
+                    if (useipsa) mip = game.ipaddress;
+                    else mip = "127.0.0.1";
+                }
+            }
+            else
+            {
+                mclr = game.playera.color;
+                mdfrs = game.playera.defers;
+                if (useipsa) mip = game.playera.ipaddress;
+                else mip = "127.0.0.1";
+                if (cc.isStringEmptyNullOrUndefined(game.moves));
+                else gmiscustom = true;
+            }
         }
-        return {"mclr": mclr, "mdfrs": mdfrs, "mip": mip};
+        return {"mclr": mclr, "mdfrs": mdfrs, "mip": mip, "custom": gmiscustom};
     }
 
     function getUserNameFromGameAndPlayerData(game, updata)
@@ -191,7 +216,11 @@ function GameList({setgame, setpaid, setpbid})
                     }
                 }
             }
-            //else;//do nothing
+            else
+            {
+                if (cc.isItemNullOrUndefined(game.username));
+                else usrnm = game.username;
+            }
         }
         return usrnm;
     }
@@ -203,6 +232,7 @@ function GameList({setgame, setpaid, setpbid})
             console.log("omdata = ", omdata);
             if (omdata.can_be_started)
             {
+                setpbid(-1);
                 setShowCreateGameForm(false);
                 console.log("mygame = ", omdata);
                 //console.log("playera color = " + omdata.playera.color);
@@ -300,6 +330,7 @@ function GameList({setgame, setpaid, setpbid})
                         "color": mdata.user_player.player.color,
                         "defers": mdata.user_player.player.defers};
                     setpaid(mdata.user_player.player.id);
+                    setpbid(-1);
                     setInitData([...initdata, mynwgame]);
                     setUserPlayerData([...userpdata, mdata.user_player]);
                     setLoaded(true);
@@ -356,6 +387,7 @@ function GameList({setgame, setpaid, setpbid})
                         console.log("CALLING CHECK TO SEE IF GAME GOT JOINED() WITH ID: ",
                             mdata.game.id);
                         setpaid(mdata.user_player.player.id);
+                        setpbid(-1);
                         checkToSeeIfGameGotJoined(mdata.game.id);
                     }
                 }).catch((merr) => {
@@ -382,12 +414,17 @@ function GameList({setgame, setpaid, setpbid})
     else
     {
         myrws = initdata.map((game) => {
-            let {mclr, mdfrs, mip} = getColorIPAndDefersFromGame(game, useips);
+            let {mclr, mdfrs, mip, custom} = getColorIPAndDefersFromGame(game, useips);
             if (game.can_be_started) return null;
             else
             {
                 console.log("userpdata = ", userpdata);
+                
                 let usrnm = getUserNameFromGameAndPlayerData(game, userpdata);
+                console.log("usrnm = " + usrnm);
+                console.log("mclr = " + mclr);
+                console.log("mdfrs = " + mdfrs);
+                console.log("mip = " + mip);
                 
                 return (<tr key={"game" + game.id}>
                     <td key={"game" + game.id + "id"}>{game.id}</td>
@@ -395,6 +432,7 @@ function GameList({setgame, setpaid, setpbid})
                     <td key={"game" + game.id + "color"}>{mclr}</td>
                     <td key={"game" + game.id + "defers"}>{mdfrs ? "Yes": "No"}</td>
                     {useips ? <td key={"game" + game.id + "ipaddress"}>{mip}</td>: null}
+                    <td key={"game" + game.id + "iscustom"}>{custom ? "Yes": "No"}</td>
                     <td key={"game" + game.id + "join"}>
                         {(simpusrobj.instatus || tstmode) ?
                             <button type="button" onClick={onJoin.bind(null, game)}>Join</button>:
@@ -420,15 +458,18 @@ function GameList({setgame, setpaid, setpbid})
     }
 
     const iserr = !cc.isStringEmptyNullOrUndefined(errormsg);
-    let {mclr, mdfrs, mip} = getColorIPAndDefersFromGame(mygame, useips);
+    let {mclr, mdfrs, mip, custom} = getColorIPAndDefersFromGame(mygame, useips);
     
     console.log("userpdata = ", userpdata);
     let usrnm = getUserNameFromGameAndPlayerData(mygame, userpdata);
 
-    return (<div style={{paddingTop: 1,
-        backgroundColor: cc.getBGColorToBeUsed(iserr, "GameList")}}>
+    const myclsnm = "pt-1 bg-" + cc.getBGColorToBeUsed(iserr, "GameList") + "-500";
+    //style={{paddingTop: 1, backgroundColor: cc.getBGColorToBeUsed(iserr, "GameList")}}
+    //<form onSubmit={formik.handleSubmit} style={{marginLeft: 10}}>
+    //<table style={{marginLeft: 10, marginBottom: 10}}>
+    return (<div className="pt-1" style={{backgroundColor: cc.getBGColorToBeUsed(iserr, "GameList")}}>
         <h2>Join A Game Page:</h2>
-        {showcreategameform ? (<form onSubmit={formik.handleSubmit} style={{marginLeft: 10}}>
+        {showcreategameform ? (<form onSubmit={formik.handleSubmit} className="ml-10">
             <h3>{usecreate ? "Create" : "Join"} A Game Here:</h3>
             <p>Username: {simpusrobj.username}</p>
             <p> {formik.errors.username}</p>
@@ -440,45 +481,21 @@ function GameList({setgame, setpaid, setpbid})
                 <option value="DEFER">DEFER</option>
             </select>
             <p> {formik.errors.player_color}</p>
-            {usecreate ? null: (<p>The Game you are joining has an ID: {mygame.id}
+            {usecreate ? null: (<p>The {custom ? "custom " : " "}Game you are joining has an ID: {mygame.id}
                 , a username of: {usrnm}
                 , and wants color: {mclr}, and is willing to defer: {mdfrs ? "Yes": "No"}.
             </p>)}
             <button type="submit">Submit</button>
         </form>) : null}
-        {/*<form onSubmit={formik.handleSubmit}>
-            <label id="usernamelbl" htmlFor="myusername">Username: </label>
-            <input id="myusername" type="text" name="username" value={formik.values.username}
-                placeholder="Enter your username" autoComplete="username"
-                onChange={formik.handleChange} />
-            <p> {formik.errors.username}</p>
-            <label id="passwordlbl" htmlFor="mypassword">Password: </label>
-            <input id="mypassword" type={swpswrd ? "text": "password"} name="password"
-                value={formik.values.password} placeholder="Enter your password"
-                autoComplete="current-password" onChange={formik.handleChange} />
-            <button type="button" onClick={(event) => setShowPassword(!swpswrd)}>
-                {(swpswrd ? "Hide": "Show") + " Password"}</button>
-            <p> {formik.errors.password}</p>
-            {useprefsorsignupschema ? <><label id="myacslvlbl" htmlFor="myacslv">
-                Access Level: </label>
-            <input id="myacslv" type="number" step={1} name="access_level" placeholder={0}
-                onChange={formik.handleChange} value={formik.values.access_level} />
-            <p> {formik.errors.access_level}</p></>: null}
-            <button type="submit">{mybtnnm}</button>
-            <button type="button"  style={{marginLeft: "5px"}}
-                onClick={(event) => history.push("/")}>Cancel</button>
-            {(typenm === "Preferences") ?
-                <button onClick={unsubscribeMe} style={{marginLeft: "50px"}}>
-                    Remove My Account</button>: null}
-        </form>, marginTop: 10*/}
         <h3>Games To Join:</h3>
-        <table style={{marginLeft: 10, marginBottom: 10}}>
+        <table className="ml-10 mb-10">
             <thead>
                 <tr>
                     <th>GAME ID #</th>
                     <th>PlAYER 1: USERNAME</th>
                     <th>COLOR</th>
                     <th>DEFERS</th>
+                    <th>CUSTOM</th>
                     {useips ? <th>IP Address</th>: null}
                     <th>Join</th>
                 </tr>

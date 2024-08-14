@@ -514,6 +514,7 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
             
             let gm = new ChessGame(gid, offmvs, msrvrgame.completed, myclr);
             gm.setHasPieceListOnServer(true);
+            console.log("gm = ", gm);
             
             if (msrvrgame.completed)
             {
@@ -1172,12 +1173,15 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
     if (loaded);
     else return (<div>Loading Game...</div>);
     
+    //style={{marginLeft: 10, marginBottom: 10, marginTop: 10}}
+    //style={{marginLeft: 10, paddingTop: 1,
+    // style={{fontSize: 15}}
     const gmclr = ChessGame.getGameVIAGID(gid).getMyColor();
     const iserr = !cc.isStringEmptyNullOrUndefined(errmsg);
-    return (<div style={{marginLeft: 10, paddingTop: 1,
-        backgroundColor: cc.getBGColorToBeUsed(false, "GameBoard")}}>
+    return (<div className="pl-5 pt-1"
+        style={{backgroundColor: cc.getBGColorToBeUsed(false, "GameBoard")}}>
         <h2>Play Game:</h2>
-        <table style={{marginLeft: 10, marginBottom: 10}}>
+        <table className="mb-5">
             <thead>
                 <tr>
                     <th>0<br />A</th>
@@ -1209,7 +1213,7 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
                 {"< " + (iscompleted ? "Previous": "Undo") + " Move"}</button>
             <button onClick={(event) => redoMoveMain(iscompleted)}>
                 {"> " + (iscompleted ? "Next": "Redo") + " Move"}</button>
-            <button style={{fontSize: 15}} onClick={(event) => advanceTurnMain()}>
+            <button className="text-sm/[15px]" onClick={(event) => advanceTurnMain()}>
                 <b>{(iswhiteturn ? "Black": "White") + "'s Turn!"}</b></button>
             <button onClick={(event) => swapLocs()}>Swap Locs</button>
             <button onClick={(event) => setUseRowColLocDisplay(!useroworcollocdisp)}>
@@ -1222,9 +1226,9 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
                 whitemovesdownranks={whitemovesdownranks} iswhiteturn={iswhiteturn}
                 useroworcollocdisp={useroworcollocdisp} arrindx={0} mvs={mvslist}
                 setmvs={setMovesList} userem={false} remmv={null} remitem={false} />
-            <button style={{fontSize: 15}} onClick={(event) => executeUserCommand(iscompleted)}>
+            <button className="text-sm/[15px]" onClick={(event) => executeUserCommand(iscompleted)}>
                 <b>Execute!</b></button>
-            <button style={{fontSize: 15}} onClick={(event) => {
+            <button className="text-sm/[15px]" onClick={(event) => {
                     executeUserCommand(iscompleted);
                     advanceTurnMain();
                 }}>
@@ -1232,7 +1236,7 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
             {iserr ? <p>{errmsg}</p>: <br />}
         </div>
         
-        <table style={{marginLeft: 10, marginBottom: 10, marginTop: 10}}>
+        <table className="ml-10 mt-5">
             <thead>
                 <tr>
                     <th>PLAYER 1 (ID: {plyraid}): {genColorString(gmclr, true)}</th>
@@ -1244,6 +1248,7 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
                 <tr><td>RANK # {playeronerank}</td><td>RANK # {playertworank}</td></tr>
             </tbody>
         </table>
+        <br />
     </div>);
 }
 
