@@ -120,10 +120,11 @@ class ChessPiece {
 		return 0 + this.gameID;
 	}
 	
-	static getGameVIAGID(gid)
+	static getGameVIAGID(gid, retnlonnogm=false)
 	{
 		ChessPiece.cc.letMustBeAnInteger(gid, "gid");
-		return ChessGame.getGameVIAGID(gid);
+		ChessPiece.cc.letMustBeBoolean(retnlonnogm, "retnlonnogm");
+		return ChessGame.getGameVIAGID(gid, retnlonnogm);
 	}
 	getGame()
 	{
@@ -297,7 +298,7 @@ class ChessPiece {
     }
 	printBoard()
 	{
-		this.printBoard(this.getAllPiecesWithGameID(this.getGameID()));
+		this.printBoard(ChessPiece.getAllPiecesWithGameID(this.getGameID()));
 	}
 	
 	
@@ -4330,6 +4331,8 @@ class ChessPiece {
     		}
     		//else;//do nothing
     	}
+		//console.log("rlist = ", rlist);
+
 		if (rlist.length === numv) return rlist;
 		else
 		{
@@ -5690,7 +5693,7 @@ class ChessPiece {
 		else ChessPiece.cc.logAndThrowNewError("ILLEGAL TYPE FOUND AND USED HERE!");
 		if (ChessPiece.cc.isStringEmptyNullOrUndefined(locs))
 		{
-			//console.log("LOCS LIST IS EMPTY!");
+			console.log("LOCS LIST IS EMPTY!");
 			return false;
 		}
 		else
@@ -5701,7 +5704,7 @@ class ChessPiece {
 				//else;//do nothing
 			}
 		}
-		//console.log("LOC " + ChessPiece.getLocString(rval, cval) + " NOT FOUND ON THE LIST!");
+		console.log("LOC " + ChessPiece.getLocString(rval, cval) + " NOT FOUND ON THE LIST!");
 		return false;
 	}
 	canMoveToLoc(nloc)
@@ -8330,6 +8333,7 @@ class ChessPiece {
 			}
 			else
 			{
+				console.log("cp = ", cp);
 				ChessPiece.cc.logAndThrowNewError("THE PIECE WE ARE TRYING TO MOVE " +
 					"CANNOT MOVE THERE!");
 			}

@@ -1,6 +1,3 @@
-import { createContext } from "react";
-import reactRouterDom from "react-router-dom";
-
 class CommonClass{
     isItemNullOrUndefined(val)
     {
@@ -282,6 +279,52 @@ class CommonClass{
         let mindx = mytempstr.indexOf(wdqry);
         if (mindx < 0 || mytempstr.length - 1 < mindx) return mindx;
         else return mindx + si;
+    }
+
+    getColorIPAndDefersFromGame(game, useipsa)
+    {
+        let mclr = null;
+        let mdfrs = false;
+        let mip = null;
+        let gmiscustom = false;
+        console.log("game = ", game);
+        console.log("useipsa = " + useipsa);
+
+        if (this.isItemNullOrUndefined(game))
+        {
+            mclr = "";
+            mdfrs = true;
+            mip = "127.0.0.1";
+        }
+        else
+        {
+            if (this.isItemNullOrUndefined(game.playera))
+            {
+                if (this.isItemNullOrUndefined(game.defers))
+                {
+                    mclr = "";
+                    mdfrs = true;
+                    mip = "127.0.0.1";
+                }
+                else
+                {
+                    mclr = game.color;
+                    mdfrs = game.defers;
+                    if (useipsa) mip = game.ipaddress;
+                    else mip = "127.0.0.1";
+                }
+            }
+            else
+            {
+                mclr = game.playera.color;
+                mdfrs = game.playera.defers;
+                if (useipsa) mip = game.playera.ipaddress;
+                else mip = "127.0.0.1";
+                if (this.isStringEmptyNullOrUndefined(game.moves));
+                else gmiscustom = true;
+            }
+        }
+        return {"mclr": mclr, "mdfrs": mdfrs, "mip": mip, "custom": gmiscustom};
     }
 
     getPlayersUsernamesAndRanksFromData(statsarr, myupsdata, msrvrgame)

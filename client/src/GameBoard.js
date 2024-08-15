@@ -436,7 +436,13 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         //setup board methods
         //addpcs arr of [{row: 0, col: 0, color: "WHITE", type: "KING", move_count: 0,
         //arrindx: 0, id: "pid0"}] if used it will have at minimum 2 kings
-        if (ChessPiece.getNumItemsInList(mypclist) < 2) ChessPiece.setUpBoard(gid);
+        if (ChessPiece.getNumItemsInList(mypclist) < 2)
+        {
+            let cpcs = ChessPiece.getAllPiecesWithGameID(gid);
+            if (cc.isStringEmptyNullOrUndefined(cpcs));
+            else ChessPiece.clearBoard(gid);
+            ChessPiece.setUpBoard(gid);
+        }
         else ChessPiece.setUpBoardFromList(gid, mypclist, false);
         
         let [playertwousrnm, playeroneusrnm, playeronerank, playertworank] =
@@ -452,10 +458,17 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         //--if we know the player id we created, then we can get the color from that.
         //--if we do not know the player id we created, then screwed.
 
+        console.log("msrvrgame.completed = " + msrvrgame.completed);
+        console.log("playeroneusrnm = " + playeroneusrnm);
+        console.log("playertwousrnm = " + playertwousrnm);
+
         let myclr = null;
         if (playertwousrnm === playeroneusrnm || msrvrgame.completed)
         {
             //usernames are the same
+            console.log("pa_id = " + pa_id);
+            console.log("pb_id = " + pb_id);
+
             let numbrds = -1;
             if (pa_id < 1 && pb_id < 1) numbrds = 0;
             else if ((pa_id < 1 && (1 < pb_id || pb_id === 1)) ||
@@ -504,7 +517,8 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         if (gmhasmvs)
         {
             //the moves will come in from the game...
-            let mytempmvsarr = msrvrgame.moves.map((mymv) => mymv.contents);
+            let mytempmvsarr = mygmmvs.map((mygmmv) => mygmmv.move.contents);
+            //let mytempmvsarr = msrvrgame.moves.map((mymv) => mymv.contents);//sometimes bad
             nxtmvoffset = 1;
             console.log("mytempmvsarr = ", mytempmvsarr);
 
@@ -512,13 +526,21 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
                 ChessPiece.WHITE_MOVES_DOWN_RANKS, false);
             console.log("offmvs = ", offmvs);
             
-            let gm = new ChessGame(gid, offmvs, msrvrgame.completed, myclr);
+            const gmviaid = ChessGame.getGameVIAGID(gid, true);
+            console.log("gmviaid = ", gmviaid);
+            
+            const mkgm = !(msrvrgame.completed && !cc.isItemNullOrUndefined(gmviaid));
+            console.log("mkgm = ", mkgm);
+
+            const gm = (mkgm ? new ChessGame(gid, offmvs, msrvrgame.completed, myclr): gmviaid);
             gm.setHasPieceListOnServer(true);
             console.log("gm = ", gm);
             
             if (msrvrgame.completed)
             {
                 //server game is valid
+                if (mkgm);
+                else gm.resetMoveCount();
 
                 if (msrvrgame.tied) gm.setIsTied(true, true);
                 if (msrvrgame.playera_resigned) gm.setColorResigns("WHITE", true, true);

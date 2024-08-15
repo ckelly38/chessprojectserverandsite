@@ -116,6 +116,8 @@ function MyCompletedGames({setgame, setpaid, setpbid})
 
             let [playertwousrnm, playeroneusrnm, playeronerank, playertworank] =
                 cc.getPlayersUsernamesAndRanksFromData(stats, upsdata, mcg);
+            const useips = false;
+            let {mclr, mdfrs, mip, custom} = cc.getColorIPAndDefersFromGame(mcg, useips);
             
             return (<tr key={mcg.id}>
                 <td key={"gameid" + mcg.id + "ausername"}>{playeroneusrnm}</td>
@@ -127,6 +129,8 @@ function MyCompletedGames({setgame, setpaid, setpbid})
                 <td key={"gameid" + mcg.id + "aresigned"}>{mcg.playera_resigned ? "yes": "no"}</td>
                 <td key={"gameid" + mcg.id + "bresigned"}>{mcg.playerb_resigned ? "yes": "no"}</td>
                 <td key={"gameid" + mcg.id + "tied"}>{mcg.tied ? "yes": "no"}</td>
+                <td key={"gameid" + mcg.id + "custom"}>{custom ? "yes": "no"}</td>
+                <td key={"mygameid" + mcg.id}>{mcg.id}</td>
                 <td key={"joingameid" + mcg.id}>
                     <button onClick={onJoin.bind(null, mcg)}>Join</button></td>
             </tr>);
@@ -143,14 +147,16 @@ function MyCompletedGames({setgame, setpaid, setpbid})
             <thead>
                 <tr>
                     <th>Player A Username</th>
-                    <th>Player B Username</th>
-                    <th>Player A Rank</th>
-                    <th>Player B Rank</th>
-                    <th>Player A Won</th>
-                    <th>Player B Won</th>
-                    <th>Player A Resigned</th>
-                    <th>Player B Resigned</th>
+                    <th>B Username</th>
+                    <th>A Rank</th>
+                    <th>B Rank</th>
+                    <th>A Won</th>
+                    <th>B Won</th>
+                    <th>A Resigned</th>
+                    <th>B Resigned</th>
                     <th>Tied</th>
+                    <th>Custom</th>
+                    <th>ID</th>
                     <th>Join</th>
                 </tr>
             </thead>

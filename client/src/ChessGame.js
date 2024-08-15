@@ -85,9 +85,10 @@ class ChessGame {
 		return this.gameID;
 	}
 	
-	static getGameVIAGID(gid)
+	static getGameVIAGID(gid, retnlonnogm=false)
 	{
 		ChessGame.cc.letMustBeAnInteger(gid, "gid");
+		ChessGame.cc.letMustBeBoolean(retnlonnogm, "retnlonnogm");
 		if (gid < 1) ChessGame.cc.logAndThrowNewError("GAME ID must be at least 1!");
 		else
 		{
@@ -100,8 +101,12 @@ class ChessGame {
 					if (this.all[x].getGameID() === gid) return this.all[x];
 				}
 			}
-			//return null;
-			ChessGame.cc.logAndThrowNewError("GAME with ID (" + gid + ") not found!");
+			if (retnlonnogm)
+			{
+				console.error("GAME with ID (" + gid + ") not found!");
+				return null;
+			}
+			else ChessGame.cc.logAndThrowNewError("GAME with ID (" + gid + ") not found!");
 		}
 	}
 	getGame()
@@ -608,6 +613,12 @@ class ChessGame {
 		return ChessGame.genCopyOfStringArray(this.UNOFFICIAL_MOVE);
 	}
 	
+	resetMoveCount()
+	{
+		if (this.isCompleted()) this.moveindex = -1;
+		else ChessGame.cc.logAndThrowNewError("GAME MUST BE COMPLETED IN ORDER TO STEP THROUGH IT!");
+	}
+
 	stepForward()
 	{
 		//TO GO FORWARDS: (MIGHT BE SMART TO START STEP_INDEX AT -1)

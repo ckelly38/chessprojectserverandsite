@@ -138,52 +138,6 @@ function GameList({setgame, setpaid, setpbid})
         };
     }
 
-    function getColorIPAndDefersFromGame(game, useipsa)
-    {
-        let mclr = null;
-        let mdfrs = false;
-        let mip = null;
-        let gmiscustom = false;
-        console.log("game = ", game);
-        console.log("useipsa = " + useipsa);
-
-        if (cc.isItemNullOrUndefined(game))
-        {
-            mclr = "";
-            mdfrs = true;
-            mip = "127.0.0.1";
-        }
-        else
-        {
-            if (cc.isItemNullOrUndefined(game.playera))
-            {
-                if (cc.isItemNullOrUndefined(game.defers))
-                {
-                    mclr = "";
-                    mdfrs = true;
-                    mip = "127.0.0.1";
-                }
-                else
-                {
-                    mclr = game.color;
-                    mdfrs = game.defers;
-                    if (useipsa) mip = game.ipaddress;
-                    else mip = "127.0.0.1";
-                }
-            }
-            else
-            {
-                mclr = game.playera.color;
-                mdfrs = game.playera.defers;
-                if (useipsa) mip = game.playera.ipaddress;
-                else mip = "127.0.0.1";
-                if (cc.isStringEmptyNullOrUndefined(game.moves));
-                else gmiscustom = true;
-            }
-        }
-        return {"mclr": mclr, "mdfrs": mdfrs, "mip": mip, "custom": gmiscustom};
-    }
-
     function getUserNameFromGameAndPlayerData(game, updata)
     {
         let usrnm = "";
@@ -414,7 +368,7 @@ function GameList({setgame, setpaid, setpbid})
     else
     {
         myrws = initdata.map((game) => {
-            let {mclr, mdfrs, mip, custom} = getColorIPAndDefersFromGame(game, useips);
+            let {mclr, mdfrs, mip, custom} = cc.getColorIPAndDefersFromGame(game, useips);
             if (game.can_be_started) return null;
             else
             {
@@ -458,7 +412,7 @@ function GameList({setgame, setpaid, setpbid})
     }
 
     const iserr = !cc.isStringEmptyNullOrUndefined(errormsg);
-    let {mclr, mdfrs, mip, custom} = getColorIPAndDefersFromGame(mygame, useips);
+    let {mclr, mdfrs, mip, custom} = cc.getColorIPAndDefersFromGame(mygame, useips);
     
     console.log("userpdata = ", userpdata);
     let usrnm = getUserNameFromGameAndPlayerData(mygame, userpdata);
