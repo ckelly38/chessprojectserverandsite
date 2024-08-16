@@ -523,7 +523,8 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
             console.log("mytempmvsarr = ", mytempmvsarr);
 
             let offmvs = ChessPiece.genFullMoveCommands(mytempmvsarr, gid, null,
-                ChessPiece.WHITE_MOVES_DOWN_RANKS, false);
+                ChessPiece.WHITE_MOVES_DOWN_RANKS, true);
+                //bypass must be true because the game has not been created yet
             console.log("offmvs = ", offmvs);
             
             const gmviaid = ChessGame.getGameVIAGID(gid, true);
