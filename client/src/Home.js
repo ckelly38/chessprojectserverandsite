@@ -38,8 +38,10 @@ function Home(props) {
         <p>This is a normal Chess App with a lot of features.</p>
         <p>The normal flow of this App is as follows:</p>
         <ol>
-            <li>Whether logged in or not, you can still view the Rules and see Statistics information.</li>
-            <p>Caution: Viewing the <Link to="/rules">Rules</Link> or <Link to="/stats">Stats</Link> information when a game is incomplete on the Play Game Screen and navigating to those <b>will result in the game being inaccessible.</b></p>
+            <li>Whether logged in or not, you can still view the <Link to="/rules">Rules</Link> and see <Link to="/stats">Statistics</Link> information.</li>
+            
+            <p>Caution: If you navigated from the Play Game Screen to the Rules, Statistics, Home, or Preferences, and then immediately go to Play Game Screen, you will be able to resume the game. <b>Going anywhere else on the site will result in the game being inaccessible.</b></p>
+
             <li>You <Link to="/login">Login</Link> if you have not already</li>
             <li>You either Create A <Link to="/custom">Custom Game</Link>, or Load a <Link to="/my-completed-games">Completed Game</Link> or just <Link to="/join">Join A Game</Link></li>
             <li>After Creating A Custom Game, you can Join it!</li>
@@ -68,7 +70,7 @@ function Home(props) {
             <li>When the game is over, on the Play Game screen, you can see what moves were made during that game (by using the step forward and step backwards, but you cannot make different moves, you can see what your options were (to some extent)).</li>
             <li>OR you can create a new game or join another game of some sort VIA join game page.</li>
         </ol>
-        <p>KNOWN ISSUE: You cannot resume a game. If a game gets interrupted for some reason, or due to navigating away, it is impossible to access it.</p>
+        <p>KNOWN ISSUE: You cannot choose a game to resume. If a game gets interrupted due to logging out or a page refresh, it is impossible to access it.</p>
         <p>KNOWN ISSUE: You cannot view the moves list durring or after game play.</p>
         <p>KNOWN ISSUE: You cannot play against the computer.</p>
         <p>KNOWN ISSUE: There is currently no Android App.</p>

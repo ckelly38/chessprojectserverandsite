@@ -237,6 +237,15 @@ function App() {
   const [thegame, setTheGame] = useState(null);
   let [pa_id, setPaID] = useState(-1);
   let [pb_id, setPbID] = useState(-1);
+  let [usrrsmgms, setUserResumableGames] = useState([]);
+
+  //if in playGame and we navigate away VIA NAVBAR, we want to be able to resume the game
+  //reenter incomplete game and play it...
+  //WHAT WE NEED: the GAME ID and IF THE USER WAS PLAYER A OR PLAYER B OR BOTH and
+  //if the game was complete or not
+
+  //let myobj = {"gid": -1, "userisplayera": false, "userisplayerb": false,
+  //"user_id": -1, "username": null};
 
   function setGameAndAdvance(ng)
   {
@@ -249,6 +258,7 @@ function App() {
   console.log("APP: pa_id = " + pa_id);
   console.log("APP: pb_id = " + pb_id);
   console.log("APP: mvslist = ", mvslist);
+  console.log("APP: usrrsmgms = ", usrrsmgms);
 
   let [loading, setLoading] = useState(false);//true
   /*
@@ -365,9 +375,10 @@ function App() {
         </Route>
         <Route exact path="/play">
           <Navbar />
-          {isgmcustom ? <GameBoard srvrgame={thegame} pa_id={pa_id} pb_id={pb_id}
-            addpcs={mypieces} />:
-          <GameBoard srvrgame={thegame} pa_id={pa_id} pb_id={pb_id} />}
+          {isgmcustom ? <GameBoard srvrgame={thegame} addpcs={mypieces} resgms={usrrsmgms} pa_id={pa_id}
+            pb_id={pb_id} setpaid={setPaID} setpbid={setPbID} setresgames={setUserResumableGames} />:
+          <GameBoard srvrgame={thegame} pa_id={pa_id} pb_id={pb_id} setpaid={setPaID} setpbid={setPbID}
+            setresgames={setUserResumableGames} resgms={usrrsmgms} />}
         </Route>
         <Route exact path="/preferences" render={(props) => 
           makeLoginPrefsItem(false, true, "Preferences")} />

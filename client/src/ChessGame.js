@@ -613,9 +613,10 @@ class ChessGame {
 		return ChessGame.genCopyOfStringArray(this.UNOFFICIAL_MOVE);
 	}
 	
-	resetMoveCount()
+	resetMoveCount(resetanyways=false)
 	{
-		if (this.isCompleted()) this.moveindex = -1;
+		ChessGame.cc.letMustBeBoolean(resetanyways, "resetanyways");
+		if (this.isCompleted() || resetanyways) this.moveindex = -1;
 		else ChessGame.cc.logAndThrowNewError("GAME MUST BE COMPLETED IN ORDER TO STEP THROUGH IT!");
 	}
 
@@ -738,6 +739,14 @@ class ChessGame {
 		});
 	}
 
+	getOfficialMovesDisplayList()
+	{
+		const cnvmvslist = ChessPiece.convertShorthandListOfMovesToDisplayList(this.OFFICIAL_MOVES);
+		//console.log("cnvmvslist = ", cnvmvslist);
+
+		return cnvmvslist;
+	}
+
 	//NOT DONE WITH THE COMMUNICATE WITH THE SERVER PART YET
 	completeGameAndCommunicateWithTheServer(msg)
 	{
@@ -757,8 +766,7 @@ class ChessGame {
 		if (this.getMyColor() === "BOTH")
 		{
 			//send all moves in addition to the results of the completed game
-			let cnvmvslist =
-				ChessPiece.convertShorthandListOfMovesToDisplayList(this.OFFICIAL_MOVES);
+			let cnvmvslist = this.getOfficialMovesDisplayList();
 			console.log("cnvmvslist = ", cnvmvslist);
 
 			//server accepts unique updated data only for patch

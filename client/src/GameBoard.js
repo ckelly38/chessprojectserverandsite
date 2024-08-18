@@ -8,7 +8,7 @@ import { UserContext } from "./UserProvider";
 //import { GameContext } from "./GameProvider";
 import CommonClass from "./commonclass";
 
-function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
+function GameBoard({srvrgame, pa_id, pb_id, setpaid, setpbid, addpcs=null, setresgames, resgms})
 {
     let cc = new CommonClass();
     const history = useHistory();
@@ -23,9 +23,126 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
 
     //console.log("srvrgame = ", srvrgame);
     cc.letMustBeDefinedAndNotNull(srvrgame, "srvrgame");
+    cc.letMustBeDefinedAndNotNull(resgms, "resgms");
+    cc.letMustBeDefinedAndNotNull(setresgames, "setresgames");
+    cc.letMustBeDefinedAndNotNull(setpaid, "setpaid");
+    cc.letMustBeDefinedAndNotNull(setpbid, "setpbid");
     cc.letMustBeAnInteger(pa_id, "pa_id");
     cc.letMustBeAnInteger(pb_id, "pb_id");
     
+    function isGameOnResumableGameList(mgame, usemvs)
+    {
+        console.log("mgame = ", mgame);
+        console.log("usemvs = " + usemvs);
+
+        cc.letMustBeDefinedAndNotNull(mgame, "mgame");
+        cc.letMustBeBoolean(usemvs, "usemvs");
+        
+        const tempgid = (usemvs ? mgame.id: mgame.gameID);
+        console.log("tempgid = " + tempgid);
+
+        let addit = true;
+        for (let n = 0; n < resgms.length; n++)
+        {
+            if (resgms[n].gid === tempgid)
+            {
+                addit = false;
+                break;
+            }
+            //else;//do nothing
+        }
+        //console.log("addit = " + addit);
+
+        return !addit;
+    }
+
+    function addResumableGame(mgame, uipa, uipb, usemvs, usetwoboards)
+    {
+        console.log("mgame = ", mgame);
+
+        cc.letMustBeDefinedAndNotNull(mgame, "mgame");
+        cc.letMustBeBoolean(uipa, "uipa");
+        cc.letMustBeBoolean(uipb, "uipb");
+        cc.letMustBeBoolean(usetwoboards, "usetwoboards");
+        cc.letMustBeBoolean(usemvs, "usemvs");
+
+        let addit = !isGameOnResumableGameList(mgame, usemvs);
+        console.log("addit = " + addit);
+
+        const mgid = (usemvs ? mgame.id : mgame.gameID);
+        if (addit)
+        {
+            let tempmgmvs = null;
+            if (usemvs) tempmgmvs = mgame.moves;
+            else tempmgmvs = mgame.getOfficialMovesDisplayList();
+            const mytempmvs = (cc.isStringEmptyNullOrUndefined(tempmgmvs) ? []: [...tempmgmvs]);
+            console.log("mytempmvs = ", mytempmvs);
+
+            let mynwgm = {"gid": mgid, "userisplayera": uipa, "userisplayerb": uipb,
+                "twoboards": usetwoboards, "user_id": mysimpusrobj.id, "username": mysimpusrobj.username,
+                "moves": mytempmvs};
+            
+            setresgames([...resgms, mynwgm]);
+        }
+        else
+        {
+            console.error("game with id " + mgid + " already found on the resumable games " +
+                "list so not added!");
+            return;
+        }
+    }
+
+    function setMovesListOnResumableGame(mgame, nwmvslist)//, usemvs
+    {
+        cc.letMustBeDefinedAndNotNull(mgame, "mgame");
+        //cc.letMustBeBoolean(usemvs, "usemvs");
+        
+        //console.log("usemvs = " + usemvs);
+        console.log("mgame = ", mgame);
+        console.log("resgms = ", resgms);
+        
+        console.log("mgame.id = ", mgame.id);
+        console.log("mgame.gid = ", mgame.gid);
+        console.log("mgame.gameID = ", mgame.gameID);
+        console.log("mgame.game_id = ", mgame.game_id);
+
+        if (isGameOnResumableGameList(mgame, false))
+        {
+            setresgames(resgms.map((mgm) => {
+                if (mgm.gid === mgame.gameID)
+                {
+                    let mynwresgm = {...mgm};
+                    if (cc.isItemNullOrUndefined(nwmvslist)) mynwresgm.moves = null;
+                    else if (nwmvslist.length < 1) mynwresgm.moves = [];
+                    else mynwresgm.moves = [...nwmvslist];
+                    return mynwresgm;
+                }
+                else return mgm;
+            }));
+        }
+        else
+        {
+            cc.logAndThrowNewError("game with id " + mgame.gameID + " not found on the " +
+                "resumable games list so moves were not set!");
+        }
+    }
+
+    function removeResumableGame(mgame)
+    {
+        cc.letMustBeDefinedAndNotNull(mgame, "mgame");
+
+        let addit = !isGameOnResumableGameList(mgame, false);
+        //console.log("addit = " + addit);
+
+        if (addit)
+        {
+            console.error("game with id " + mgame.gameID + " already removed from the resumable games " +
+                "list so not added!");
+            return;
+        }
+        else setresgames(resgms.filter((gm) => (!(gm.gid === mgame.gameID))));
+    }
+
     function isServerGameEndDataValid(msrvrgame)
     {
         //is the winning data on the server game valid
@@ -292,13 +409,35 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         });
     }
 
+    function getNumberOfBoards(mpa_id, mpb_id)
+    {
+        console.log("mpa_id = " + mpa_id);
+        console.log("mpb_id = " + mpb_id);
+        
+        cc.letMustBeAnInteger(mpa_id, "mpa_id");
+        cc.letMustBeAnInteger(mpb_id, "mpb_id");
+
+        let numbrds = -1;
+        if (mpa_id < 1 && mpb_id < 1) numbrds = 0;
+        else if ((mpa_id < 1 && (1 < mpb_id || mpb_id === 1)) ||
+            (mpb_id < 1 && (1 < mpa_id || mpa_id === 1)))
+        {
+            numbrds = 2;
+        }
+        else numbrds = 1;
+        console.log("numbrds = ", numbrds);
+
+        return numbrds;
+    }
+
     function onSetup(statsarr, myupsdata, msrvrgame, mygmmvs)
     {
         console.log("ATTEMPTING TO SET UP THE BOARD NOW:");
         console.log("addpcs = ", addpcs);
         console.log("gid = ", gid);
-        console.log("pa_id = " + pa_id);
-        console.log("pb_id = " + pb_id);
+        console.log("mpaid = pa_id = " + pa_id);
+        console.log("mpbid = pb_id = " + pb_id);
+        console.log("msrvrgame = ", msrvrgame);
         console.log("mygmmvs = ", mygmmvs);
         ChessPiece.setAllPieceHintsFunc(setPcsHints);
         ChessPiece.setSendMoveToServerFunc(sendMoveToServer);
@@ -308,12 +447,220 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         //if it has different pieces
         
         let gmhasmvs = false;
-        if (cc.isStringEmptyNullOrUndefined(mygmmvs));
-        else gmhasmvs = true;
+        let gmmvsisempty = false;
+        let mi = -1;
+        let mpaid = pa_id;
+        let mpbid = pb_id;
+        if (cc.isStringEmptyNullOrUndefined(mygmmvs))
+        {
+            gmmvsisempty = true;
+            if (isGameOnResumableGameList(msrvrgame, true))
+            {
+                for (let n = 0; n < resgms.length; n++)
+                {
+                    if (resgms[n].gid === gid)
+                    {
+                        mi = n;
+                        break;
+                    }
+                    //else;//do nothing
+                }
+                console.log("mi = " + mi);
+
+                if (mi < 0 || resgms.length - 1 < mi)
+                {
+                    cc.logAndThrowNewError("invalid value found and used for mi!");
+                }
+                //else;//do nothing
+                console.log("resgms[" + mi + "] = ", resgms[mi]);
+
+                if (cc.isItemNullOrUndefined(resgms[mi]))
+                {
+                    cc.logAndThrowNewError("the resumable game object must not be empty!");
+                }
+                //else;//do nothing
+
+                if (cc.isStringEmptyNullOrUndefined(resgms[mi].moves));
+                else gmhasmvs = true;
+            }
+            //else;//do nothing
+        }
+        else
+        {
+            gmhasmvs = true;
+            gmmvsisempty = false;
+        }
+        console.log("gmmvsisempty = " + gmmvsisempty);
         console.log("gmhasmvs = " + gmhasmvs);
 
+        
+        if (isGameOnResumableGameList(msrvrgame, true))
+        {
+            for (let n = 0; n < resgms.length; n++)
+            {
+                if (resgms[n].gid === gid)
+                {
+                    mi = n;
+                    break;
+                }
+                //else;//do nothing
+            }
+            console.log("mi = " + mi);
+
+            if (mi < 0 || resgms.length - 1 < mi)
+            {
+                cc.logAndThrowNewError("invalid value found and used for mi!");
+            }
+            //else;//do nothing
+            console.log("resgms[" + mi + "] = ", resgms[mi]);
+
+            if (cc.isItemNullOrUndefined(resgms[mi]))
+            {
+                cc.logAndThrowNewError("the resumable game object must not be empty!");
+            }
+            //else;//do nothing
+
+            const numbrds = getNumberOfBoards(mpaid, mpbid);
+
+            if (resgms[mi].twoboards)
+            {
+                console.log("USING TWO BOARDS!");
+
+                if (numbrds === 2);
+                else
+                {
+                    //can handle this error...
+                    //there are either 1 on none
+                    //0 boards both player ids are invalid
+                    //when there is one board, both ids are valid
+                    if (numbrds === 1)
+                    {
+                        console.log("by ids there is only one board!");
+
+                        //much more difficult than 0
+                        //both ids are valid but one of them is not
+                        if (resgms[mi].userisplayera === resgms[mi].userisplayerb)
+                        {
+                            if (resgms[mi].userisplayera)
+                            {
+                                //both are the same user, but we want two boards
+                                //need to know which IDS got created by this one, but we do not
+                                //server game stores the player IDS
+                                //one of these should be invalid, but we do not know which one
+                                //game has the color of each player
+                                
+                                if (mpaid === msrvrgame.playera.id)
+                                {
+                                    if (mpbid === msrvrgame.playerb.id)
+                                    {
+                                        //no invalid IDS found, so cannot conclude which is wrong
+                                        cc.logAndThrowNewError("using two boards so one of " +
+                                            "the IDs must be invalid, but the number of " +
+                                            "boards (" + numbrds + ") was invalid! WE " +
+                                            "CANNOT CONCLUSIVELY TELL WHICH PLAYER ID IS " +
+                                            "WRONG, BUT WE DO KNOW ONE IS WRONG!");
+                                    }
+                                    else
+                                    {
+                                        mpbid = -1;
+                                        setpbid(-1);
+                                    }
+                                }
+                                else
+                                {
+                                    mpaid = -1;
+                                    setpaid(-1);
+                                }
+                            }
+                            else
+                            {
+                                cc.logAndThrowNewError("the user must be at least one or both " +
+                                    "of the players, but it was neither!");
+                            }
+                        }
+                        else
+                        {
+                            console.log("one player is the user and the other is not!");
+
+                            //one is and one is not
+                            if (resgms[mi].userisplayera)
+                            {
+                                mpbid = -1;
+                                setpbid(-1);
+                            }
+                            else
+                            {
+                                //user is player b
+                                mpaid = -1;
+                                setpaid(-1);
+                            }
+                        }
+                    }
+                    else if (numbrds === 0)
+                    {
+                        //much easier
+                        if (resgms[mi].userisplayera)
+                        {
+                            if (mpaid < 1)
+                            {
+                                mpaid = msrvrgame.playera.id;
+                                setpaid(msrvrgame.playera.id);
+                            }
+                            //else;//do nothing
+                        }
+                        else if (resgms[mi].userisplayerb)
+                        {
+                            if (mpbid < 1)
+                            {
+                                mpbid = msrvrgame.playerb.id;
+                                setpbid(msrvrgame.playerb.id);
+                            }
+                            //else;//do nothing
+                        }
+                        else
+                        {
+                            cc.logAndThrowNewError("the user must be at least one or both of the " +
+                                "players, but it was neither!");
+                        }
+                    }
+                    else cc.logAndThrowNewError("illegal number of boards found and used here!");
+                }
+            }
+            else
+            {
+                console.log("USING ONE BOARD!");
+
+                if (numbrds === 1);
+                else
+                {
+                    //numboards are 2 or numboards are 0
+                    if (numbrds === 0 || numbrds === 2)
+                    {
+                        if (mpaid < 1)
+                        {
+                            mpaid = msrvrgame.playera.id;
+                            setpaid(msrvrgame.playera.id);
+                        }
+                        //else;//do nothing
+                        
+                        if (mpbid < 1)
+                        {
+                            mpbid = msrvrgame.playerb.id;
+                            setpbid(msrvrgame.playerb.id);
+                        }
+                        //else;//do nothing
+                    }
+                    else cc.logAndThrowNewError("illegal number of boards found and used here!");
+                }
+            }
+        }
+        //else;//do nothing    
+
+        //MAY NEED TO FIGURE OUT A WAY TO GET THE CUSTOM PIECES ON A RESUMABLE GAME...
+        //MAYBE msrvrgame, but not sure if it will still hold it since test is with normal game
+
         let mypclist = null;
-        if (gmhasmvs)
+        if (gmhasmvs && !gmmvsisempty)//THE !empty forces a bypass on resumable game BUG
         {
             const fullmvstr = mygmmvs[0].move.contents;
             console.log("fullmvstr = " + fullmvstr);
@@ -328,10 +675,7 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
 
                 const fsbi = fullmvstr.indexOf("[");
                 if (pci + 6 + 3 === fsbi);
-                else
-                {
-                    cc.logAndThrowNewError("illegal format for PCLIST found and used here!");
-                }
+                else cc.logAndThrowNewError("illegal format for PCLIST found and used here!");
 
                 const esbi = fullmvstr.indexOf("]");
                 if (esbi === fsbi + 1)
@@ -444,6 +788,7 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
             ChessPiece.setUpBoard(gid);
         }
         else ChessPiece.setUpBoardFromList(gid, mypclist, false);
+        console.log("Pieces are setup on the board! Now proceeding to set up the game!");
         
         let [playertwousrnm, playeroneusrnm, playeronerank, playertworank] =
             cc.getPlayersUsernamesAndRanksFromData(statsarr, myupsdata, msrvrgame);
@@ -466,26 +811,14 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         if (playertwousrnm === playeroneusrnm || msrvrgame.completed)
         {
             //usernames are the same
-            console.log("pa_id = " + pa_id);
-            console.log("pb_id = " + pb_id);
-
-            let numbrds = -1;
-            if (pa_id < 1 && pb_id < 1) numbrds = 0;
-            else if ((pa_id < 1 && (1 < pb_id || pb_id === 1)) ||
-                (pb_id < 1 && (1 < pa_id || pa_id === 1)))
-            {
-                numbrds = 2;
-            }
-            else numbrds = 1;
-            console.log("numbrds = ", numbrds);
-
+            const numbrds = getNumberOfBoards(mpaid, mpbid);
             if (numbrds === 1 || msrvrgame.completed) myclr = "BOTH";
             else if (numbrds === 2)
             {
                 //need to know the player id we created
                 let pidcrted = -1;
-                if (1 < pb_id || pb_id === 1) pidcrted = pb_id;
-                else if (1 < pa_id || pa_id === 1) pidcrted = pa_id;
+                if (1 < mpbid || mpbid === 1) pidcrted = mpbid;
+                else if (1 < mpaid || mpaid === 1) pidcrted = mpaid;
                 //else;//do nothing
                 if (msrvrgame.playera.id === pidcrted) myclr = msrvrgame.playera.color;
                 else if (msrvrgame.playerb.id === pidcrted) myclr = msrvrgame.playerb.color;
@@ -512,12 +845,22 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         let sclr = "WHITE";
         console.log("INIT sclr = " + sclr);
 
+
         //game constructor methods
+        const gmviaid = ChessGame.getGameVIAGID(gid, true);
+        console.log("gmviaid = ", gmviaid);
+
+        const mkgm = cc.isItemNullOrUndefined(gmviaid);
+        console.log("mkgm = ", mkgm);
+
         let nxtmvoffset = 0;
         if (gmhasmvs)
         {
             //the moves will come in from the game...
-            let mytempmvsarr = mygmmvs.map((mygmmv) => mygmmv.move.contents);
+            //if not empty then take it from the gamemoves else if resuming take it from state.
+            let mytempmvsarr = null;
+            if (gmmvsisempty) mytempmvsarr = resgms[mi].moves;
+            else mytempmvsarr = mygmmvs.map((mygmmv) => mygmmv.move.contents);
             //let mytempmvsarr = msrvrgame.moves.map((mymv) => mymv.contents);//sometimes bad
             nxtmvoffset = 1;
             console.log("mytempmvsarr = ", mytempmvsarr);
@@ -527,22 +870,16 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
                 //bypass must be true because the game has not been created yet
             console.log("offmvs = ", offmvs);
             
-            const gmviaid = ChessGame.getGameVIAGID(gid, true);
-            console.log("gmviaid = ", gmviaid);
-            
-            const mkgm = !(msrvrgame.completed && !cc.isItemNullOrUndefined(gmviaid));
-            console.log("mkgm = ", mkgm);
-
             const gm = (mkgm ? new ChessGame(gid, offmvs, msrvrgame.completed, myclr): gmviaid);
             gm.setHasPieceListOnServer(true);
             console.log("gm = ", gm);
             
+            //server game is valid
+            if (mkgm);
+            else gm.resetMoveCount(true);
+
             if (msrvrgame.completed)
             {
-                //server game is valid
-                if (mkgm);
-                else gm.resetMoveCount();
-
                 if (msrvrgame.tied) gm.setIsTied(true, true);
                 if (msrvrgame.playera_resigned) gm.setColorResigns("WHITE", true, true);
                 if (msrvrgame.playerb_resigned) gm.setColorResigns("BLACK", true, true);
@@ -560,13 +897,20 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         else
         {
             //NORMAL GAME: THIS WORKS:
-            let gm = ChessGame.makeNewChessGameFromColor(gid, myclr);
+            const gm = (mkgm ? ChessGame.makeNewChessGameFromColor(gid, myclr): gmviaid);
             gm.setHasPieceListOnServer(false);
             
             //NOTE: OFFICIAL MOVES WILL NEED TO BE FULL SHORT HAND MOVES
             //ChessGame gm = new ChessGame(gid, offmvs=null, isdone=false, mclrval="BOTH");
             //ChessGame.makeNewChessGameFromMoveList(gid, offmvs=null, isdone=false);
             //ChessGame.makeNewChessGameFromGID(gid);
+        }
+
+        if (msrvrgame.completed) removeResumableGame(msrvrgame);
+        else
+        {
+            addResumableGame(msrvrgame, (playeroneusrnm === mysimpusrobj.username),
+                (playeroneusrnm === mysimpusrobj.username), true, !(myclr === "BOTH"));
         }
         
         
@@ -1041,6 +1385,12 @@ function GameBoard({srvrgame, pa_id, pb_id, addpcs=null, startmvslist=null})
         {
             ChessPiece.advanceTurnIfPossibleMain((iswhiteturn ? "WHITE": "BLACK"),
                 gid, true, null, null);
+            
+            let cnvmvslist = ChessGame.getGameVIAGID(gid).getOfficialMovesDisplayList();
+			console.log("cnvmvslist = ", cnvmvslist);
+            
+            setMovesListOnResumableGame(ChessGame.getGameVIAGID(gid), cnvmvslist);
+            
             if (cc.isStringEmptyNullOrUndefined(errmsg));
             else setErrorMessage("");
         }
