@@ -162,6 +162,10 @@
   display: none
 }
 
+.max-h-\[562px\] {
+  max-height: 562px
+}
+
 .min-h-\[160px\] {
   min-height: 160px
 }
@@ -191,8 +195,21 @@
   list-style-position: inside
 }
 
+.overflow-y-scroll {
+  overflow-y: scroll
+}
+
 .border {
   border-width: 1px
+}
+
+.border-none {
+  border-style: none
+}
+
+.bg-lime-400 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(163 230 53 / var(--tw-bg-opacity))
 }
 
 .bg-yellow-500 {

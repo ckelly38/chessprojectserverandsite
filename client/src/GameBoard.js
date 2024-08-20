@@ -1531,6 +1531,53 @@ function GameBoard({srvrgame, pa_id, pb_id, setpaid, setpbid, addpcs=null, setre
         else return "BLACK" + (gmclrisbk ? "*": "");
     }
 
+    function goToMove(tmvi, mgid)
+    {
+        const cmvi = ChessGame.getGameVIAGID(mgid).getMoveIndex();
+        //console.log("cmvi = " + cmvi);
+        //console.log("tmvi = " + tmvi);
+
+        const miscmptd = true;
+        if (cmvi < tmvi) for (let n = 0; n < tmvi - cmvi; n++) redoMoveMain(miscmptd);
+        else if (tmvi < cmvi) for (let n = 0; n < cmvi - tmvi; n++) undoMoveMain(miscmptd);
+        else console.error("THIS IS THE CURRENT MOVE! NO MOVE MADE! MOVE ALREADY MADE!");
+    }
+
+    function getMovesRows(mgid, wmvsdnrnks)
+    {
+        cc.letMustBeAnInteger(mgid, "mgid");
+        cc.letMustBeBoolean(wmvsdnrnks, "wmvsdnrnks");
+        
+        const nolocscnv = (wmvsdnrnks === ChessPiece.WHITE_MOVES_DOWN_RANKS);
+        const mgm = ChessGame.getGameVIAGID(mgid);
+        const mvstxtonlylist = mgm.getOfficialMovesDisplayList();
+        if (cc.isStringEmptyNullOrUndefined(mvstxtonlylist)) return null;
+        else
+        {
+            let fmvcmdsacnv = null;
+            if (nolocscnv) fmvcmdsacnv = mvstxtonlylist;
+            else
+            {
+                const mvcmdsfcnv = mvstxtonlylist.map((mvtxt) =>
+                    ChessGame.convertStringArrayToMultidim(mvtxt));
+                const fnlmvcmdsfcnv = ChessPiece.convertAllLocationsForFullMoveCommands(
+                    mvcmdsfcnv, wmvsdnrnks);
+                fmvcmdsacnv = fnlmvcmdsfcnv.map((marr) => marr[0]);
+            }
+
+            const mvi = mgm.getMoveIndex();
+            return fmvcmdsacnv.map((mvtxt, index) => {
+                const baseky = "gameid" + mgid + "movenum" + (index + 1);
+                return (<tr key={baseky} className={(mvi === index) ? "bg-lime-400": ""}>
+                    <td key={baseky + "number"}>{index + 1}</td>
+                    <td key={baseky + "text"}>{mvtxt}</td>
+                    <td key={baseky + "gotoitcntr"}>
+                        <button key={baseky + "gotoitbtn"} onClick={(event) => goToMove(index, mgid)}>
+                            Go To Move</button></td>
+                </tr>)});
+        }
+    }
+
 
     //console.log("loaded = " + loaded);
 
@@ -1545,34 +1592,69 @@ function GameBoard({srvrgame, pa_id, pb_id, setpaid, setpbid, addpcs=null, setre
 
     if (loaded);
     else return (<div>Loading Game...</div>);
+
+    let mvsrws = getMovesRows(gid, whitemovesdownranks);
+    const mvi = ChessGame.getGameVIAGID(gid).getMoveIndex();
     
     //style={{marginLeft: 10, marginBottom: 10, marginTop: 10}}
     //style={{marginLeft: 10, paddingTop: 1,
     // style={{fontSize: 15}}
     const gmclr = ChessGame.getGameVIAGID(gid).getMyColor();
     const iserr = !cc.isStringEmptyNullOrUndefined(errmsg);
+    //const nobordersobj = {borderStyle: "collapse", border: "none", borderStyle: "none",
+    //    borderBottom: "none", borderTop: "none", borderRight: "none", borderLeft: "none"
+    //};
+    //https://stackoverflow.com/questions/4457274/how-to-specify-tables-height-such-that-a-vertical-scroll-bar-appears
+    //style={{display: "block", maxHeight: 562, overflowY: "scroll"}}
     return (<div className="pl-5 pt-1"
         style={{backgroundColor: cc.getBGColorToBeUsed(false, "GameBoard")}}>
         <h2>Play Game:</h2>
-        <table className="mb-5">
-            <thead>
-                <tr>
-                    <th>0<br />A</th>
-                    <th>1<br />B</th>
-                    <th>2<br />C</th>
-                    <th>3<br />D</th>
-                    <th>4<br />E</th>
-                    <th>5<br />F</th>
-                    <th>6<br />G</th>
-                    <th>7<br />H</th>
-                    <th>(COLS)<br />
-                        <button onClick={(event) => setWhiteMovesDownRanks(!whitemovesdownranks)}>
-                            RANK</button></th>
-                    <th>ROW</th>
+        <table className="mb-5 border-none">
+            <tbody className="border-none">
+                <tr className="border-none">
+                    <td className="border-none">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>0<br />A</th>
+                                    <th>1<br />B</th>
+                                    <th>2<br />C</th>
+                                    <th>3<br />D</th>
+                                    <th>4<br />E</th>
+                                    <th>5<br />F</th>
+                                    <th>6<br />G</th>
+                                    <th>7<br />H</th>
+                                    <th>(COLS)<br />
+                                        <button onClick={(event) => setWhiteMovesDownRanks(
+                                            !whitemovesdownranks)}>RANK</button></th>
+                                    <th>ROW</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {generateTableRows(whitemovesdownranks, "white", "orange", "grey",
+                                    "black", "lime")}
+                            </tbody>
+                        </table>
+                    </td>
+                    <td className="border-none" style={{paddingLeft: 50,
+                        display: (iscompleted ? "block": "none")}}>
+                        <table className="max-h-[562px] block overflow-y-scroll">
+                            <thead>
+                                <tr>
+                                    <th>#</th><th>Move Text</th><th>Go To It</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr className={(mvi === -1) ? "bg-lime-400": ""}>
+                                    <td>0</td><td>Setup</td><td>
+                                        <button onClick={(event) => goToMove(-1, gid)}>
+                                            Reset Board</button></td>
+                                </tr>
+                                {mvsrws}
+                            </tbody>
+                        </table>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                {generateTableRows(whitemovesdownranks, "white", "orange", "grey", "black", "lime")}
             </tbody>
         </table>
         

@@ -613,6 +613,11 @@ class ChessGame {
 		return ChessGame.genCopyOfStringArray(this.UNOFFICIAL_MOVE);
 	}
 	
+	getMoveIndex()
+	{
+		return this.moveindex;
+	}
+
 	resetMoveCount(resetanyways=false)
 	{
 		ChessGame.cc.letMustBeBoolean(resetanyways, "resetanyways");

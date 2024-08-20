@@ -8972,7 +8972,8 @@ class ChessPiece {
 						resstr.push("" + mvcmds[n][x]);
 						console.log("resstr[" + x + "] = " + resstr[x]);
 					}
-					else if (cmdtps[x] === "PAWNING" || cmdtps[x] === "MOVE")
+					else if (cmdtps[x] === "PAWNING" || cmdtps[x] === "MOVE" ||
+						cmdtps[x] === "MOVE-PROMOTE")
 					{
 						//PAWNING NOTATION:
 						//WLPNB4TOA3
@@ -8996,9 +8997,17 @@ class ChessPiece {
 						console.log("esi = " + esi);
 						
 						let slocstr = mvcmds[n][x].substring(ssi, sei);
-						let elocstr = mvcmds[n][x].substring(esi);
+						let elocstr = null;
+						let epartstr = "";
+						if (cmdtps[x] === "MOVE-PROMOTE")
+						{
+							elocstr = mvcmds[n][x].substring(esi, esi + 2);
+							epartstr = mvcmds[n][x].substring(esi + 2);
+						}
+						else elocstr = mvcmds[n][x].substring(esi);
 						console.log("OLD slocstr = " + slocstr);
 						console.log("OLD elocstr = " + elocstr);
+						console.log("epartstr = " + epartstr);
 						
 						let sloc = ChessPiece.convertStringLocToRowCol(slocstr, iswhitedown);
 						let eloc = ChessPiece.convertStringLocToRowCol(elocstr, iswhitedown);
@@ -9015,9 +9024,10 @@ class ChessPiece {
 						elocstr = ChessPiece.convertRowColToStringLoc(eloc[0], eloc[1],
 							ChessPiece.WHITE_MOVES_DOWN_RANKS);
 						console.log("NEW elocstr = " + elocstr);
+						console.log("epartstr = " + epartstr);
 						
 						let nwusrcmd = mvcmds[n][x].substring(0, ssi) + slocstr +
-							mvcmds[n][x].substring(sei, esi) + elocstr;
+							mvcmds[n][x].substring(sei, esi) + elocstr + epartstr;
 						console.log("nwusrcmd = " + nwusrcmd);
 						
 						resstr.push("" + nwusrcmd);
