@@ -320,9 +320,9 @@ class CommonClass{
                 mdfrs = game.playera.defers;
                 if (useipsa) mip = game.playera.ipaddress;
                 else mip = "127.0.0.1";
-                if (this.isStringEmptyNullOrUndefined(game.moves));
-                else gmiscustom = true;
             }
+            if (this.isStringEmptyNullOrUndefined(game.moves));
+            else gmiscustom = true;
         }
         return {"mclr": mclr, "mdfrs": mdfrs, "mip": mip, "custom": gmiscustom};
     }

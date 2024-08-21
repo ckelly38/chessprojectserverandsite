@@ -379,6 +379,7 @@ function GameList({setgame, setpaid, setpbid})
                 console.log("mclr = " + mclr);
                 console.log("mdfrs = " + mdfrs);
                 console.log("mip = " + mip);
+                console.log("custom = " + custom);
                 
                 return (<tr key={"game" + game.id}>
                     <td key={"game" + game.id + "id"}>{game.id}</td>

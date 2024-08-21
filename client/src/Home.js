@@ -71,7 +71,6 @@ function Home(props) {
             <li>OR you can create a new game or join another game of some sort VIA join game page.</li>
         </ol>
         <p>KNOWN ISSUE: You cannot choose a game to resume. If a game gets interrupted due to logging out or a page refresh, it is impossible to access it.</p>
-        <p>KNOWN ISSUE: You cannot view the moves list durring or after game play.</p>
         <p>KNOWN ISSUE: You cannot play against the computer.</p>
         <p>KNOWN ISSUE: There is currently no Android App.</p>
         </div>);

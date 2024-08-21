@@ -454,7 +454,7 @@ function GameBoard({srvrgame, pa_id, pb_id, setpaid, setpbid, addpcs=null, setre
         if (cc.isStringEmptyNullOrUndefined(mygmmvs))
         {
             gmmvsisempty = true;
-            if (isGameOnResumableGameList(msrvrgame, true))
+            if (isGameOnResumableGameList(msrvrgame, true) && !msrvrgame.completed)
             {
                 for (let n = 0; n < resgms.length; n++)
                 {
@@ -494,7 +494,7 @@ function GameBoard({srvrgame, pa_id, pb_id, setpaid, setpbid, addpcs=null, setre
         console.log("gmhasmvs = " + gmhasmvs);
 
         
-        if (isGameOnResumableGameList(msrvrgame, true))
+        if (isGameOnResumableGameList(msrvrgame, true) && !msrvrgame.completed)
         {
             for (let n = 0; n < resgms.length; n++)
             {
@@ -1538,8 +1538,24 @@ function GameBoard({srvrgame, pa_id, pb_id, setpaid, setpbid, addpcs=null, setre
         //console.log("tmvi = " + tmvi);
 
         const miscmptd = true;
-        if (cmvi < tmvi) for (let n = 0; n < tmvi - cmvi; n++) redoMoveMain(miscmptd);
-        else if (tmvi < cmvi) for (let n = 0; n < cmvi - tmvi; n++) undoMoveMain(miscmptd);
+        const mdelay = 1000;//1000 for one second
+        const nodelay = (mdelay < 1);
+        if (cmvi < tmvi)
+        {
+            for (let n = 0; n < tmvi - cmvi; n++)
+            {
+                if (n === 0 || nodelay) redoMoveMain(miscmptd);
+                else setTimeout(() => redoMoveMain(miscmptd), n * mdelay);
+            }
+        }
+        else if (tmvi < cmvi)
+        {
+            for (let n = 0; n < cmvi - tmvi; n++)
+            {
+                if (n === 0 || nodelay) undoMoveMain(miscmptd);
+                else setTimeout(() => undoMoveMain(miscmptd), n * mdelay);
+            }
+        }
         else console.error("THIS IS THE CURRENT MOVE! NO MOVE MADE! MOVE ALREADY MADE!");
     }
 
