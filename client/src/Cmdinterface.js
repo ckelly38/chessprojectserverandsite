@@ -3,13 +3,14 @@ import ChessPiece from "./ChessPiece";
 import CommonClass from "./commonclass";
 
 function Cmdinterface({whitemovesdownranks, iswhiteturn, useroworcollocdisp, arrindx,
-    mvs, setmvs, usefullmvset=true, remitem=true, remmv=null, userem=true, style=null})
+    mvs, setmvs, usewizardsmode=false, usefullmvset=true, remitem=true, remmv=null, userem=true, style=null})
 {
     let cc = new CommonClass();
     cc.letMustBeBoolean(whitemovesdownranks, "whitemovesdownranks");
     cc.letMustBeBoolean(useroworcollocdisp, "useroworcollocdisp");
     cc.letMustBeBoolean(iswhiteturn, "iswhiteturn");
     cc.letMustBeBoolean(usefullmvset, "usefullmvset");
+    cc.letMustBeBoolean(usewizardsmode, "usewizardsmode");
     cc.letMustBeBoolean(userem, "userem");
     cc.letMustBeBoolean(remitem, "remitem");
     cc.letMustBeAnInteger(arrindx, "arrindx");
@@ -95,7 +96,7 @@ function Cmdinterface({whitemovesdownranks, iswhiteturn, useroworcollocdisp, arr
         }
     }
     
-    function genCommandInterface(cmdtp, iswturn, userowcolloc)
+    function genCommandInterface(cmdtp, iswturn, userowcolloc, usewcmd=false)
     {
         //CASTLING NOTATION
         //WHITE LEFT CASTLE *** USE THIS NOTATION BECAUSE WE CAN GENERATE THE OTHERS
@@ -190,7 +191,7 @@ function Cmdinterface({whitemovesdownranks, iswhiteturn, useroworcollocdisp, arr
                     {cc.genOptionListFromArray(["LEFT", "RIGHT"], null)}
                 </select>{" " + pctp}
                 {(cmdtp === "PAWNING") ? 
-                    (<>{genRowColLocOrStringLocElements(userowcolloc, true)}
+                    (<>{usewcmd ? null : genRowColLocOrStringLocElements(userowcolloc, true)}
                     {genRowColLocOrStringLocElements(userowcolloc, false)}</>): null}
             </div>);
         }
@@ -234,7 +235,7 @@ function Cmdinterface({whitemovesdownranks, iswhiteturn, useroworcollocdisp, arr
             const myprostr = " AND TURN INTO: ";
             return (<div style={{display: "inline-block", paddingLeft: 5}}>
                 {clrturndispstr}{pctpsel}
-                {genRowColLocOrStringLocElements(userowcolloc, true)}
+                {usewcmd ? null : genRowColLocOrStringLocElements(userowcolloc, true)}
                 {genRowColLocOrStringLocElements(userowcolloc, false)}
                 {canpropwn ? <>{myprostr}{promopctpsel}</> : null}
             </div>);
@@ -256,7 +257,7 @@ function Cmdinterface({whitemovesdownranks, iswhiteturn, useroworcollocdisp, arr
             {cc.genOptionListFromArray(movevalsarr, null)}
         </select>
 
-        {genCommandInterface(mv.cmd_type, iswhiteturn, useroworcollocdisp)}
+        {genCommandInterface(mv.cmd_type, iswhiteturn, useroworcollocdisp, usewizardsmode)}
 
         {userem ? (<button type="button" disabled={!remitem} onClick={remmv.bind(null, mv.id)}>
             Remove Move</button>): null}

@@ -269,6 +269,7 @@ function GameBoard({srvrgame, pa_id, pb_id, setpaid, setpbid, addpcs=null, setre
     let [useroworcollocdisp, setUseRowColLocDisplay] = useState(false);
     let [showqnwarning, setShowQueenWarning] = useState(true);
     let [whitemovesdownranks, setWhiteMovesDownRanks] = useState(true);
+    let [usewizardscmd, setWizardsChessMode] = useState(true);
     let [pcshints, setPcsHints] = useState([]);//[][][]
     let [statsinfo, setStatsInfo] = useState(null);
     let [upsdata, setUserPlayerData] = useState(null);
@@ -1211,6 +1212,9 @@ function GameBoard({srvrgame, pa_id, pb_id, setpaid, setpbid, addpcs=null, setre
     }
     //else;//defaults will be used
 
+    if (iscompleted && usewizardscmd) setWizardsChessMode(false);
+    //else;//do nothing
+
 
     //console.log("srvrgame = ", srvrgame);
     //console.log("upsdata = ", upsdata);
@@ -1227,7 +1231,7 @@ function GameBoard({srvrgame, pa_id, pb_id, setpaid, setpbid, addpcs=null, setre
     //White moves {whitemovesdownranks ? "down": "up"} ranks!</button>
     
     
-    function executeUserCommand(usecompletegame)
+    function executeUserCommand(usecompletegame, usemywcmd=false)
     {
         //first we need to generate the command in the notation that the executor can process
         //then we execute it
@@ -1246,6 +1250,7 @@ function GameBoard({srvrgame, pa_id, pb_id, setpaid, setpbid, addpcs=null, setre
         //OTHERWISE IT IS FROM COLOR TURN VALUE
 
         cc.letMustBeBoolean(usecompletegame, "usecompletegame");
+        cc.letMustBeBoolean(usemywcmd, "usemywcmd");
         
         
         let simpcmd = null;
@@ -1301,26 +1306,20 @@ function GameBoard({srvrgame, pa_id, pb_id, setpaid, setpbid, addpcs=null, setre
         }
         else if (mv.cmd_type === "PAWNING")
         {
-            if (r === nr && c === nc)
-            {
-                cc.logAndThrowNewError("NO MOVE WAS MADE!");
-            }
+            if (r === nr && c === nc) cc.logAndThrowNewError("NO MOVE WAS MADE!");
             //else;//do nothing safe to proceed
 
             simpcmd = ChessPiece.genLongOrShortHandPawningCommand(clr, r, c, nr, nc,
-                useleft, useshort);
+                useleft, useshort, usemywcmd);
         }
         else if (mv.cmd_type === "MOVE")
         {
-            if (r === nr && c === nc)
-            {
-                cc.logAndThrowNewError("NO MOVE WAS MADE!");
-            }
+            if (r === nr && c === nc) cc.logAndThrowNewError("NO MOVE WAS MADE!");
             //else;//do nothing safe to proceed
 
             //option a: generate just the simple move
             simpcmd = ChessPiece.genLongOrShortHandMoveCommandOnlyString(clr, tp, r, c,
-                nr, nc, usedir, useleft, useshort);
+                nr, nc, usedir, useleft, useshort, usemywcmd);
             //option b: generate the full move command
         }
         else cc.logAndThrowNewError("ERROR: Command type: " + mv.cmd_type + " not recognized!");
@@ -1347,7 +1346,19 @@ function GameBoard({srvrgame, pa_id, pb_id, setpaid, setpbid, addpcs=null, setre
             }
             catch(ex)
             {
+                //need to know if the error is due to having many pieces that can move to the endloc
+                //if that is the case, catch the error, and disable wizards chess mode
+                //in addition to the normal stuff
+                //AMBIGUOUS ERROR MESSAGE WILL MOST LIKELY HAVE: "FOUND MORE THAN ONE "
                 console.error(ex);
+                
+                let myambgerrindx = ex.message.indexOf("FOUND MORE THAN ONE ");
+                let isambgslocerror = ((0 < myambgerrindx || myambgerrindx === 0) &&
+                    myambgerrindx < ex.message.length);
+                console.log("isambgslocerror = " + isambgslocerror);
+
+                if (usemywcmd && isambgslocerror) setWizardsChessMode(false);
+                //else;//do nothing
                 setErrorMessage(fullerrmsg + ex.message);
                 executehaserr.current = true;
                 return;
@@ -1690,17 +1701,20 @@ function GameBoard({srvrgame, pa_id, pb_id, setpaid, setpbid, addpcs=null, setre
             <button onClick={(event) => setUseRowColLocDisplay(!useroworcollocdisp)}>
                 {useroworcollocdisp ? "Use string loc(s)" : "Use row-col loc(s)"}
             </button>
+            {iscompleted ? null : <button onClick={(event) => setWizardsChessMode(!usewizardscmd)}>
+                Use {usewizardscmd ? "non-" : ""}wizard's chess mode</button>}
         </div>
         
         <div style={{backgroundColor: cc.getBGColorToBeUsed(iserr, "GameBoard")}}>
             <Cmdinterface style={{display: "inline-block"}}
                 whitemovesdownranks={whitemovesdownranks} iswhiteturn={iswhiteturn}
-                useroworcollocdisp={useroworcollocdisp} arrindx={0} mvs={mvslist}
-                setmvs={setMovesList} userem={false} remmv={null} remitem={false} />
-            <button className="text-sm/[15px]" onClick={(event) => executeUserCommand(iscompleted)}>
+                useroworcollocdisp={useroworcollocdisp} arrindx={0} mvs={mvslist} setmvs={setMovesList}
+                usewizardsmode={usewizardscmd} userem={false} remmv={null} remitem={false} />
+            <button className="text-sm/[15px]"
+                    onClick={(event) => executeUserCommand(iscompleted, usewizardscmd)}>
                 <b>Execute!</b></button>
             <button className="text-sm/[15px]" onClick={(event) => {
-                    executeUserCommand(iscompleted);
+                    executeUserCommand(iscompleted, usewizardscmd);
                     advanceTurnMain();
                 }}>
                 <b>Execute And Advance!</b></button>

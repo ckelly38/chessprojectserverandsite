@@ -6590,8 +6590,11 @@ class ChessPiece {
 	}
 	
 	//COLOR OPTIONAL_DIR TYPE at: START_LOC_STRING to: END_LOC_STRING
+	//IF WIZARDS CHESS MODE IS ON: COLOR OPTIONAL_DIR TYPE to: END_LOC_STRING
+	//it will also ignore the starting location values when usewcmd is true
+	//but you must include these values or put placeholder values there
 	static genLongOrShortHandMoveCommandOnlyString(clr, tp, cr, mcc, nr, nc, usedir,
-		useleft, useshort)
+		useleft, useshort, usewcmd=false)
 	{
 		ChessPiece.cc.letMustBeAnInteger(cr, "cr");
 		ChessPiece.cc.letMustBeAnInteger(mcc, "mcc");
@@ -6602,20 +6605,22 @@ class ChessPiece {
 		ChessPiece.cc.letMustBeBoolean(usedir, "usedir");
 		ChessPiece.cc.letMustBeBoolean(useleft, "useleft");
 		ChessPiece.cc.letMustBeBoolean(useshort, "useshort");
+		ChessPiece.cc.letMustBeBoolean(usewcmd, "usewcmd");
 		
 		const myclr = ((useshort) ? ChessPiece.getShortHandColor(clr) : "" + clr + " ");
-		const mytp = ((useshort) ? ChessPiece.getShortHandType(tp) : "" + tp + " at: ");
+		const mytp = ((useshort) ? ChessPiece.getShortHandType(tp) : "" + tp + (usewcmd ? "" : " at: "));
 		const dirstr = ((useleft) ? ((useshort) ? "L" : "LEFT ") : ((useshort) ? "R" : "RIGHT "));
 		const dirpart = ((usedir) ? dirstr : "");
 		const transolocstr = ((useshort) ? "TO" : " to: ");
-		let cmd = "" + myclr + dirpart + mytp +
-			ChessPiece.convertRowColToStringLoc(cr, mcc, ChessPiece.WHITE_MOVES_DOWN_RANKS) +
-			transolocstr +
+		const mybglocstr = (usewcmd ? "" :
+			ChessPiece.convertRowColToStringLoc(cr, mcc, ChessPiece.WHITE_MOVES_DOWN_RANKS));
+		const fpart = transolocstr +
 			ChessPiece.convertRowColToStringLoc(nr, nc, ChessPiece.WHITE_MOVES_DOWN_RANKS);
+		let cmd = "" + myclr + dirpart + mytp + mybglocstr + fpart;
 		return cmd;
 	}
 	static genLongOrShortHandMoveCommandOnlyStringMain(cp, nr, nc, usedir, useleft, errmsg,
-		throwerr, useshort)
+		throwerr, useshort, usewcmd=false)
 	{
 		ChessPiece.cc.letMustBeAnInteger(nr, "nr");
 		ChessPiece.cc.letMustBeAnInteger(nc, "nc");
@@ -6623,6 +6628,7 @@ class ChessPiece {
 		ChessPiece.cc.letMustBeBoolean(useleft, "useleft");
 		ChessPiece.cc.letMustBeBoolean(useshort, "useshort");
 		ChessPiece.cc.letMustBeBoolean(throwerr, "throwerr");
+		ChessPiece.cc.letMustBeBoolean(usewcmd, "usewcmd");
 
 		if (ChessPiece.cc.isItemNullOrUndefined(cp))
 		{
@@ -6639,23 +6645,25 @@ class ChessPiece {
 		else
 		{
 			return ChessPiece.genLongOrShortHandMoveCommandOnlyString(cp.getColor(), cp.getType(),
-				cp.getRow(), cp.getCol(), nr, nc, usedir, useleft, useshort);
+				cp.getRow(), cp.getCol(), nr, nc, usedir, useleft, useshort, usewcmd);
 		}
 	}
 	
 	//COLOR DIR PAWN at: START_LOC_STRING to: END_LOC_STRING
-	static genLongOrShortHandPawningCommand(clr, cr, mcc, nr, nc, useleft, useshort)
+	static genLongOrShortHandPawningCommand(clr, cr, mcc, nr, nc, useleft, useshort, usewcmd=false)
 	{
 		return ChessPiece.genLongOrShortHandMoveCommandOnlyString(clr, "PAWN", cr, mcc, nr, nc,
-			true, useleft, useshort);
+			true, useleft, useshort, usewcmd);
 	}
-	static genLongOrShortHandPawningCommandMain(cp, nr, nc, useleft, errmsg, throwerr, useshort)
+	static genLongOrShortHandPawningCommandMain(cp, nr, nc, useleft, errmsg, throwerr,
+		useshort, usewcmd=false)
 	{
 		ChessPiece.cc.letMustBeAnInteger(nr, "nr");
 		ChessPiece.cc.letMustBeAnInteger(nc, "nc");
 		ChessPiece.cc.letMustBeBoolean(useleft, "useleft");
 		ChessPiece.cc.letMustBeBoolean(useshort, "useshort");
 		ChessPiece.cc.letMustBeBoolean(throwerr, "throwerr");
+		ChessPiece.cc.letMustBeBoolean(usewcmd, "usewcmd");
 
 		if (ChessPiece.cc.isItemNullOrUndefined(cp));//error found
 		else
@@ -6663,7 +6671,7 @@ class ChessPiece {
 			if (cp.getType() === "PAWN")
 			{
 				return ChessPiece.genLongOrShortHandPawningCommand(cp.getColor(), cp.getRow(),
-					cp.getCol(), nr, nc, useleft, useshort);
+					cp.getCol(), nr, nc, useleft, useshort, usewcmd);
 			}
 			//else;//do nothing error found
 		}
@@ -6814,7 +6822,7 @@ class ChessPiece {
 		let delcmd = ChessPiece.genLongOrShortHandDeleteCommand(epc,
 			"the enemy pawn must not be null!", true, useshort);
 		let cmd = ChessPiece.genLongOrShortHandMoveCommandOnlyString(clr, "PAWN", crval, ccval,
-			nrval, ncval, true, useleft, useshort);
+			nrval, ncval, true, useleft, useshort, false);
 		console.log("cmd = " + cmd);
 		return ChessPiece.getShortHandMoves(["" + delcmd, "" + cmd]);//new String[2];
 	}
@@ -6844,14 +6852,14 @@ class ChessPiece {
 			gid, ignorelist, addpcs);
 		const useshort = false;
 		let ccmvcmd = ChessPiece.genLongOrShortHandMoveCommandOnlyString(clr, "CASTLE",
-			clcp.getRow(), clcp.getCol(), ncloc[0], ncloc[1], false, false, useshort);
-			//usedir, useleft, useshort
+			clcp.getRow(), clcp.getCol(), ncloc[0], ncloc[1], false, false, useshort, false);
+			//usedir, useleft, useshort, usewcmode
 		console.log("ccmvcmd = " + ccmvcmd);
 		let nkgloc = ChessPiece.getLeftOrRightCastleSideNewCastleOrKingLoc(useleft, true, clr,
 			gid, ignorelist, addpcs);
 		let kgmvcmd = ChessPiece.genLongOrShortHandMoveCommandOnlyString(clr, "KING",
-			mkg.getRow(), mkg.getCol(), nkgloc[0], nkgloc[1], false, false, useshort);
-			//usedir, useleft, useshort
+			mkg.getRow(), mkg.getCol(), nkgloc[0], nkgloc[1], false, false, useshort, false);
+			//usedir, useleft, useshort, usewcmode
 		console.log("kgmvcmd = " + kgmvcmd);
 		let mvcmd = ["" + clr + " " + dirstr + " CASTLE:", "" + ccmvcmd, "" + kgmvcmd];
 		return ChessPiece.getShortHandMoves(mvcmd);//new String[3];
@@ -8400,19 +8408,13 @@ class ChessPiece {
 			if (usedelcmd)
 			{
 				resstr.push("" + delcmd);
-				if (ChessPiece.cc.isStringEmptyNullOrUndefined(nwusrcmd))
-				{
-					resstr.push("" + usrcmd);
-				}
+				if (ChessPiece.cc.isStringEmptyNullOrUndefined(nwusrcmd)) resstr.push("" + usrcmd);
 				else resstr.push("" + nwusrcmd);
 				if (canpropawn) resstr.push("" + propawncmd);
 			}
 			else
 			{
-				if (ChessPiece.cc.isStringEmptyNullOrUndefined(nwusrcmd))
-				{
-					resstr.push("" + usrcmd);
-				}
+				if (ChessPiece.cc.isStringEmptyNullOrUndefined(nwusrcmd)) resstr.push("" + usrcmd);
 				else resstr.push("" + nwusrcmd);
 				if (canpropawn) resstr.push("" + propawncmd);
 			}

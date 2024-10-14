@@ -541,13 +541,13 @@ class TestDriver {
     	const addambigcmd = true;//if true causes error
 		const mxsz = ((addambigcmd) ? 8 : 7);
     	let myunoffmvs = [];//new String[mxsz];
-    	myunoffmvs.push("WKTTOH6");
-    	myunoffmvs.push("BPNTOA4");
-    	myunoffmvs.push("WPNTOB5");
-    	myunoffmvs.push("BPNTOH4");
-    	myunoffmvs.push("WPNTOA4");
-    	myunoffmvs.push("BCETOA3");
-    	myunoffmvs.push("WPNTOG5");
+    	myunoffmvs.push("WKTTOH6");//G8TOH6
+    	myunoffmvs.push("BPNTOA4");//A2TOA4
+    	myunoffmvs.push("WPNTOB5");//B7TOB5
+    	myunoffmvs.push("BPNTOH4");//H2TOH4
+    	myunoffmvs.push("WPNTOA4");//B5TOA4
+    	myunoffmvs.push("BCETOA3");//A1TOA3
+    	myunoffmvs.push("WPNTOG5");//G7TOG5
     	if (addambigcmd) myunoffmvs.push("BCETOH3");//command should be ambiguous
     	//else;//do nothing
     	ChessPiece.setUpBoard(gid);

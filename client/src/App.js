@@ -19,7 +19,7 @@ import PieceListForm from "./PieceListForm";
 import CommonClass from "./commonclass";
 import ChessGame from "./ChessGame";
 import pjson from "../package.json";
-//import TestDriver from './TestDriver';
+import TestDriver from './TestDriver';
 //https://stackoverflow.com/questions/9153571/is-there-a-way-to-get-the-version-from-the-package-json-file-in-node-js-code
 
 function App() {

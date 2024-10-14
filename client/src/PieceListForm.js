@@ -14,6 +14,7 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
     let [useroworcollocdisp, setUseRowColLocDisplay] = useState(true);
     let [whitestarts, setWhiteStarts] = useState(true);
     let [merrmsg, setMyErrorMessage] = useState(null);
+    let [showpclist, setShowPieceList] = useState(true);
 
     console.log("mpcs = ", mpcs);
     console.log("mvs = ", mvs);
@@ -42,7 +43,7 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
             return (<Cmdinterface key={mitem.id} whitemovesdownranks={whitemovesdownranks}
                 iswhiteturn={iswhiteturn} useroworcollocdisp={useroworcollocdisp} mvs={mvs} 
                 arrindx={mitem.arrindx} setmvs={setmvs} usefullmvset={false} userem={true}
-                remmv={remmv} remitem={(index + 1 === mvs.length)} />);
+                remmv={remmv} remitem={(index + 1 === mvs.length)} usewizardsmode={false} />);
         });
     }
     
@@ -76,6 +77,69 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
         }
     }
 
+    function genNormalSetup()
+    {
+        console.log("using the normal setup on piece list form!");
+
+        //take care of the kings here
+        let mytemppcsarr = mpcs.map((tpc) => {
+            let nwpc = {...tpc};
+            if (nwpc.color === "WHITE" || nwpc.color === "BLACK")
+            {
+                nwpc.col = 4;
+                nwpc.row = ((nwpc.color === "WHITE") ? 7 : 0);
+            }
+            else cc.logAndThrowNewError("invalid initial piece color found!");
+            return nwpc;
+        });
+        
+        const myvgenpctps = ["CASTLE", "KNIGHT", "BISHOP", "QUEEN"];
+        for (let x = 0; x < 2; x++)
+        {
+            const mpnrw = ((x === 0) ? 1 : 6);
+            const mopcsrw = ((x === 0) ? 0 : 7);
+            const pwnclrstr = ((x === 0) ? "BLACK" : "WHITE");
+            //castle, knight, bishop, queen, king
+            for (let c = 0; c < 4; c++)
+            {
+                let nmax = ((c === 3) ? 1: 2);
+                for (let n = 0; n < nmax; n++)
+                {
+                    let mpclen = (cc.isStringEmptyNullOrUndefined(mytemppcsarr) ? 0 :
+                        mytemppcsarr.length);
+                    let genidstr = "pid" + mpclen;
+                    let mnwpccol = ((n === 0) ? c : 7 - c);
+                    let mynwppc = {row: mopcsrw,
+                        col: mnwpccol,
+                        color: pwnclrstr,
+                        type: myvgenpctps[c],
+                        move_count: 0,
+                        arrindx: mpclen,
+                        id: genidstr
+                    };
+                    mytemppcsarr.push(mynwppc);
+                }
+            }
+            //pawns
+            for (let c = 0; c < 8; c++)
+            {
+                let mpclen = (cc.isStringEmptyNullOrUndefined(mytemppcsarr) ? 0 : mytemppcsarr.length);
+                let genidstr = "pid" + mpclen;
+                let mynwpwn = {row: mpnrw,
+                  col: c,
+                  color: pwnclrstr,
+                  type: "PAWN",
+                  move_count: 0,
+                  arrindx: mpclen,
+                  id: genidstr
+                };
+                mytemppcsarr.push(mynwpwn);
+            }
+        }
+        console.log("mytemppcsarr = ", mytemppcsarr);
+
+        setpcs(mytemppcsarr);
+    }
 
     function handleSubmit(event)
     {
@@ -83,6 +147,14 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
         console.log("INSIDE ONSUBMIT!");
         console.log("mpcs = ", mpcs);
         console.log("mvs = ", mvs);
+        console.log("whitestarts = " + whitestarts);
+        
+        let finmvsclrs = mvs.map((mycmv, index) => {
+            if (index %2 === 0) return (whitestarts ? "WHITE" : "BLACK");
+            else return (whitestarts ? "BLACK" : "WHITE");
+        });
+        console.log("finmvsclrs = ", finmvsclrs);
+
         //send the and the pieces to the game in App component
         //then we need to start it...
         //we need to know when to pass what in though
@@ -108,11 +180,11 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
         {
             let mpctps = null;
             if (mvs[n].piece_color === "WHITE") mpctps = wpcstps;
-            else if (mvs[n].piece_color === "BLACK") mpctps = bpcstps;
+            else if (finmvsclrs[n].piece_color === "BLACK") mpctps = bpcstps;
             else
             {
                 //error out...
-                console.log("mvs[" + n + "].piece_color = " + mvs[n].piece_color);
+                console.log("finmvsclrs[" + n + "].piece_color = " + finmvsclrs[n].piece_color);
                 setMyErrorMessage("color is not valid!");
                 return;
             }
@@ -156,10 +228,16 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
             {
                 if (n === 0 || n === 1)
                 {
-                    if (mpcs[x].color === mvs[n].piece_color &&
+                    console.log("mpcs[" + x + "] = ", mpcs[x]);
+                    console.log("mvs[" + n + "] = ", mvs[n]);
+                    console.log("mpcs[" + x + "].color = " + mpcs[x].color);
+                    console.log("finmvsclrs[" + n + "] = " + finmvsclrs[n]);
+                    console.log("mpcs[" + x + "].type = " + mpcs[x].type);
+                    console.log("mvs[" + n + "].piece_type = " + mvs[n].piece_type);
+                    if (mpcs[x].color === finmvsclrs[n] &&
                         mpcs[x].type === mvs[n].piece_type &&
-                        mpcs[x].row === mvs[n].start_row &&
-                        mpcs[x].col === mvs[n].start_col)
+                        Number(mpcs[x].row) === Number(mvs[n].start_row) &&
+                        Number(mpcs[x].col) === Number(mvs[n].start_col))
                     {
                         fnditem = true;
                         break;
@@ -174,6 +252,8 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
                 else
                 {
                     //error out...
+                    console.error("finmvsclrs[" + n + "] = ", finmvsclrs[n]);
+                    console.error("mvs[" + n + "] = ", mvs[n]);
                     setMyErrorMessage("did not find our piece at the starting location " +
                         "on the piece list!");
                     return;
@@ -231,7 +311,7 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
                             //start row for white pawn is 6 row for black is 1
                             if (cdiff === 0)
                             {
-                                const srowclr = ((mvs[n].piece_color === "WHITE") ? 6: 1);
+                                const srowclr = ((finmvsclrs[n] === "WHITE") ? 6: 1);
                                 if (mvs[n].start_row === 6 && mvs[n].end_row === 4 &&
                                     srowclr === 6)
                                 {
@@ -346,12 +426,12 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
                     mvs[n].start_col);
                 //if our end loc is on the list, then the end loc is valid
                 //else not
-                if (ChessPiece.isLocOnListOfLocs(mvs[n].start_row, mvs[n].start_col, pktlocs));
+                if (ChessPiece.isLocOnListOfLocs(mvs[n].end_row, mvs[n].end_col, pktlocs));
                 else
                 {
                     //error out...
                     locsarevalid = false;
-                    setMyErrorMessage("invalid starting or ending location for QUEEN!");
+                    setMyErrorMessage("invalid starting or ending location for KNIGHT!");
                     return;
                 }
             }
@@ -389,7 +469,7 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
         //else;//do nothing
 
         let resigndfnd = false;
-        let mvsstrarr = mvs.map((mymv) => {
+        let mvsstrarr = mvs.map((mymv, index) => {
             if (resigndfnd)
             {
                 cc.logAndThrowNewError("NO COMMANDS CAN BE PRESENT AFTER A RESIGNATION!");
@@ -402,28 +482,28 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
                 const usedir = false;
                 const promoshstr = "INTO" + ChessPiece.getShortHandType(mymv.promo_piece_type);
                 const canpropawn = ChessPiece.canPawnBePromotedAt(mymv.end_row, mymv.end_col,
-                    mymv.piece_color, mymv.piece_type);
+                    finmvsclrs[index], mymv.piece_type);
                 const myprostr = (canpropawn ? promoshstr: "");
-                return ChessPiece.genLongOrShortHandMoveCommandOnlyString(mymv.piece_color,
+                return ChessPiece.genLongOrShortHandMoveCommandOnlyString(finmvsclrs[index],
                     mymv.piece_type, mymv.start_row, mymv.start_col, mymv.end_row, mymv.end_col,
                     usedir, useleft, true) + myprostr;
             }
             else if (mymv.cmd_type === "CASTLEING")
             {
                 const useleft = (mymv.dir === "LEFT");
-                return ChessPiece.genLongOrShortHandCastelingCommand(mymv.piece_color, useleft,
+                return ChessPiece.genLongOrShortHandCastelingCommand(finmvsclrs[index], useleft,
                     true);
             }
             else if (mymv.cmd_type === "PAWNING")
             {
                 const useleft = (mymv.dir === "LEFT");
-                return ChessPiece.genLongOrShortHandPawningCommand(mymv.piece_color,
+                return ChessPiece.genLongOrShortHandPawningCommand(finmvsclrs[index],
                     mymv.start_row, mymv.start_col, mymv.end_row, mymv.end_col, useleft, true);
             }
             else if (mymv.cmd_type === "RESIGNATION")
             {
                 iscomplete = true;
-                if (mymv.piece_color === "WHITE") parsgnd = true;
+                if (finmvsclrs[index] === "WHITE") parsgnd = true;
                 else
                 {
                     pbrsgnd = true;
@@ -431,7 +511,7 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
                 }
                 iscomplete = true;
                 resigndfnd = true;
-                return ChessPiece.genLongOrShortHandResignCommand(mymv.piece_color, true);
+                return ChessPiece.genLongOrShortHandResignCommand(finmvsclrs[index], true);
             }
             else cc.logAndThrowNewError("INVALID COMMMAND TYPE FOUND AND USED HERE!");
         });
@@ -546,8 +626,11 @@ function PieceListForm({addpiece, rempiece, mpcs, getpcs, setpcs, mvs, setmvs, a
             {useroworcollocdisp ? " Use String Locs" : "Use Row Col Locs"}</button>
         <button type="button" onClick={(event) => setWhiteMovesDownRanks(!whitemovesdownranks)}>
             WHITE MOVES {whitemovesdownranks ? "DOWN": "UP"} RANKS!</button>
-        {disppcs}
-        <button type="button" onClick={addpiece}>Add Piece</button>
+        <button type="button" onClick={(event) => genNormalSetup()}>Use Normal Setup</button>
+        <button type="button" onClick={(event) => setShowPieceList(!showpclist)}>
+            {showpclist ? "hide": "show"} piece list</button>
+        {showpclist ? disppcs : null}
+        {showpclist ? <button type="button" onClick={addpiece}>Add Piece</button> : null}
         <button type="button"
             disabled={!(cc.isStringEmptyNullOrUndefined(mvs) || mvs.length < 2)}
             onClick={(event) => {setWhiteStarts(!whitestarts)}}>
